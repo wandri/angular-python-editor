@@ -1,0 +1,93 @@
+:host {
+  .edit-toolbar {
+    display: none;
+  }
+
+  .formula-bar-input-container {
+    height: 36px;
+    width: 100%;
+    position: relative;
+    padding: 4px;
+    border: 1px #7f9db9 solid;
+
+    .formula-details {
+      background: white;
+      position: absolute;
+      z-index: 1000;
+      top: 44px;
+      left: 0;
+      width: 360px;
+      border-radius: 4px;
+      border: 1px solid rgba(0, 0, 0, .2);
+      box-shadow: 0 1px 3px 1px rgba(60, 64, 67, .15);
+      color: #222;
+
+      ::ng-deep .focus-argument {
+        color: green;
+      }
+    }
+
+    .formula-description {
+      padding: 8px 12px;
+      background-color: #f5f5f5;
+    }
+
+    .suggestions {
+      .separator {
+        width: calc(100% - 20px);
+        height: 1px;
+        margin-left: 10px;
+        background: #9c9696;
+      }
+
+      .suggestion {
+        cursor: pointer;
+        height: 22px;
+        padding: 2px 10px;
+
+        .suggestion-short-description {
+          display: none;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        &.active {
+          height: 44px;
+          background: #f5f5f5;
+          color: #000;
+          border-top: 1px solid #ebebeb;
+          border-bottom: 1px solid #ebebeb;
+          padding: 1px 10px;
+
+          .suggestion-short-description {
+            display: block;
+          }
+        }
+      }
+    }
+
+    .formula-bar-input {
+      height: 100%;
+      width: 100%;
+      line-height: 36px;
+      font-size: 24px;
+      font-family: Roboto, RobotoDraft, Helvetica, Arial, sans-serif;
+      background-color: #ffffff;
+
+      .cell-input {
+        width: 100%;
+        height: 100%;
+        word-wrap: break-word;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        margin: 0;
+        outline: none;
+        cursor: text;
+        white-space: pre-wrap;
+        background-color: white;
+      }
+    }
+  }
+}

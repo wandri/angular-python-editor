@@ -1,0 +1,8 @@
+export enum InputType {
+  VARIABLE = 'VARIABLE',
+  OPERATION = 'OPERATION',
+  STRING = 'STRING',
+  NUMBER = 'NUMBER',
+  GROUP = 'GROUP',
+  CONDITION = 'CONDITION',
+}

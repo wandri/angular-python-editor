@@ -1,0 +1,43 @@
+<div class="formula-bar-input-container">
+  <div class="formula-bar-input">
+    <div #formulaInput
+         (input)="onInputChange()"
+         (keypress)="preventEnterKey($event)"
+         class="cell-input"
+         contenteditable>
+    </div>
+    <div (keypress)="preventEnterKey($event)" id="edit-toolbar"></div>
+    <div class="text-editor">
+      <quill-editor #quillEditor
+                    (onContentChanged)="editorChange($event)"
+                    [formControl]="initialFormula"
+                    trackChanges="user"></quill-editor>
+    </div>
+  </div>
+  <div *ngIf="suggestions.length>0 && !formulaSyntax" class="formula-details suggestions">
+    <ng-container *ngFor="let suggestion of suggestions; let index = index">
+      <div *ngIf="index>0 && suggestions[index-1].type !== suggestion.type" class="separator"></div>
+      <div (mousedown)="registerPreviousSelection()"
+           (mouseenter)="focusSuggestion(index)"
+           (mouseup)="selectSuggestion(index)"
+           [class.active]="suggestionFocusIndex == index"
+           class="suggestion">
+        <ng-container *ngIf="suggestion.type === InputType.OPERATION">
+          <div class="suggestion-name formula-suggestion">
+            {{ suggestion.name }}
+          </div>
+          <div class="suggestion-short-description">
+            {{ suggestion.formula.shortDescription || suggestion.formula.description }}
+          </div>
+        </ng-container>
+        <ng-container *ngIf="suggestion.type === InputType.VARIABLE">
+          <div class="suggestion-name">
+            {{ suggestion.name }}
+          </div>
+        </ng-container>
+      </div>
+    </ng-container>
+  </div>
+  <div *ngIf="formulaSyntax" [innerHTML]="formulaSyntax" class="formula-details formula-description">
+  </div>
+</div>
