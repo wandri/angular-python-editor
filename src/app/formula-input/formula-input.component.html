@@ -1,1 +1,10 @@
-<input type="text" autofocus>
+<div class="formula-bar-input-container">
+  <div class="formula-bar-input">
+    <div (input)="onNameChange($event)" class="cell-input" contenteditable></div>
+  </div>
+  <div *ngIf="suggestions.length>0" class="suggestions">
+    <div *ngFor="let suggestion of suggestions" class="suggestion">
+      {{ suggestion.name}}
+    </div>
+  </div>
+</div>
