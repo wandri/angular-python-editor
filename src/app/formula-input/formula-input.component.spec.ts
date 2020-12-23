@@ -136,11 +136,11 @@ describe('FormulaInputComponent', () => {
     let input: HTMLInputElement;
 
     beforeEach(() => {
-      spyOn(component, 'getCaretIndex').and.returnValue(4);
       input = fixture.debugElement.nativeElement.querySelector('.cell-input');
     });
 
     it('should active the first suggestion and display its short description', () => {
+      spyOn(component, 'getCaretIndex').and.returnValue(1);
       input.innerHTML = 'S';
       input.dispatchEvent(new InputEvent('input'));
       fixture.detectChanges();
@@ -149,6 +149,7 @@ describe('FormulaInputComponent', () => {
     });
 
     it('should display the short description', () => {
+      spyOn(component, 'getCaretIndex').and.returnValue(1);
       input.innerHTML = 'S';
       input.dispatchEvent(new InputEvent('input'));
       fixture.detectChanges();
@@ -157,6 +158,7 @@ describe('FormulaInputComponent', () => {
     });
 
     it('should use the description if the short description is not provided', () => {
+      spyOn(component, 'getCaretIndex').and.returnValue(4);
       input.innerHTML = 'PROD';
       input.dispatchEvent(new InputEvent('input'));
       fixture.detectChanges();
@@ -165,6 +167,7 @@ describe('FormulaInputComponent', () => {
     });
 
     it('should focus the next suggestion with ArrowDown', () => {
+      spyOn(component, 'getCaretIndex').and.returnValue(1);
       input.innerHTML = 'S';
       input.dispatchEvent(new InputEvent('input'));
       fixture.detectChanges();
@@ -176,6 +179,7 @@ describe('FormulaInputComponent', () => {
     });
 
     it('should focus the previous suggestion with ArrowUp', () => {
+      spyOn(component, 'getCaretIndex').and.returnValue(1);
       input.innerHTML = 'S';
       input.dispatchEvent(new InputEvent('input'));
       fixture.detectChanges();
@@ -186,12 +190,23 @@ describe('FormulaInputComponent', () => {
     });
 
     it('should enter the formula when pressing enter', () => {
+      spyOn(component, 'getCaretIndex').and.returnValue(1);
       input.innerHTML = 'S';
       input.dispatchEvent(new InputEvent('input'));
       fixture.detectChanges();
       fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
       fixture.detectChanges();
       expect(input.innerHTML).toEqual('SOM(');
+    });
+
+    it('should enter the formula when pressing enter after existing content', () => {
+      spyOn(component, 'getCaretIndex').and.returnValue(5);
+      input.innerHTML = 'SUM(SO';
+      input.dispatchEvent(new InputEvent('input'));
+      fixture.detectChanges();
+      fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+      fixture.detectChanges();
+      expect(input.innerHTML).toEqual('SUM(SOM(');
     });
   });
 });

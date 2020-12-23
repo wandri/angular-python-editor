@@ -84,16 +84,45 @@ export class FormulaInputComponent implements OnInit {
   }
 
   enterSelectedSuggestion(index: number): void {
-    const before = '';
-    const after = '';
+    const specialCharacters = ['/', ' ', '*', ' +', '('];
     const text = this.formulaElement.nativeElement.innerText;
     const focusSuggestion = this.suggestions[index];
     const name = focusSuggestion.name;
+    let before = '';
+    let after = '';
+    let characterPosition = 0;
+    let content = '';
+    const formattedContents = [];
+    for (let i = 0; i < text.length; i++) {
+      const character = text[i];
+      content += character;
+      if (specialCharacters.includes(character)) {
+        formattedContents.push(content);
+        content = '';
+      }
+    }
+    formattedContents.push(content);
+    formattedContents.forEach(content => {
+      if (characterPosition + content.length < this.caretIndex) {
+        before += content;
+        characterPosition += content.length;
+      } else if (characterPosition <= this.caretIndex && this.caretIndex <= characterPosition + content.length) {
+        characterPosition += 9999;
+      } else {
+        after += content;
+      }
+    });
     this.formulaText = `${before}${name}(${after}`;
     this.suggestions = [];
     setTimeout(() => {
       this.setCaret(before.length + name.length + 1);
     });
+  }
+
+  selectSuggestion(index: number): void {
+    if (this.areSuggestionsDisplayed) {
+      this.enterSelectedSuggestion(index);
+    }
   }
 
   onKeyDown($event: KeyboardEvent): void {
