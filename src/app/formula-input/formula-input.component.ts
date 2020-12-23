@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { getCaretIndex } from './carret-utils';
 import { Formula, Store } from './formula';
 import { storedFormulas } from './formula-list';
@@ -13,20 +13,28 @@ import { storedFormulas } from './formula-list';
 export class FormulaInputComponent implements OnInit {
   suggestions: Formula[] = [];
 
+  formulaText: string;
   formulas: Store<Formula> = {
     ids: [],
     item: {}
   };
-
   getCaretIndex: (node: Node) => number = getCaretIndex;
+  caretIndex: number;
   formulaSyntax: string;
+
   suggestionFocusIndex: number = 0;
+  @ViewChild('formulaInput', { static: true }) formulaElement: ElementRef;
 
   get areSuggestionsDisplayed(): boolean {
     return this.suggestions.length > 0;
   }
 
   constructor() {
+  }
+
+  @HostListener('keydown', ['$event'])
+  handleKeyDown(event: KeyboardEvent) {
+    this.onKeyDown(event);
   }
 
   ngOnInit(): void {
@@ -38,15 +46,15 @@ export class FormulaInputComponent implements OnInit {
     this.formulas.ids.sort();
   }
 
-  onNameChange(event: any): void {
-    const cellInput = (event.target as HTMLInputElement);
+  onNameChange(): void {
+    const cellInput = this.formulaElement.nativeElement;
     const propositions = [];
     const text = cellInput.innerHTML;
-    const caretIndex = this.getCaretIndex(cellInput);
-    let caretIndexToSlice = caretIndex;
-    let isBracketPosition = text[caretIndex - 1] === '(';
+    this.caretIndex = this.getCaretIndex(cellInput);
+    let caretIndexToSlice = this.caretIndex;
+    let isBracketPosition = text[this.caretIndex - 1] === '(';
     if (isBracketPosition) {
-      caretIndexToSlice = caretIndex === 0 ? 0 : caretIndex - 1;
+      caretIndexToSlice = this.caretIndex === 0 ? 0 : this.caretIndex - 1;
     }
     const formattedContents = text.slice(0, caretIndexToSlice).split(/[(\/+*-]/);
     const formattedContent = formattedContents[formattedContents.length - 1].trim();
@@ -54,8 +62,7 @@ export class FormulaInputComponent implements OnInit {
     if (!!formattedContent) {
       for (let name of this.formulas.ids) {
         if (isBracketPosition && name === formattedContent) {
-          let syntax = this.formulas.item[name].syntax;
-          this.formulaSyntax = syntax;
+          this.formulaSyntax = this.formulas.item[name].syntax;
           break;
         } else if (!isBracketPosition && name.startsWith(formattedContent)) {
           propositions.push(this.formulas.item[name]);
@@ -76,6 +83,20 @@ export class FormulaInputComponent implements OnInit {
     this.suggestionFocusIndex = index;
   }
 
+  enterSelectedSuggestion(index: number): void {
+    const before = '';
+    const after = '';
+    const text = this.formulaElement.nativeElement.innerText;
+    const focusSuggestion = this.suggestions[index];
+    console.log(this.suggestions, index);
+    const name = focusSuggestion.name;
+    this.formulaText = `${before}${name}(${after}`;
+    this.suggestions = [];
+    setTimeout(() => {
+      this.setCaret(before.length + name.length + 1);
+    });
+  }
+
   onKeyDown($event: KeyboardEvent): void {
     if (this.areSuggestionsDisplayed) {
       if ($event.key === 'ArrowDown') {
@@ -88,9 +109,21 @@ export class FormulaInputComponent implements OnInit {
       }
       if ($event.key === 'Enter') {
         $event.preventDefault();
-        this.enterSuggestion();
+        this.enterSelectedSuggestion(this.suggestionFocusIndex);
       }
     }
+  }
+
+  setCaret(index: number) {
+    const formulaInput = this.formulaElement.nativeElement;
+    const range = document.createRange();
+    const selection = window.getSelection();
+
+    range.setStart(formulaInput.childNodes[0], index);
+    range.collapse(true);
+
+    selection.removeAllRanges();
+    selection.addRange(range);
   }
 
   private selectPreviousSuggestion(): void {
@@ -105,9 +138,5 @@ export class FormulaInputComponent implements OnInit {
     if (this.suggestionFocusIndex >= this.suggestions.length) {
       this.suggestionFocusIndex = 0;
     }
-  }
-
-  private enterSuggestion(): void {
-
   }
 }

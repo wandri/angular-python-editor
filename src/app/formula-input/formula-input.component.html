@@ -1,9 +1,12 @@
-<div (keydown)="onKeyDown($event)" class="formula-bar-input-container">
+<div class="formula-bar-input-container">
   <div class="formula-bar-input">
-    <div (input)="onNameChange($event)" class="cell-input" contenteditable></div>
+    <div #formulaInput (input)="onNameChange()" [textContent]="formulaText" class="cell-input"
+         contenteditable></div>
   </div>
   <div *ngIf="suggestions.length>0 && !formulaSyntax" class="formula-details suggestions">
-    <div (mouseenter)="focusSuggestion(index)" *ngFor="let suggestion of suggestions; let index = index"
+    <div (click)="enterSelectedSuggestion(index)"
+         (mouseenter)="focusSuggestion(index)"
+         *ngFor="let suggestion of suggestions; let index = index"
          [class.active]="suggestionFocusIndex == index"
          class="suggestion">
       <div class="suggestion-name">

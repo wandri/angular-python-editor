@@ -11,9 +11,9 @@ describe('FormulaInputComponent', () => {
     ids: ['PROD', 'SOM', 'SUM', 'SUMO'],
     item: {
       ['SUM']: { name: 'SUM', description: 'SUM details', syntax: 'syntax SUM', shortDescription: 'short Sum details' },
+      ['SOM']: { name: 'SOM', description: 'SOM details', syntax: '', shortDescription: 'short Som details' },
       ['SUMO']: { name: 'SUMO', description: 'SUMO details', syntax: '' },
       ['PROD']: { name: 'PROD', description: 'PROD details', syntax: '' },
-      ['SOM']: { name: 'SOM', description: 'SOM details', syntax: '', shortDescription: 'short Som details' },
     }
   };
 
@@ -55,6 +55,20 @@ describe('FormulaInputComponent', () => {
 
     const suggestions: NodeList = otherContent.querySelectorAll('.suggestion');
     expect(suggestions.length).toEqual(3);
+  });
+
+  it('should enter the suggestion on click', () => {
+    spyOn(component, 'getCaretIndex').and.returnValue(2);
+    const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
+    input.innerHTML = 'SU';
+    fixture.detectChanges();
+    input.dispatchEvent(new InputEvent('input'));
+    fixture.detectChanges();
+    const otherContent = fixture.debugElement.nativeElement.querySelector('.suggestions');
+    const suggestions: NodeList = otherContent.querySelectorAll('.suggestion');
+    (suggestions.item(1) as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(input.innerHTML).toEqual('SUMO(');
   });
 
   it('the formula matching is case sensitive', () => {
@@ -119,7 +133,7 @@ describe('FormulaInputComponent', () => {
   });
 
   describe('focus suggestion', () => {
-    let input: HTMLElement;
+    let input: HTMLInputElement;
 
     beforeEach(() => {
       spyOn(component, 'getCaretIndex').and.returnValue(4);
@@ -130,7 +144,7 @@ describe('FormulaInputComponent', () => {
       input.innerHTML = 'S';
       input.dispatchEvent(new InputEvent('input'));
       fixture.detectChanges();
-      const details = fixture.debugElement.nativeElement.querySelector('.suggestion-short-description');
+      const details = fixture.debugElement.nativeElement.querySelector('.active  .suggestion-short-description');
       expect(details).toBeTruthy();
     });
 
@@ -138,7 +152,7 @@ describe('FormulaInputComponent', () => {
       input.innerHTML = 'S';
       input.dispatchEvent(new InputEvent('input'));
       fixture.detectChanges();
-      const details = fixture.debugElement.nativeElement.querySelector('.suggestion-short-description');
+      const details = fixture.debugElement.nativeElement.querySelector('.active  .suggestion-short-description');
       expect(details.innerHTML.trim()).toEqual(formulas.item['SOM'].shortDescription);
     });
 
@@ -146,8 +160,39 @@ describe('FormulaInputComponent', () => {
       input.innerHTML = 'PROD';
       input.dispatchEvent(new InputEvent('input'));
       fixture.detectChanges();
-      const details = fixture.debugElement.nativeElement.querySelector('.suggestion-short-description');
+      const details = fixture.debugElement.nativeElement.querySelector('.active  .suggestion-short-description');
       expect(details.innerHTML.trim()).toEqual(formulas.item['PROD'].description);
+    });
+
+    it('should focus the next suggestion with ArrowDown', () => {
+      input.innerHTML = 'S';
+      input.dispatchEvent(new InputEvent('input'));
+      fixture.detectChanges();
+      fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+      fixture.detectChanges();
+      const details = fixture.debugElement.nativeElement.querySelector('.active .suggestion-short-description');
+      const shortDescription = formulas.item['SUM'].shortDescription;
+      expect(details.innerHTML.trim()).toEqual(shortDescription);
+      console.log(shortDescription);
+    });
+
+    it('should focus the previous suggestion with ArrowUp', () => {
+      input.innerHTML = 'S';
+      input.dispatchEvent(new InputEvent('input'));
+      fixture.detectChanges();
+      fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
+      fixture.detectChanges();
+      const details = fixture.debugElement.nativeElement.querySelector('.active  .suggestion-short-description');
+      expect(details.innerHTML.trim()).toEqual(formulas.item['SUMO'].description);
+    });
+
+    it('should enter the formula when pressing enter', () => {
+      input.innerHTML = 'S';
+      input.dispatchEvent(new InputEvent('input'));
+      fixture.detectChanges();
+      fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+      fixture.detectChanges();
+      expect(input.innerHTML).toEqual('SOM(');
     });
   });
 });
