@@ -8,12 +8,12 @@ describe('FormulaInputComponent', () => {
   let fixture: ComponentFixture<FormulaInputComponent>;
 
   const formulas: Store<Formula> = {
-    ids: ['SUM', 'SUMO', 'SOM', 'PROD'],
+    ids: ['PROD', 'SOM', 'SUM', 'SUMO'],
     item: {
       ['SUM']: { name: 'SUM', description: 'SUM details', syntax: 'syntax SUM', shortDescription: 'short Sum details' },
       ['SUMO']: { name: 'SUMO', description: 'SUMO details', syntax: '' },
       ['PROD']: { name: 'PROD', description: 'PROD details', syntax: '' },
-      ['SOM']: { name: 'SOM', description: 'SOM details', syntax: '' },
+      ['SOM']: { name: 'SOM', description: 'SOM details', syntax: '', shortDescription: 'short Som details' },
     }
   };
 
@@ -105,7 +105,7 @@ describe('FormulaInputComponent', () => {
     expect(suggestions.length).toEqual(3);
   });
 
-  it('should display the details of a formula after a bracket and not the suggestions', () => {
+  it('should display the full description of a formula after a bracket and not the suggestions', () => {
     spyOn(component, 'getCaretIndex').and.returnValue(4);
     const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
     input.innerHTML = 'SUM(';
@@ -116,5 +116,38 @@ describe('FormulaInputComponent', () => {
     const details = fixture.debugElement.nativeElement.querySelector('.formula-description');
     expect(details).toBeTruthy();
     expect(details.innerHTML.trim()).toContain(formulas.item['SUM'].syntax);
+  });
+
+  describe('focus suggestion', () => {
+    let input: HTMLElement;
+
+    beforeEach(() => {
+      spyOn(component, 'getCaretIndex').and.returnValue(4);
+      input = fixture.debugElement.nativeElement.querySelector('.cell-input');
+    });
+
+    it('should active the first suggestion and display its short description', () => {
+      input.innerHTML = 'S';
+      input.dispatchEvent(new InputEvent('input'));
+      fixture.detectChanges();
+      const details = fixture.debugElement.nativeElement.querySelector('.suggestion-short-description');
+      expect(details).toBeTruthy();
+    });
+
+    it('should display the short description', () => {
+      input.innerHTML = 'S';
+      input.dispatchEvent(new InputEvent('input'));
+      fixture.detectChanges();
+      const details = fixture.debugElement.nativeElement.querySelector('.suggestion-short-description');
+      expect(details.innerHTML.trim()).toEqual(formulas.item['SOM'].shortDescription);
+    });
+
+    it('should use the description if the short description is not provided', () => {
+      input.innerHTML = 'PROD';
+      input.dispatchEvent(new InputEvent('input'));
+      fixture.detectChanges();
+      const details = fixture.debugElement.nativeElement.querySelector('.suggestion-short-description');
+      expect(details.innerHTML.trim()).toEqual(formulas.item['PROD'].description);
+    });
   });
 });
