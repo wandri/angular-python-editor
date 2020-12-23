@@ -199,7 +199,7 @@ describe('FormulaInputComponent', () => {
       expect(input.innerHTML).toEqual('SOM(');
     });
 
-    it('should enter the formula when pressing enter after existing content', () => {
+    it('should enter the formula when pressing enter after existing content 1', () => {
       spyOn(component, 'getCaretIndex').and.returnValue(5);
       input.innerHTML = 'SUM(SO';
       input.dispatchEvent(new InputEvent('input'));
@@ -207,6 +207,43 @@ describe('FormulaInputComponent', () => {
       fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
       fixture.detectChanges();
       expect(input.innerHTML).toEqual('SUM(SOM(');
+    });
+
+    describe('should enter the formula when pressing enter after special character', () => {
+      const specialCharacters = ['/', '*', '+', '('];
+
+      specialCharacters.forEach(character => {
+        it(character, () => {
+          spyOn(component, 'getCaretIndex').and.returnValue(4);
+          input.innerHTML = `1${character}SU`;
+          input.dispatchEvent(new InputEvent('input'));
+          fixture.detectChanges();
+          fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+          fixture.detectChanges();
+          expect(input.innerHTML).toEqual('1' + character + 'SUM(');
+        });
+
+        it(character + 'With spaces', () => {
+          spyOn(component, 'getCaretIndex').and.returnValue(6);
+          input.innerHTML = `1 ${character} SU`;
+          input.dispatchEvent(new InputEvent('input'));
+          fixture.detectChanges();
+          fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+          fixture.detectChanges();
+          expect(input.innerHTML).toEqual('1 ' + character + ' SUM(');
+        });
+      });
+    });
+    it('should enter the formula when pressing enter before existing content', () => {
+      spyOn(component, 'getCaretIndex').and.returnValue(2);
+      input.innerHTML = 'SUM(SO';
+      input.dispatchEvent(new InputEvent('input'));
+      fixture.detectChanges();
+      fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+      fixture.detectChanges();
+      fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+      fixture.detectChanges();
+      expect(input.innerHTML).toEqual('SUMO(SO');
     });
   });
 });

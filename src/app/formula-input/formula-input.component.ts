@@ -84,10 +84,14 @@ export class FormulaInputComponent implements OnInit {
   }
 
   enterSelectedSuggestion(index: number): void {
-    const { contentBeforeFormula, contentAfterFormula } = this.getContentBetweenFormula();
+    const { contentBeforeFormula, contentAfterFormula, contentOnFormula } = this.getContentBetweenFormula();
     const focusSuggestion = this.suggestions[index];
     const name = focusSuggestion.name;
-    this.formulaText = `${contentBeforeFormula}${name}(${contentAfterFormula}`;
+    let isSpaceAdded = false;
+    if (contentOnFormula[0] === ' ') {
+      isSpaceAdded = true;
+    }
+    this.formulaText = `${contentBeforeFormula}${isSpaceAdded ? ' ' : ''}${name}(${contentAfterFormula}`;
     this.suggestions = [];
 
     setTimeout(() => {
@@ -144,12 +148,13 @@ export class FormulaInputComponent implements OnInit {
     }
   }
 
-  private getContentBetweenFormula(): { contentBeforeFormula: string, contentAfterFormula: string } {
+  private getContentBetweenFormula(): { contentOnFormula: string; contentBeforeFormula: string, contentAfterFormula: string } {
     let contentBeforeFormula = '';
     let contentAfterFormula = '';
+    let contentOnFormula = '';
     let characterPosition = 0;
 
-    const specialCharacters = ['/', ' ', '*', ' +', '('];
+    const specialCharacters = ['/', '*', '+', '('];
     let content = '';
     const formattedContents = [];
     const text = this.formulaElement.nativeElement.innerText;
@@ -169,11 +174,12 @@ export class FormulaInputComponent implements OnInit {
         contentBeforeFormula += content;
         characterPosition += content.length;
       } else if (isOnFormulaPosition) {
+        contentOnFormula = content;
         characterPosition += 9999;
       } else {
         contentAfterFormula += content;
       }
     });
-    return { contentBeforeFormula, contentAfterFormula };
+    return { contentBeforeFormula, contentAfterFormula, contentOnFormula };
   }
 }
