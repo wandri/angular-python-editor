@@ -3,13 +3,14 @@
     <div (input)="onNameChange($event)" class="cell-input" contenteditable></div>
   </div>
   <div *ngIf="suggestions.length>0 && !formulaSyntax" class="formula-details suggestions">
-    <div (mouseenter)="focusSuggestion(index)" *ngFor="let suggestion of suggestions; let index = index" [class.active]="suggestionFocusIndex == index"
+    <div (mouseenter)="focusSuggestion(index)" *ngFor="let suggestion of suggestions; let index = index"
+         [class.active]="suggestionFocusIndex == index"
          class="suggestion">
       <div class="suggestion-name">
         {{ suggestion.name }}
       </div>
       <div class="suggestion-description">
-        {{ suggestion.shortDescription }}
+        {{ suggestion.shortDescription || suggestion.description }}
       </div>
     </div>
   </div>

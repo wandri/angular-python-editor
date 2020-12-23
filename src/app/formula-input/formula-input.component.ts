@@ -54,7 +54,8 @@ export class FormulaInputComponent implements OnInit {
     if (!!formattedContent) {
       for (let name of this.formulas.ids) {
         if (isBracketPosition && name === formattedContent) {
-          this.formulaSyntax = this.formulas.item[name].syntax;
+          let syntax = this.formulas.item[name].syntax;
+          this.formulaSyntax = syntax;
           break;
         } else if (!isBracketPosition && name.startsWith(formattedContent)) {
           propositions.push(this.formulas.item[name]);

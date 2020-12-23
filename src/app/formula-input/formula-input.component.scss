@@ -33,6 +33,9 @@
 
         .suggestion-description {
           display: none;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         &.active {
