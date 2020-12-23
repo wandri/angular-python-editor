@@ -1,10 +1,21 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FormulaInputComponent } from './formula-input.component';
+import { Formula, Store } from './formula';
 
 describe('FormulaInputComponent', () => {
   let component: FormulaInputComponent;
   let fixture: ComponentFixture<FormulaInputComponent>;
+
+  const formulas: Store<Formula> = {
+    ids: ['SUM', 'SUMO', 'SOM', 'PROD'],
+    item: {
+      ['SUM']: { name: 'SUM', description: 'SUM details', syntax: 'syntax SUM', shortDescription: 'short Sum details' },
+      ['SUMO']: { name: 'SUMO', description: 'SUMO details', syntax: '' },
+      ['PROD']: { name: 'PROD', description: 'PROD details', syntax: '' },
+      ['SOM']: { name: 'SOM', description: 'SOM details', syntax: '' },
+    }
+  };
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -17,16 +28,7 @@ describe('FormulaInputComponent', () => {
     fixture = TestBed.createComponent(FormulaInputComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-
-    component.formulas = {
-      ids: ['SUM', 'SUMO', 'SOM', 'PROD'],
-      item: {
-        ['SUM']: { name: 'SUM', description: 'SUM details' },
-        ['SUMO']: { name: 'SUMO', description: 'SUMO details' },
-        ['PROD']: { name: 'PROD', description: 'PROD details' },
-        ['SOM']: { name: 'SOM', description: 'SOM details' },
-      }
-    };
+    component.formulas = formulas;
   }));
 
   it('should create', () => {
@@ -76,6 +78,7 @@ describe('FormulaInputComponent', () => {
     const suggestions: NodeList = otherContent.querySelectorAll('.suggestion');
     expect(suggestions.length).toEqual(1);
   });
+
   it('should suggest a formula after a formula', () => {
     spyOn(component, 'getCaretIndex').and.returnValue(6);
     const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
@@ -89,6 +92,19 @@ describe('FormulaInputComponent', () => {
     expect(suggestions.length).toEqual(1);
   });
 
+  it('should suggest a formula after an operator', () => {
+    spyOn(component, 'getCaretIndex').and.returnValue(5);
+    const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
+    input.innerHTML = '3 + S';
+    input.dispatchEvent(new InputEvent('input'));
+    fixture.detectChanges();
+    const otherContent = fixture.debugElement.nativeElement.querySelector('.suggestions');
+    expect(otherContent).toBeTruthy();
+
+    const suggestions: NodeList = otherContent.querySelectorAll('.suggestion');
+    expect(suggestions.length).toEqual(3);
+  });
+
   it('should display the details of a formula after a bracket and not the suggestions', () => {
     spyOn(component, 'getCaretIndex').and.returnValue(4);
     const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
@@ -99,6 +115,6 @@ describe('FormulaInputComponent', () => {
     expect(suggestions).toBeFalsy();
     const details = fixture.debugElement.nativeElement.querySelector('.formula-description');
     expect(details).toBeTruthy();
-    expect(details.innerHTML.trim()).toContain('SUM details');
+    expect(details.innerHTML.trim()).toContain(formulas.item['SUM'].syntax);
   });
 });
