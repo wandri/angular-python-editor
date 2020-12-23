@@ -88,7 +88,6 @@ export class FormulaInputComponent implements OnInit {
     const after = '';
     const text = this.formulaElement.nativeElement.innerText;
     const focusSuggestion = this.suggestions[index];
-    console.log(this.suggestions, index);
     const name = focusSuggestion.name;
     this.formulaText = `${before}${name}(${after}`;
     this.suggestions = [];

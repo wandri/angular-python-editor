@@ -173,7 +173,6 @@ describe('FormulaInputComponent', () => {
       const details = fixture.debugElement.nativeElement.querySelector('.active .suggestion-short-description');
       const shortDescription = formulas.item['SUM'].shortDescription;
       expect(details.innerHTML.trim()).toEqual(shortDescription);
-      console.log(shortDescription);
     });
 
     it('should focus the previous suggestion with ArrowUp', () => {
