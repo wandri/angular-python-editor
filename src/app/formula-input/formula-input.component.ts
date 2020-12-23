@@ -84,38 +84,14 @@ export class FormulaInputComponent implements OnInit {
   }
 
   enterSelectedSuggestion(index: number): void {
-    const specialCharacters = ['/', ' ', '*', ' +', '('];
-    const text = this.formulaElement.nativeElement.innerText;
+    const { contentBeforeFormula, contentAfterFormula } = this.getContentBetweenFormula();
     const focusSuggestion = this.suggestions[index];
     const name = focusSuggestion.name;
-    let before = '';
-    let after = '';
-    let characterPosition = 0;
-    let content = '';
-    const formattedContents = [];
-    for (let i = 0; i < text.length; i++) {
-      const character = text[i];
-      content += character;
-      if (specialCharacters.includes(character)) {
-        formattedContents.push(content);
-        content = '';
-      }
-    }
-    formattedContents.push(content);
-    formattedContents.forEach(content => {
-      if (characterPosition + content.length < this.caretIndex) {
-        before += content;
-        characterPosition += content.length;
-      } else if (characterPosition <= this.caretIndex && this.caretIndex <= characterPosition + content.length) {
-        characterPosition += 9999;
-      } else {
-        after += content;
-      }
-    });
-    this.formulaText = `${before}${name}(${after}`;
+    this.formulaText = `${contentBeforeFormula}${name}(${contentAfterFormula}`;
     this.suggestions = [];
+
     setTimeout(() => {
-      this.setCaret(before.length + name.length + 1);
+      this.setCaret(contentBeforeFormula.length + name.length + 1);
     });
   }
 
@@ -166,5 +142,38 @@ export class FormulaInputComponent implements OnInit {
     if (this.suggestionFocusIndex >= this.suggestions.length) {
       this.suggestionFocusIndex = 0;
     }
+  }
+
+  private getContentBetweenFormula(): { contentBeforeFormula: string, contentAfterFormula: string } {
+    let contentBeforeFormula = '';
+    let contentAfterFormula = '';
+    let characterPosition = 0;
+
+    const specialCharacters = ['/', ' ', '*', ' +', '('];
+    let content = '';
+    const formattedContents = [];
+    const text = this.formulaElement.nativeElement.innerText;
+    for (let i = 0; i < text.length; i++) {
+      const character = text[i];
+      content += character;
+      if (specialCharacters.includes(character)) {
+        formattedContents.push(content);
+        content = '';
+      }
+    }
+    formattedContents.push(content);
+    formattedContents.forEach(content => {
+      const isBeforeFormula = characterPosition + content.length < this.caretIndex;
+      const isOnFormulaPosition = characterPosition <= this.caretIndex && this.caretIndex <= characterPosition + content.length;
+      if (isBeforeFormula) {
+        contentBeforeFormula += content;
+        characterPosition += content.length;
+      } else if (isOnFormulaPosition) {
+        characterPosition += 9999;
+      } else {
+        contentAfterFormula += content;
+      }
+    });
+    return { contentBeforeFormula, contentAfterFormula };
   }
 }
