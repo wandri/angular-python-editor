@@ -1,7 +1,11 @@
 <div class="formula-bar-input-container">
   <div class="formula-bar-input">
-    <div #formulaInput (input)="onNameChange()" [textContent]="formulaText" class="cell-input"
-         contenteditable></div>
+    <div #formulaInput
+         (input)="onNameChange()"
+         class="cell-input"
+         (keypress)="preventEnterKey($event)"
+         contenteditable>
+    </div>
   </div>
   <div *ngIf="suggestions.length>0 && !formulaSyntax" class="formula-details suggestions">
     <div (click)="selectSuggestion(index)"

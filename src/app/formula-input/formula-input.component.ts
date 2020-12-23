@@ -91,12 +91,13 @@ export class FormulaInputComponent implements OnInit {
     if (contentOnFormula[0] === ' ') {
       isSpaceAdded = true;
     }
-    this.formulaText = `${contentBeforeFormula}${isSpaceAdded ? ' ' : ''}${name}(${contentAfterFormula}`;
+    let formattedName = `${isSpaceAdded ? ' ' : ''}${name}`;
     this.suggestions = [];
-
+    this.formulaText = `${contentBeforeFormula}${formattedName}(${contentAfterFormula}`;
+    this.formulaElement.nativeElement.innerHTML = this.formulaText;
     setTimeout(() => {
-      this.setCaret(contentBeforeFormula.length + name.length + 1);
-    });
+      this.setCaret(contentBeforeFormula.length + formattedName.length + 1);
+    }, 0);
   }
 
   selectSuggestion(index: number): void {
@@ -181,5 +182,13 @@ export class FormulaInputComponent implements OnInit {
       }
     });
     return { contentBeforeFormula, contentAfterFormula, contentOnFormula };
+  }
+
+  preventEnterKey($event: KeyboardEvent) {
+    if (!this.areSuggestionsDisplayed) {
+      if ($event.key === 'Enter') {
+        $event.preventDefault();
+      }
+    }
   }
 }
