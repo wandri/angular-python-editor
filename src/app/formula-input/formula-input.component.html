@@ -2,9 +2,12 @@
   <div class="formula-bar-input">
     <div (input)="onNameChange($event)" class="cell-input" contenteditable></div>
   </div>
-  <div *ngIf="suggestions.length>0" class="suggestions">
+  <div *ngIf="suggestions.length>0 && !formulaDescription" class="suggestions">
     <div *ngFor="let suggestion of suggestions" class="suggestion">
       {{ suggestion.name}}
     </div>
+  </div>
+  <div *ngIf="formulaDescription" class="formula-description">
+    {{ formulaDescription }}
   </div>
 </div>
