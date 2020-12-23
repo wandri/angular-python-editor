@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { getCaretIndex } from './carret-utils';
 
 @Component({
   selector: 'app-formula-input',
@@ -19,12 +20,14 @@ export class FormulaInputComponent implements OnInit {
     }
   };
 
+  getCaretIndex: (node: Node) => number = getCaretIndex;
+
   constructor() { }
 
   ngOnInit(): void {
   }
 
-  onNameChange(event: any) {
+  onNameChange(event: any): void {
     const cellInput = (event.target as HTMLInputElement);
     const propositions = [];
 
@@ -39,45 +42,6 @@ export class FormulaInputComponent implements OnInit {
       }
     }
     this.suggestions = propositions;
-    //console.log(this.getCaretCoordinates());
   }
 
-  getCaretCoordinates() {
-    let x = 0,
-      y = 0;
-    const selection = window.getSelection();
-    // Check if there is a selection (i.e. cursor in place)
-    if (selection.rangeCount !== 0) {
-      // Clone the range
-      const range = selection.getRangeAt(0).cloneRange();
-      // Collapse the range to the start, so there are not multiple chars selected
-      range.collapse(true);
-      // getCientRects returns all the positioning information we need
-      const rect = range.getClientRects()[0];
-      if (rect) {
-        x = rect.left; // since the caret is only 1px wide, left == right
-        y = rect.top; // top edge of the caret
-      }
-    }
-    return { x, y };
-  }
-
-  getCaretIndex(element) {
-    let position = 0;
-    const selection = window.getSelection();
-    // Check if there is a selection (i.e. cursor in place)
-    if (selection.rangeCount !== 0) {
-      // Store the original range
-      const range = window.getSelection().getRangeAt(0);
-      // Clone the range
-      const preCaretRange = range.cloneRange();
-      // Select all textual contents from the contenteditable element
-      preCaretRange.selectNodeContents(element);
-      // And set the range end to the original clicked position
-      preCaretRange.setEnd(range.endContainer, range.endOffset);
-      // Return the text length from contenteditable start to the range end
-      position = preCaretRange.toString().length;
-    }
-    return position;
-  }
 }
