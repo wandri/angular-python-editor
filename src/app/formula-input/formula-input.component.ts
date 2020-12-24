@@ -1,8 +1,10 @@
 import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { getCaretIndex, setCaret } from './carret-utils';
-import { Formula, Store } from './formula';
-import { storedFormulas } from './formula-list';
+import { Formula } from '../interfaces/formula';
+import { storedFormulas } from '../dataset/formula-list';
 import { splitInputText, suggestionNameWithSpaceBeforeIfExistent } from './input-utils';
+import { Store } from '../interfaces/store';
+import { Variable } from '../interfaces/variable';
 
 @Component({
   selector: 'app-formula-input',
@@ -16,6 +18,10 @@ export class FormulaInputComponent implements OnInit {
 
   formulaText: string;
   formulas: Store<Formula> = {
+    ids: [],
+    item: {}
+  };
+  variables: Store<Variable> = {
     ids: [],
     item: {}
   };
