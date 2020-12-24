@@ -5,6 +5,8 @@ import { storedFormulas } from '../dataset/formula-list';
 import { splitInputText, suggestionNameWithSpaceBeforeIfExistent } from './input-utils';
 import { Store } from '../interfaces/store';
 import { Variable } from '../interfaces/variable';
+import { storedVariables } from '../dataset/variable-list';
+import { InputType, } from '../interfaces/type.enum';
 
 @Component({
   selector: 'app-formula-input',
@@ -14,8 +16,7 @@ import { Variable } from '../interfaces/variable';
 
 })
 export class FormulaInputComponent implements OnInit {
-  suggestions: Formula[] = [];
-
+  suggestions: { name: string, type: InputType, variable?: Variable, formula?: Formula }[] = [];
   formulaText: string;
   formulas: Store<Formula> = {
     ids: [],
@@ -25,7 +26,7 @@ export class FormulaInputComponent implements OnInit {
     ids: [],
     item: {}
   };
-
+  types = InputType;
   formulaSyntax: string;
 
   suggestionFocusIndex: number = 0;
@@ -55,14 +56,20 @@ export class FormulaInputComponent implements OnInit {
       this.formulas.item[formula.name] = formula;
       this.formulas.ids.push(formula.name);
     });
-
     this.formulas.ids.sort();
+
+    storedVariables.forEach(variable => {
+      this.variables.item[variable.name] = variable;
+      this.variables.ids.push(variable.name);
+    });
+    this.variables.ids.sort();
   }
 
   onNameChange(): void {
     const cellInput = this.formulaElement.nativeElement;
     const text = cellInput.innerHTML;
-    const propositions = [];
+    let formulaPropositionsNumber = 0;
+    let variablePropositionsNumber = 0;
     let caretIndexToSlice = this.caretIndex;
     let isBracketPosition = text[this.caretIndex - 1] === '(';
     if (isBracketPosition) {
@@ -71,21 +78,33 @@ export class FormulaInputComponent implements OnInit {
     const formattedContents = text.slice(0, caretIndexToSlice).split(/[(\/+*-]/);
     const formattedContent = formattedContents[formattedContents.length - 1].trim();
     this.formulaSyntax = null;
+    this.resetSuggestion();
     if (!!formattedContent) {
       for (let name of this.formulas.ids) {
         if (isBracketPosition && name === formattedContent) {
           this.formulaSyntax = this.formulas.item[name].syntax;
           break;
         } else if (!isBracketPosition && name.startsWith(formattedContent)) {
-          propositions.push(this.formulas.item[name]);
-          const limitSuggestionTo10 = propositions.length === 10;
-          if (limitSuggestionTo10) {
+          this.suggestions.push({ type: InputType.FORMULA, name, formula: this.formulas.item[name] });
+          formulaPropositionsNumber++;
+          const limitFormulaSuggestionTo10 = formulaPropositionsNumber === 10;
+          if (limitFormulaSuggestionTo10) {
+            break;
+          }
+        }
+      }
+
+      for (let name of this.variables.ids) {
+        if (!isBracketPosition && name.startsWith(formattedContent)) {
+          this.suggestions.push({ type: InputType.VARIABLE, name, variable: this.variables.item[name] });
+          variablePropositionsNumber++;
+          const limitFormulaSuggestionTo10 = variablePropositionsNumber === 10;
+          if (limitFormulaSuggestionTo10) {
             break;
           }
         }
       }
     }
-    this.suggestions = propositions;
     if (this.areSuggestionsDisplayed) {
       this.suggestionFocusIndex = 0;
     }
@@ -96,11 +115,15 @@ export class FormulaInputComponent implements OnInit {
   }
 
   enterSelectedSuggestion(index: number): void {
-    const focusSuggestion = this.suggestions[index];
+    const isFormula = this.suggestions[index].type === InputType.FORMULA;
+    const focusSuggestion = isFormula ? this.suggestions[index].formula : this.suggestions[index].variable;
     const inputElement = this.formulaElement.nativeElement;
     const { beforeContent, afterContent, focusContent } = splitInputText(inputElement.innerText, this.caretIndex);
     let formattedName = suggestionNameWithSpaceBeforeIfExistent(focusSuggestion.name, focusContent[0]);
     this.saveUserInput(`${beforeContent}${formattedName}(${afterContent}`);
+    if (isFormula) {
+      this.formulaSyntax = (focusSuggestion as Formula).syntax;
+    }
     this.resetSuggestion();
     setTimeout(() => {
       setCaret(beforeContent.length + formattedName.length + 1, inputElement);
