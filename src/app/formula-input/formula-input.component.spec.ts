@@ -28,18 +28,17 @@ describe('FormulaInputComponent', () => {
   });
 
   describe('with formula only', () => {
-    const formulas: Store<Formula> = {
-      ids: ['PROD', 'SOM', 'SUM', 'SUMO'],
-      item: {
-        ['SUM']: { name: 'SUM', description: 'SUM details', syntax: 'syntax SUM', shortDescription: 'short Sum details' },
-        ['SOM']: { name: 'SOM', description: 'SOM details', syntax: '', shortDescription: 'short Som details' },
-        ['SUMO']: { name: 'SUMO', description: 'SUMO details', syntax: '' },
-        ['PROD']: { name: 'PROD', description: 'PROD details', syntax: '' },
-      }
-    };
+    const formulas = new Store<Formula>();
+    formulas.addAllAndSort([
+      { name: 'SUM', description: 'SUM details', syntax: 'syntax SUM', shortDescription: 'short Sum details' },
+      { name: 'SOM', description: 'SOM details', syntax: '', shortDescription: 'short Som details' },
+      { name: 'SUMO', description: 'SUMO details', syntax: '' },
+      { name: 'PROD', description: 'PROD details', syntax: '' },
+    ]);
 
     beforeEach(async(() => {
       component.formulas = formulas;
+      component.variables = new Store<Variable>();
     }));
 
     it('should display nothing when the user write something', () => {
@@ -255,18 +254,17 @@ describe('FormulaInputComponent', () => {
   });
 
   describe('with variable only', () => {
-    const variables: Store<Variable> = {
-      ids: ['var 1', 'SuperCarMatch', 'SUPER', 'Variable 2'],
-      item: {
-        ['var 1']: { name: 'var 1', id: 'id var 1', },
-        ['SuperCarMatch']: { name: 'SuperCarMatch', id: 'id SuperCarMatch', },
-        ['SUPER']: { name: 'SUPER', id: 'id SUPER' },
-        ['Variable 2']: { name: 'Variable 2', id: 'id Variable 2' },
-      }
-    };
+    const variables = new Store<Variable>();
+    variables.addAllAndSort([
+      { name: 'var 1', id: 'id var 1', },
+      { name: 'SuperCarMatch', id: 'id SuperCarMatch', },
+      { name: 'SUPER', id: 'id SUPER' },
+      { name: 'Variable 2', id: 'id Variable 2' },
+    ]);
 
     beforeEach(async(() => {
       component.variables = variables;
+      component.formulas = new Store<Formula>();
     }));
   });
 });
