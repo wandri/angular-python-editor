@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
-import { getCaretIndex } from './carret-utils';
+import { getCaretIndex, setCaret } from './carret-utils';
 import { Formula, Store } from './formula';
 import { storedFormulas } from './formula-list';
+import { splitInputText, suggestionNameWithSpaceBeforeIfExistent } from './input-utils';
 
 @Component({
   selector: 'app-formula-input',
@@ -18,12 +19,18 @@ export class FormulaInputComponent implements OnInit {
     ids: [],
     item: {}
   };
-  getCaretIndex: (node: Node) => number = getCaretIndex;
-  caretIndex: number;
+
   formulaSyntax: string;
 
   suggestionFocusIndex: number = 0;
+
   @ViewChild('formulaInput', { static: true }) formulaElement: ElementRef;
+
+  getCaretIndex: (element: Node) => number = getCaretIndex;
+
+  get caretIndex(): number {
+    return this.getCaretIndex(this.formulaElement.nativeElement);
+  }
 
   get areSuggestionsDisplayed(): boolean {
     return this.suggestions.length > 0;
@@ -48,9 +55,8 @@ export class FormulaInputComponent implements OnInit {
 
   onNameChange(): void {
     const cellInput = this.formulaElement.nativeElement;
-    const propositions = [];
     const text = cellInput.innerHTML;
-    this.caretIndex = this.getCaretIndex(cellInput);
+    const propositions = [];
     let caretIndexToSlice = this.caretIndex;
     let isBracketPosition = text[this.caretIndex - 1] === '(';
     if (isBracketPosition) {
@@ -84,19 +90,14 @@ export class FormulaInputComponent implements OnInit {
   }
 
   enterSelectedSuggestion(index: number): void {
-    const { contentBeforeFormula, contentAfterFormula, contentOnFormula } = this.getContentBetweenFormula();
     const focusSuggestion = this.suggestions[index];
-    const name = focusSuggestion.name;
-    let isSpaceAdded = false;
-    if (contentOnFormula[0] === ' ') {
-      isSpaceAdded = true;
-    }
-    let formattedName = `${isSpaceAdded ? ' ' : ''}${name}`;
-    this.suggestions = [];
-    this.formulaText = `${contentBeforeFormula}${formattedName}(${contentAfterFormula}`;
-    this.formulaElement.nativeElement.innerHTML = this.formulaText;
+    const inputElement = this.formulaElement.nativeElement;
+    const { beforeContent, afterContent, focusContent } = splitInputText(inputElement.innerText, this.caretIndex);
+    let formattedName = suggestionNameWithSpaceBeforeIfExistent(focusSuggestion.name, focusContent[0]);
+    this.saveUserInput(`${beforeContent}${formattedName}(${afterContent}`);
+    this.resetSuggestion();
     setTimeout(() => {
-      this.setCaret(contentBeforeFormula.length + formattedName.length + 1);
+      setCaret(beforeContent.length + formattedName.length + 1, inputElement);
     }, 0);
   }
 
@@ -123,16 +124,16 @@ export class FormulaInputComponent implements OnInit {
     }
   }
 
-  setCaret(index: number) {
-    const formulaInput = this.formulaElement.nativeElement;
-    const range = document.createRange();
-    const selection = window.getSelection();
+  preventEnterKey($event: KeyboardEvent): void {
+    if (!this.areSuggestionsDisplayed) {
+      if ($event.key === 'Enter') {
+        $event.preventDefault();
+      }
+    }
+  }
 
-    range.setStart(formulaInput.childNodes[0], index);
-    range.collapse(true);
-
-    selection.removeAllRanges();
-    selection.addRange(range);
+  private resetSuggestion(): void {
+    this.suggestions = [];
   }
 
   private selectPreviousSuggestion(): void {
@@ -149,46 +150,8 @@ export class FormulaInputComponent implements OnInit {
     }
   }
 
-  private getContentBetweenFormula(): { contentOnFormula: string; contentBeforeFormula: string, contentAfterFormula: string } {
-    let contentBeforeFormula = '';
-    let contentAfterFormula = '';
-    let contentOnFormula = '';
-    let characterPosition = 0;
-
-    const specialCharacters = ['/', '*', '+', '('];
-    let content = '';
-    const formattedContents = [];
-    const text = this.formulaElement.nativeElement.innerText;
-    for (let i = 0; i < text.length; i++) {
-      const character = text[i];
-      content += character;
-      if (specialCharacters.includes(character)) {
-        formattedContents.push(content);
-        content = '';
-      }
-    }
-    formattedContents.push(content);
-    formattedContents.forEach(content => {
-      const isBeforeFormula = characterPosition + content.length < this.caretIndex;
-      const isOnFormulaPosition = characterPosition <= this.caretIndex && this.caretIndex <= characterPosition + content.length;
-      if (isBeforeFormula) {
-        contentBeforeFormula += content;
-        characterPosition += content.length;
-      } else if (isOnFormulaPosition) {
-        contentOnFormula = content;
-        characterPosition += 9999;
-      } else {
-        contentAfterFormula += content;
-      }
-    });
-    return { contentBeforeFormula, contentAfterFormula, contentOnFormula };
-  }
-
-  preventEnterKey($event: KeyboardEvent) {
-    if (!this.areSuggestionsDisplayed) {
-      if ($event.key === 'Enter') {
-        $event.preventDefault();
-      }
-    }
+  private saveUserInput(fullFormulas: string): void {
+    this.formulaText = fullFormulas;
+    this.formulaElement.nativeElement.innerHTML = this.formulaText;
   }
 }

@@ -37,3 +37,14 @@ function getCaretCoordinates(): { x: number; y: number } {
   }
   return { x, y };
 }
+
+export function setCaret(index: number, element: HTMLElement): void {
+  const range = document.createRange();
+  const selection = window.getSelection();
+
+  range.setStart(element.childNodes[0], index);
+  range.collapse(true);
+
+  selection.removeAllRanges();
+  selection.addRange(range);
+}

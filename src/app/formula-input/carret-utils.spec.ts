@@ -1,14 +1,14 @@
 import { async, TestBed } from '@angular/core/testing';
 import { getCaretIndex } from './carret-utils';
 
-describe('carretUtils', () => {
+describe('caretUtils', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({})
       .compileComponents();
   }));
 
-  it('should find the position of the carret', () => {
+  it('should find the position of the caret', () => {
     const text = document.createTextNode('abcdefghijklmnop');
     const range = new Range();
     range.setStart(text, 4);
