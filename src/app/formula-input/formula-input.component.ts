@@ -55,7 +55,7 @@ export class FormulaInputComponent implements OnInit {
     }
     const formattedContents = text.slice(0, caretIndexToSlice).split(/[(\/+*-]/);
     const formattedContent = formattedContents[formattedContents.length - 1].trim();
-    this.formulaSyntax = null;
+    this.resetFormulaSyntax();
     this.resetSuggestion();
     if (!!formattedContent) {
       this.buildSuggestionContents(isCaretOnBracket, formattedContent);
@@ -70,18 +70,35 @@ export class FormulaInputComponent implements OnInit {
   }
 
   enterSelectedSuggestion(index: number): void {
-    const isFormula = this.suggestions[index].type === InputType.FORMULA;
-    const focusSuggestion = isFormula ? this.suggestions[index].formula : this.suggestions[index].variable;
+    const suggestion = this.suggestions[index];
+    const isFormula = suggestion.type === InputType.FORMULA;
+    const focusSuggestion = isFormula ? suggestion.formula : suggestion.variable;
     const inputElement = this.formulaElement.nativeElement;
     const { beforeContent, afterContent, focusContent } = splitInputText(inputElement.innerText, this.getInputCaretIndex());
     let formattedName = suggestionNameWithSpaceBeforeIfExistent(focusSuggestion.name, focusContent[0]);
-    this.saveUserInput(`${beforeContent}${formattedName}(${afterContent}`);
+    let contentToWrite = `${beforeContent}${formattedName}${afterContent}`;
+    if (isFormula) {
+      if (suggestion.formula.syntaxParameter.length === 0) {
+        contentToWrite = `${beforeContent}${formattedName}()${afterContent}`;
+      } else {
+        contentToWrite = `${beforeContent}${formattedName}(${afterContent}`;
+      }
+    }
+    this.saveUserInput(contentToWrite);
+    this.resetSuggestion();
     if (isFormula) {
       this.formulaSyntax = (focusSuggestion as Formula).syntax;
     }
-    this.resetSuggestion();
     setTimeout(() => {
-      setCaret(beforeContent.length + formattedName.length + 1, inputElement);
+      let nextCaretPosition = beforeContent.length + formattedName.length;
+      if (isFormula) {
+        if (suggestion.formula.syntaxParameter.length === 0) {
+          nextCaretPosition += 2;
+        } else {
+          nextCaretPosition += 1;
+        }
+      }
+      setCaret(nextCaretPosition, inputElement);
     }, 0);
   }
 
@@ -171,5 +188,9 @@ export class FormulaInputComponent implements OnInit {
   private saveUserInput(fullFormulas: string): void {
     this.formulaText = fullFormulas;
     this.formulaElement.nativeElement.innerHTML = this.formulaText;
+  }
+
+  private resetFormulaSyntax() {
+    this.formulaSyntax = null;
   }
 }

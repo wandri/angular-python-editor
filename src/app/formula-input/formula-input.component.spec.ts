@@ -30,10 +30,32 @@ describe('FormulaInputComponent', () => {
   describe('with formula only', () => {
     const formulas = new Store<Formula>();
     formulas.addAllAndSort([
-      { name: 'SUM', description: 'SUM details', syntax: 'syntax SUM', shortDescription: 'short Sum details' },
-      { name: 'SOM', description: 'SOM details', syntax: '', shortDescription: 'short Som details' },
-      { name: 'SUMO', description: 'SUMO details', syntax: '' },
-      { name: 'PROD', description: 'PROD details', syntax: '' },
+      {
+        name: 'SUM',
+        description: 'SUM details',
+        syntax: 'SUM(var 1,var2)',
+        syntaxParameter: [1, 1],
+        shortDescription: 'short Sum details'
+      },
+      {
+        name: 'SOM',
+        description: 'SOM details',
+        syntax: 'SOM(var1,[var 2,...])',
+        syntaxParameter: [1, 1000],
+        shortDescription: 'short Som details'
+      },
+      {
+        name: 'SUMO',
+        description: 'SUMO details',
+        syntax: 'SUMO(var1,[var 2])',
+        syntaxParameter: [1, 0]
+      },
+      {
+        name: 'PROD',
+        description: 'PROD details',
+        syntax: 'PROD([var 2])',
+        syntaxParameter: [0]
+      },
     ]);
 
     beforeEach(async(() => {
