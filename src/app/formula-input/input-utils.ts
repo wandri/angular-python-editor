@@ -1,3 +1,5 @@
+export const NO_CLOSING_BRACKET_INDEX = 9999;
+
 export function splitInputText(text: string, caretIndex: number):
   { focusContent: string; beforeContent: string, afterContent: string } {
   let contentBeforeFormula = '';
@@ -61,25 +63,42 @@ export function areAllBracketsClosed(text): boolean {
   return (holder.length === 0);
 }
 
-export function findClosingOperationIndexes(text: string): { index: [number, number], operator: string }[] {
+export function findAllPossibleOperations(text: string, existingOperators: string[]): { index: [number, number], operator: string }[] {
   const holder: { index: [number, number], operator: string }[] = [];
-  const regex = /(\w+\([\w,.\/+ *@\-]*\))/g;
+  const closingBracketRegex = /(\w+\([\w,.\/+ *@\-]*\))/g;
+  const nonClosingBracketRegex = /(\w*\([^(]*)$/g;
   let match: RegExpExecArray;
   let index = 0;
-  while ((match = regex.exec(text)) !== null) {
+  while ((match = closingBracketRegex.exec(text)) !== null) {
     const matchingOperation = match[0];
     text = match.input.replace(matchingOperation, '@'.repeat(matchingOperation.length - Math.trunc(index / 10) - 1) + index);
-    holder.push({
-      index: [match.index, match.index + matchingOperation.length],
-      operator: matchingOperation.split('(')[0]
-    });
+    const operator = matchingOperation.split('(')[0];
+    if (existingOperators.includes(operator)) {
+      holder.push({
+        index: [match.index, match.index + matchingOperation.length - 1],
+        operator,
+      });
+    }
     index++;
-    regex.lastIndex = 0;
+    closingBracketRegex.lastIndex = 0;
+  }
+  while ((match = nonClosingBracketRegex.exec(text)) !== null) {
+    const matchingOperation = match[0];
+    text = match.input.replace(matchingOperation, '@'.repeat(matchingOperation.length - Math.trunc(index / 10) - 1) + index);
+    const operatorName = matchingOperation.split('(')[0];
+    if (existingOperators.includes(operatorName)) {
+      holder.push({
+        index: [match.index, NO_CLOSING_BRACKET_INDEX],
+        operator: operatorName,
+      });
+    }
+    index++;
+    closingBracketRegex.lastIndex = 0;
   }
   return holder;
 }
 
-export function findFormulaFromFormulaIndexes(index: number, formulas: { index: [number, number], operator: string }[]): { index: [number, number], operator: string }[] {
+export function findFormulasOnCaretPosition(index: number, formulas: { index: [number, number], operator: string }[]): { index: [number, number], operator: string }[] {
   let result: { index: [number, number], operator: string }[] = [];
   formulas.forEach(formula => {
     const firstPosition = formula.index[0];

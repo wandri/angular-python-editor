@@ -1,5 +1,5 @@
 import { async, TestBed } from '@angular/core/testing';
-import { areAllBracketsClosed, findClosingOperationIndexes, findFormulaFromFormulaIndexes, splitInputText } from './input-utils';
+import { areAllBracketsClosed, findAllPossibleOperations, findFormulasOnCaretPosition, splitInputText } from './input-utils';
 
 describe('inputUtils', () => {
 
@@ -34,21 +34,21 @@ describe('inputUtils', () => {
   describe('Index of operation', () => {
     it('should detect complex closing bracket 1', () => {
       const expectedIndexes: { index: [number, number], operator: string }[] = [
-        { index: [13, 17], operator: 'PI', },
-        { index: [7, 18], operator: 'SUM', },
-        { index: [0, 21], operator: 'SEARCH', }
+        { index: [13, 16], operator: 'PI', },
+        { index: [7, 17], operator: 'SUM', },
+        { index: [0, 20], operator: 'SEARCH', }
       ];
-      expect(findClosingOperationIndexes('SEARCH(SUM(1,PI()),4)')).toEqual(expectedIndexes);
+      expect(findAllPossibleOperations('SEARCH(SUM(1,PI()),4)', ['SUM', 'SEARCH', 'PI'])).toEqual(expectedIndexes);
     });
 
     it('should detect complex closing bracket 2', () => {
       const expectedIndexes: { index: [number, number], operator: string }[] = [
-        { index: [0, 4], operator: 'PI', },
-        { index: [23, 27], operator: 'PI', },
-        { index: [17, 28], operator: 'SUM', },
-        { index: [11, 29], operator: 'SUM', },
+        { index: [0, 3], operator: 'PI', },
+        { index: [23, 26], operator: 'PI', },
+        { index: [17, 27], operator: 'SUM', },
+        { index: [11, 28], operator: 'SUM', },
       ];
-      expect(findClosingOperationIndexes('PI() + 2 / SUM(1,SUM(4,PI())) - @M4')).toEqual(expectedIndexes);
+      expect(findAllPossibleOperations('PI() + 2 / SUM(1,SUM(4,PI())) - @M4', ['SUM', 'SEARCH', 'PI'])).toEqual(expectedIndexes);
     });
 
     it('should find the good formula focus from position', () => {
@@ -58,7 +58,7 @@ describe('inputUtils', () => {
         { index: [17, 28], operator: 'SUM', },
         { index: [11, 29], operator: 'SUM', },
       ];
-      expect(findFormulaFromFormulaIndexes(2, indexes)).toEqual([{ index: [0, 4], operator: 'PI', }]);
+      expect(findFormulasOnCaretPosition(2, indexes)).toEqual([{ index: [0, 4], operator: 'PI', }]);
     });
 
     it('should find no formula focus from position without formula', () => {
@@ -68,7 +68,7 @@ describe('inputUtils', () => {
         { index: [17, 28], operator: 'SUM', },
         { index: [11, 29], operator: 'SUM', },
       ];
-      expect(findFormulaFromFormulaIndexes(5, indexes)).toEqual([]);
+      expect(findFormulasOnCaretPosition(5, indexes)).toEqual([]);
     });
 
     it('should find the formula inside another formula', () => {
@@ -78,7 +78,7 @@ describe('inputUtils', () => {
         { index: [17, 28], operator: 'SUM', },
         { index: [11, 29], operator: 'SUM', },
       ];
-      expect(findFormulaFromFormulaIndexes(22, indexes)).toEqual([{ index: [17, 28], operator: 'SUM' }, {
+      expect(findFormulasOnCaretPosition(22, indexes)).toEqual([{ index: [17, 28], operator: 'SUM' }, {
         index: [11, 29],
         operator: 'SUM'
       }]);

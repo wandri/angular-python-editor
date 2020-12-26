@@ -3,8 +3,8 @@ import { getCaretIndex, setCaret } from './carret-utils';
 import { Formula } from '../interfaces/formula';
 import { storedFormulas } from '../dataset/formula-list';
 import {
-  findClosingOperationIndexes,
-  findFormulaFromFormulaIndexes,
+  findAllPossibleOperations,
+  findFormulasOnCaretPosition,
   splitInputText,
   suggestionNameWithSpaceBeforeIfExistent
 } from './input-utils';
@@ -54,20 +54,38 @@ export class FormulaInputComponent implements OnInit {
   onNameChange(): void {
     const text = this.formulaElement.nativeElement.innerHTML;
     let initialCaretIndex = this.getInputCaretIndex();
-    let caretIndexToSlice = initialCaretIndex;
-    let isCaretOnBracket = text[caretIndexToSlice - 1] === '(';
-    if (isCaretOnBracket) {
-      caretIndexToSlice = caretIndexToSlice === 0 ? 0 : caretIndexToSlice - 1;
-    }
-    const formattedContents = text.slice(0, caretIndexToSlice).split(/[(\/,+*-]/);
-    const formattedContent = formattedContents[formattedContents.length - 1].trim();
+    const allCharactersBeforeCaret = text.slice(0, initialCaretIndex).split(/[()\/ ,+*-]/);
+    const charactersJustBeforeCaret = allCharactersBeforeCaret[allCharactersBeforeCaret.length - 1];
     this.resetFormulaSyntax();
     this.resetSuggestion();
-    if (!!formattedContent) {
-      this.buildSuggestionContents(isCaretOnBracket, formattedContent);
-    } else {
-      const formulaPositions = findFormulaFromFormulaIndexes(initialCaretIndex, findClosingOperationIndexes(text));
-      const onFormulaWithClosingBracket = formulaPositions && this.formulas.ids.includes(formulaPositions[0].operator);
+    if (!!charactersJustBeforeCaret) {
+      let formulaSuggestionsNumber = 0;
+      const suggestions = [];
+      for (let name of this.formulas.ids) {
+        if (name.startsWith(charactersJustBeforeCaret)) {
+          suggestions.push({ type: InputType.FORMULA, name, formula: this.formulas.item[name] });
+          formulaSuggestionsNumber++;
+          if (formulaSuggestionsNumber >= 10) {
+            break;
+          }
+        }
+      }
+      let variableSuggestionsNumber = 0;
+      for (let name of this.variables.ids) {
+        if (name.toLowerCase().startsWith(charactersJustBeforeCaret.toLowerCase())) {
+          suggestions.push({ type: InputType.VARIABLE, name, variable: this.variables.item[name] });
+          variableSuggestionsNumber++;
+          if (variableSuggestionsNumber >= 10) {
+            break;
+          }
+        }
+      }
+      this.suggestions = suggestions;
+    }
+    if (this.suggestions.length === 0) {
+      const closingOperationIndexes = findAllPossibleOperations(text, this.formulas.ids);
+      const formulaPositions = findFormulasOnCaretPosition(initialCaretIndex, closingOperationIndexes);
+      const onFormulaWithClosingBracket = formulaPositions.length > 0;
       if (onFormulaWithClosingBracket) {
         this.formulaSyntax = this.formulas.item[formulaPositions[0].operator].syntax;
       }
@@ -139,6 +157,9 @@ export class FormulaInputComponent implements OnInit {
         this.enterSelectedSuggestion(this.suggestionFocusIndex);
       }
     }
+    if ($event.key === 'ArrowLeft' || $event.key === 'ArrowRight') {
+      this.onNameChange();
+    }
   }
 
   preventEnterKey($event: KeyboardEvent): void {
@@ -156,36 +177,6 @@ export class FormulaInputComponent implements OnInit {
     if (this.suggestionFocusIndex < 0) {
       this.suggestionFocusIndex = this.suggestions.length - 1;
     }
-  }
-
-  private buildSuggestionContents(isCaretOnBracket: boolean, formattedContent: string): void {
-    let formulaSuggestionsNumber = 0;
-    const suggestions = [];
-    for (let name of this.formulas.ids) {
-      if (isCaretOnBracket && name === formattedContent) {
-        this.formulaSyntax = this.formulas.item[name].syntax;
-        break;
-      } else if (!isCaretOnBracket && name.startsWith(formattedContent)) {
-        suggestions.push({ type: InputType.FORMULA, name, formula: this.formulas.item[name] });
-
-        formulaSuggestionsNumber++;
-        if (formulaSuggestionsNumber >= 10) {
-          break;
-        }
-      }
-    }
-    let variableSuggestionsNumber = 0;
-    for (let name of this.variables.ids) {
-      if (!isCaretOnBracket && name.toLowerCase().startsWith(formattedContent.toLowerCase())) {
-        suggestions.push({ type: InputType.VARIABLE, name, variable: this.variables.item[name] });
-
-        variableSuggestionsNumber++;
-        if (variableSuggestionsNumber >= 10) {
-          break;
-        }
-      }
-    }
-    this.suggestions = suggestions;
   }
 
   private selectNextSuggestion(): void {
