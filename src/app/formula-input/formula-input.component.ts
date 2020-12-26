@@ -2,7 +2,12 @@ import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnInit, V
 import { getCaretIndex, setCaret } from './carret-utils';
 import { Formula } from '../interfaces/formula';
 import { storedFormulas } from '../dataset/formula-list';
-import { splitInputText, suggestionNameWithSpaceBeforeIfExistent } from './input-utils';
+import {
+  findClosingOperationIndexes,
+  findFormulaFromFormulaIndexes,
+  splitInputText,
+  suggestionNameWithSpaceBeforeIfExistent
+} from './input-utils';
 import { Store } from '../interfaces/store';
 import { Variable } from '../interfaces/variable';
 import { storedVariables } from '../dataset/variable-list';
@@ -48,17 +53,24 @@ export class FormulaInputComponent implements OnInit {
 
   onNameChange(): void {
     const text = this.formulaElement.nativeElement.innerHTML;
-    let caretIndexToSlice = this.getInputCaretIndex();
+    let initialCaretIndex = this.getInputCaretIndex();
+    let caretIndexToSlice = initialCaretIndex;
     let isCaretOnBracket = text[caretIndexToSlice - 1] === '(';
     if (isCaretOnBracket) {
       caretIndexToSlice = caretIndexToSlice === 0 ? 0 : caretIndexToSlice - 1;
     }
-    const formattedContents = text.slice(0, caretIndexToSlice).split(/[(\/+*-]/);
+    const formattedContents = text.slice(0, caretIndexToSlice).split(/[(\/,+*-]/);
     const formattedContent = formattedContents[formattedContents.length - 1].trim();
     this.resetFormulaSyntax();
     this.resetSuggestion();
     if (!!formattedContent) {
       this.buildSuggestionContents(isCaretOnBracket, formattedContent);
+    } else {
+      const formulaPositions = findFormulaFromFormulaIndexes(initialCaretIndex, findClosingOperationIndexes(text));
+      const onFormulaWithClosingBracket = formulaPositions && this.formulas.ids.includes(formulaPositions[0].operator);
+      if (onFormulaWithClosingBracket) {
+        this.formulaSyntax = this.formulas.item[formulaPositions[0].operator].syntax;
+      }
     }
     if (!this.isEmptySuggestion) {
       this.suggestionFocusIndex = 0;
@@ -130,10 +142,8 @@ export class FormulaInputComponent implements OnInit {
   }
 
   preventEnterKey($event: KeyboardEvent): void {
-    if (!this.isEmptySuggestion) {
-      if ($event.key === 'Enter') {
-        $event.preventDefault();
-      }
+    if ($event.key === 'Enter') {
+      $event.preventDefault();
     }
   }
 
