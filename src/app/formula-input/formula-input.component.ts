@@ -46,6 +46,11 @@ export class FormulaInputComponent implements OnInit {
     this.onKeyDown(event);
   }
 
+  @HostListener('keyup', ['$event'])
+  handleKeyUp(event: KeyboardEvent) {
+    this.onKeyUp(event);
+  }
+
   ngOnInit(): void {
     this.formulas.addAllAndSort(storedFormulas);
     this.variables.addAllAndSort(storedVariables);
@@ -142,26 +147,6 @@ export class FormulaInputComponent implements OnInit {
     return this.getCaretIndex(this.formulaElement.nativeElement);
   }
 
-  onKeyDown($event: KeyboardEvent): void {
-    if (!this.isEmptySuggestion) {
-      if ($event.key === 'ArrowDown') {
-        $event.preventDefault();
-        this.selectNextSuggestion();
-      }
-      if ($event.key === 'ArrowUp') {
-        $event.preventDefault();
-        this.selectPreviousSuggestion();
-      }
-      if ($event.key === 'Enter') {
-        $event.preventDefault();
-        this.enterSelectedSuggestion(this.suggestionFocusIndex);
-      }
-    }
-    if ($event.key === 'ArrowLeft' || $event.key === 'ArrowRight') {
-      this.onNameChange();
-    }
-  }
-
   preventEnterKey($event: KeyboardEvent): void {
     if ($event.key === 'Enter') {
       $event.preventDefault();
@@ -191,7 +176,30 @@ export class FormulaInputComponent implements OnInit {
     this.formulaElement.nativeElement.innerHTML = this.formulaText;
   }
 
-  private resetFormulaSyntax() {
+  private resetFormulaSyntax(): void {
     this.formulaSyntax = null;
+  }
+
+  private onKeyUp(event: KeyboardEvent): void {
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+      this.onNameChange();
+    }
+  }
+
+  private onKeyDown($event: KeyboardEvent): void {
+    if (!this.isEmptySuggestion) {
+      if ($event.key === 'ArrowDown') {
+        $event.preventDefault();
+        this.selectNextSuggestion();
+      }
+      if ($event.key === 'ArrowUp') {
+        $event.preventDefault();
+        this.selectPreviousSuggestion();
+      }
+      if ($event.key === 'Enter') {
+        $event.preventDefault();
+        this.enterSelectedSuggestion(this.suggestionFocusIndex);
+      }
+    }
   }
 }
