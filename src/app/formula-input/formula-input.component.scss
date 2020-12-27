@@ -2,7 +2,7 @@
 
 
   .formula-bar-input-container {
-    height: 24px;
+    height: 36px;
     width: 360px;
     position: relative;
     padding: 4px;
@@ -11,13 +11,17 @@
     .formula-details {
       position: absolute;
       z-index: 1000;
-      top: 36px;
+      top: 44px;
       left: 0;
       width: 360px;
       border-radius: 4px;
       border: 1px solid rgba(0, 0, 0, .2);
       box-shadow: 0 1px 3px 1px rgba(60, 64, 67, .15);
       color: #222;
+
+      ::ng-deep .focus-argument {
+        color: green;
+      }
     }
 
     .formula-description {
@@ -63,7 +67,7 @@
     .formula-bar-input {
       height: 100%;
       width: 100%;
-      line-height: 24px;
+      line-height: 36px;
       font-size: 24px;
       font-family: Roboto, RobotoDraft, Helvetica, Arial, sans-serif;
       background-color: #ffffff;
@@ -72,6 +76,9 @@
         width: 100%;
         height: 100%;
         word-wrap: break-word;
+        display: flex;
+        justify-content: start;
+        align-items: center;
         margin: 0;
         outline: none;
         cursor: text;

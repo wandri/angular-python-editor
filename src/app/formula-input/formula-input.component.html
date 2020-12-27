@@ -2,14 +2,14 @@
   <div class="formula-bar-input">
     <div #formulaInput
          (input)="onNameChange()"
-         class="cell-input"
          (keypress)="preventEnterKey($event)"
+         class="cell-input"
          contenteditable>
     </div>
   </div>
   <div *ngIf="suggestions.length>0 && !formulaSyntax" class="formula-details suggestions">
     <ng-container *ngFor="let suggestion of suggestions; let index = index">
-      <div class="separator" *ngIf="index>0 && suggestions[index-1].type !== suggestion.type"></div>
+      <div *ngIf="index>0 && suggestions[index-1].type !== suggestion.type" class="separator"></div>
       <div (click)="selectSuggestion(index)"
            (mouseenter)="focusSuggestion(index)"
            [class.active]="suggestionFocusIndex == index"
@@ -30,7 +30,6 @@
       </div>
     </ng-container>
   </div>
-  <div *ngIf="formulaSyntax" class="formula-details formula-description">
-    {{ formulaSyntax }}
+  <div *ngIf="formulaSyntax" [innerHTML]="formulaSyntax" class="formula-details formula-description">
   </div>
 </div>

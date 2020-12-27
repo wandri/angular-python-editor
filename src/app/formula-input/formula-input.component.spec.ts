@@ -132,7 +132,7 @@ describe('FormulaInputComponent', () => {
       });
 
       describe('Syntax display', () => {
-        it('should display the syntax of a formula after a bracket and not the suggestions', () => {
+        it('should display the syntax of a formula after a bracket', () => {
           spyOn(component, 'getCaretIndex').and.returnValue(4);
           const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
           input.innerHTML = 'SUM(';
@@ -140,7 +140,7 @@ describe('FormulaInputComponent', () => {
           fixture.detectChanges();
           const details = fixture.debugElement.nativeElement.querySelector('.formula-description');
           expect(details).toBeTruthy();
-          expect(details.innerHTML.trim()).toContain(formulas.item['SUM'].syntax);
+          expect(details.innerHTML.trim()).toContain('SUM(<span class="focus-argument">var 1</span>,var2)');
         });
 
         it('should not display the suggestions', () => {
@@ -161,7 +161,18 @@ describe('FormulaInputComponent', () => {
           fixture.detectChanges();
           const details = fixture.debugElement.nativeElement.querySelector('.formula-description');
           expect(details).toBeTruthy();
-          expect(details.innerHTML.trim()).toContain(formulas.item['SUM'].syntax);
+          expect(details.innerHTML.trim()).toContain('SUM(<span class="focus-argument">var 1</span>,var2)');
+        });
+
+        it('should display the syntax with focus on last argument', () => {
+          spyOn(component, 'getCaretIndex').and.returnValue(10);
+          const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
+          input.innerHTML = 'SUM(PI(), 4';
+          input.dispatchEvent(new InputEvent('input'));
+          fixture.detectChanges();
+          const details = fixture.debugElement.nativeElement.querySelector('.formula-description');
+          expect(details).toBeTruthy();
+          expect(details.innerHTML.trim()).toContain('SUM(var 1,<span class="focus-argument">var2</span>)');
         });
       });
 

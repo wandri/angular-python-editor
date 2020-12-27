@@ -1,5 +1,13 @@
 import { async, TestBed } from '@angular/core/testing';
-import { areAllBracketsClosed, findAllPossibleOperations, findFormulasOnCaretPosition, splitInputText } from './input-utils';
+import {
+  areAllBracketsClosed,
+  buildSyntax,
+  findAllPossibleOperations,
+  findFocusFormulaIndexOnInput,
+  findFormulasOnCaretPosition,
+  NO_CLOSING_BRACKET_INDEX,
+  splitInputText
+} from './input-utils';
 
 describe('inputUtils', () => {
 
@@ -78,10 +86,190 @@ describe('inputUtils', () => {
         { index: [17, 28], operator: 'SUM' },
         { index: [11, 29], operator: 'SUM' },
       ];
-      expect(findFormulasOnCaretPosition(22, indexes)).toEqual([{ index: [17, 28], operator: 'SUM' }, {
+      expect(findFormulasOnCaretPosition(22, indexes)).toEqual([{
+        index: [17, 28],
+        operator: 'SUM'
+      }, {
         index: [11, 29],
         operator: 'SUM'
       }]);
+    });
+  });
+
+  describe('Syntax build', () => {
+    describe('simple syntax with focus on first argument', () => {
+      let caretIndex;
+      let syntax;
+      let expectedSyntax;
+
+      beforeEach(() => {
+        caretIndex = 4;
+        syntax = 'SUM(var1,var2,var3)';
+        expectedSyntax = 'SUM(' + '<span class="focus-argument">' + 'var1' + '</span>' + ',var2,var3)';
+      });
+
+      it('should build simple syntax with closing bracket', () => {
+        const formula: { index: [number, number]; operator: string } = {
+          index: [0, 8],
+          operator: 'SUM'
+        };
+        const inputContent = 'SUM(1,2,3)';
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax)).toEqual(expectedSyntax);
+      });
+      it('should build simple syntax with non closing bracket 1', () => {
+        const formula: { index: [number, number]; operator: string } = {
+          index: [0, NO_CLOSING_BRACKET_INDEX],
+          operator: 'SUM'
+        };
+        const inputContent = 'SUM(1';
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax)).toEqual(expectedSyntax);
+      });
+      it('should build simple syntax with non closing bracket 2', () => {
+        const formula: { index: [number, number]; operator: string } = {
+          index: [0, NO_CLOSING_BRACKET_INDEX],
+          operator: 'SUM'
+        };
+        const inputContent = 'SUM(';
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax)).toEqual(expectedSyntax);
+      });
+      it('should build simple syntax with non closing bracket 8', () => {
+        const formula: { index: [number, number]; operator: string } = {
+          index: [0, NO_CLOSING_BRACKET_INDEX],
+          operator: 'SUM'
+        };
+        const inputContent = 'SUM(test + 5';
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax)).toEqual(expectedSyntax);
+      });
+    });
+    describe('simple syntax with focus on second argument', () => {
+      let caretIndex;
+      let syntax;
+      let expectedSyntax;
+
+      beforeEach(() => {
+        caretIndex = 6;
+        syntax = 'SUM(var1,var2,var3)';
+        expectedSyntax = 'SUM(var1,' + '<span class="focus-argument">' + 'var2' + '</span>' + ',var3)';
+      });
+
+      it('should build simple syntax with closing bracket', () => {
+        const formula: { index: [number, number]; operator: string } = {
+          index: [0, 8],
+          operator: 'SUM'
+        };
+        const inputContent = 'SUM(1,2,3)';
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax)).toEqual(expectedSyntax);
+      });
+
+      it('should build complex syntax with closing bracket', () => {
+        const formula: { index: [number, number]; operator: string } = {
+          index: [0, 14],
+          operator: 'SUM'
+        };
+        caretIndex = 10;
+        const inputContent = 'SUM([1,4],2,3)';
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax)).toEqual(expectedSyntax);
+      });
+
+      it('should build simple syntax with non closing bracket 1', () => {
+        const formula: { index: [number, number]; operator: string } = {
+          index: [0, NO_CLOSING_BRACKET_INDEX],
+          operator: 'SUM'
+        };
+        const inputContent = 'SUM(1,2,';
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax)).toEqual(expectedSyntax);
+      });
+      it('should build simple syntax with non closing bracket 2', () => {
+        const formula: { index: [number, number]; operator: string } = {
+          index: [0, NO_CLOSING_BRACKET_INDEX],
+          operator: 'SUM'
+        };
+        caretIndex = 10;
+        const inputContent = 'SUM(1,2/900';
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax)).toEqual(expectedSyntax);
+      });
+    });
+    describe('simple syntax with focus on last argument', () => {
+      let caretIndex;
+      let syntax;
+      let expectedSyntax;
+
+      beforeEach(() => {
+        caretIndex = 8;
+        syntax = 'SUM(var1,var2,var3)';
+        expectedSyntax = 'SUM(var1,var2,' + '<span class="focus-argument">' + 'var3' + '</span>' + ')';
+      });
+
+      it('should build simple syntax with closing bracket', () => {
+        const formula: { index: [number, number]; operator: string } = {
+          index: [0, 8],
+          operator: 'SUM'
+        };
+        const inputContent = 'SUM(1,2,3)';
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax)).toEqual(expectedSyntax);
+      });
+      it('should build simple syntax with non closing bracket 1', () => {
+        const formula: { index: [number, number]; operator: string } = {
+          index: [0, NO_CLOSING_BRACKET_INDEX],
+          operator: 'SUM'
+        };
+        const inputContent = 'SUM(1,2,';
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax)).toEqual(expectedSyntax);
+      });
+
+      it('should build simple syntax with non closing bracket 2', () => {
+        const formula: { index: [number, number]; operator: string } = {
+          index: [0, NO_CLOSING_BRACKET_INDEX],
+          operator: 'SUM'
+        };
+        caretIndex = 11;
+        const inputContent = 'SUM(1,2, 3+5';
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax)).toEqual(expectedSyntax);
+      });
+    });
+  });
+
+  describe('focus formula index in input without non opened bracket', () => {
+    let formula: { index: [number, number]; operator: string };
+    let inputContent;
+    beforeEach(() => {
+      formula = {
+        index: [4, NO_CLOSING_BRACKET_INDEX],
+        operator: 'SUM'
+      };
+      inputContent = '2 + SUM(1,2,';
+    });
+
+    it('should find the focus on first argument 1', () => {
+      const initialCaretIndex = 8;
+      expect(findFocusFormulaIndexOnInput(formula, inputContent, initialCaretIndex)).toEqual(0);
+    });
+    it('should find the focus on first argument 2', () => {
+      const initialCaretIndex = 9;
+      expect(findFocusFormulaIndexOnInput(formula, inputContent, initialCaretIndex)).toEqual(0);
+    });
+    it('should find the focus on first argument 3', () => {
+      const initialCaretIndex = 9;
+      inputContent = '2 + SUM(1';
+      expect(findFocusFormulaIndexOnInput(formula, inputContent, initialCaretIndex)).toEqual(0);
+    });
+    it('should find the focus on first argument with nested Bracket', () => {
+      const initialCaretIndex = 12;
+      inputContent = '2 + SUM([1,2],2,';
+      expect(findFocusFormulaIndexOnInput(formula, inputContent, initialCaretIndex)).toEqual(0);
+    });
+    it('should find the focus on second argument', () => {
+      const initialCaretIndex = 10;
+      expect(findFocusFormulaIndexOnInput(formula, inputContent, initialCaretIndex)).toEqual(1);
+    });
+    it('should find the focus on second argument with nested Bracket', () => {
+      const initialCaretIndex = 14;
+      inputContent = '2 + SUM([1,2],2,';
+      expect(findFocusFormulaIndexOnInput(formula, inputContent, initialCaretIndex)).toEqual(1);
+    });
+    it('should find the focus on last argument', () => {
+      const initialCaretIndex = 12;
+      expect(findFocusFormulaIndexOnInput(formula, inputContent, initialCaretIndex)).toEqual(2);
     });
   });
 });

@@ -1,4 +1,6 @@
 export const NO_CLOSING_BRACKET_INDEX = 9999;
+export const OPENING_BRACKETS = ['(', '[', '{'];
+export const CLOSING_BRACKETS = [')', ']', '}'];
 
 export function splitInputText(text: string, caretIndex: number):
   { focusContent: string; beforeContent: string, afterContent: string } {
@@ -32,7 +34,11 @@ export function splitInputText(text: string, caretIndex: number):
       contentAfterFormula += content;
     }
   });
-  return { beforeContent: contentBeforeFormula, afterContent: contentAfterFormula, focusContent: contentOnFormula };
+  return {
+    beforeContent: contentBeforeFormula,
+    afterContent: contentAfterFormula,
+    focusContent: contentOnFormula
+  };
 }
 
 export function suggestionNameWithSpaceBeforeIfExistent(name: string, firstCharacter: string): string {
@@ -108,4 +114,63 @@ export function findFormulasOnCaretPosition(index: number, formulas: { index: [n
   });
   result.sort((a, b) => a.index[0] > b.index[0] ? -1 : 1);
   return result;
+}
+
+export function findFocusFormulaIndexOnInput(formulaPosition: { index: [number, number]; operator: string }, inputText: string, initialCaretIndex: number) {
+  const startArgumentIndex = formulaPosition.index[0];
+  const argumentsStartIndex = startArgumentIndex + formulaPosition.operator.length + 1;
+  const formulaWithArguments = inputText
+    .slice(argumentsStartIndex, formulaPosition.index[1] + 1);
+  let focusIndex = 0;
+  const memory = [];
+
+  for (let i = 0; i < formulaWithArguments.length; i++) {
+    const character = formulaWithArguments[i];
+    if (OPENING_BRACKETS.includes(character)) {
+      memory.push(OPENING_BRACKETS.indexOf(character));
+    }
+    if (CLOSING_BRACKETS.includes(character) && CLOSING_BRACKETS.indexOf(character) === memory[memory.length - 1]) {
+      memory.pop();
+    }
+    if (argumentsStartIndex + i === initialCaretIndex) {
+      break;
+    }
+    if (character === ',' && memory.length === 0) {
+      focusIndex++;
+    }
+  }
+  return focusIndex;
+}
+
+function getFormattedSyntax(syntax: string, formulaPosition: { index: [number, number]; operator: string }, focusIndex: number): string {
+  let formattedSyntax = syntax;
+  let partialText = '';
+  const memory = [];
+  let argumentFormulaIndex = 0;
+  for (let i = formulaPosition.operator.length + 1; i < syntax.length; i++) {
+    const character = syntax[i];
+    if (OPENING_BRACKETS.includes(character)) {
+      memory.push(OPENING_BRACKETS.indexOf(character));
+    }
+    if (CLOSING_BRACKETS.includes(character) && CLOSING_BRACKETS.indexOf(character) === memory[memory.length - 1]) {
+      memory.pop();
+    }
+    if ((character === ',' || i === syntax.length - 1) && memory.length === 0) {
+      if (argumentFormulaIndex === focusIndex) {
+        formattedSyntax = formattedSyntax.replace(partialText, '<span class="focus-argument">' + partialText + '</span>');
+        break;
+      } else {
+        partialText = '';
+      }
+      argumentFormulaIndex++;
+    } else {
+      partialText += character;
+    }
+  }
+  return formattedSyntax;
+}
+
+export function buildSyntax(formulaPosition: { index: [number, number]; operator: string }, inputText: string, initialCaretIndex: number, syntax: string): string {
+  let focusIndex = findFocusFormulaIndexOnInput(formulaPosition, inputText, initialCaretIndex);
+  return getFormattedSyntax(syntax, formulaPosition, focusIndex);
 }
