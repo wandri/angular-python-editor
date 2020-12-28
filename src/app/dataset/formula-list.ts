@@ -1018,7 +1018,7 @@ export const storedFormulas: Formula[] = [
     description: 'Returns a subtotal for a vertical range of cells using a specified aggregation function.'
   }, {
     name: 'SUM',
-    syntaxParameter: [1, 0],
+    syntaxParameter: [1, 1000],
     syntax: 'SUM(value1, [value2, ...])',
     description: 'Returns the sum of a series of numbers and/or cells.'
   }, {
@@ -1804,7 +1804,7 @@ export const storedFormulas: Formula[] = [
     description: 'Calculates the variance based on an entire population.'
   }, {
     name: 'VARPA',
-    syntaxParameter: [1, 1, 999],
+    syntaxParameter: [1, 1, 1000],
     syntax: 'VARPA(value1, value2,...)',
     description: 'Calculates the variance based on an entire population, setting text to the value `0`.'
   }, {

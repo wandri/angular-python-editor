@@ -1,4 +1,5 @@
 export const NO_CLOSING_BRACKET_INDEX = 9999;
+export const INFINITE_ARGUMENTS = 1000;
 export const OPENING_BRACKETS = ['(', '[', '{'];
 export const CLOSING_BRACKETS = [')', ']', '}'];
 
@@ -154,7 +155,9 @@ export function findFocusFormulaIndexOnInput(formulaPosition: { index: [number, 
   return focusIndex;
 }
 
-function getFormattedSyntax(syntax: string, formulaPosition: { index: [number, number]; operator: string }, focusIndex: number): string {
+function getFormattedSyntax(syntax: string, syntaxParameter: number[],
+                            formulaPosition: { index: [number, number]; operator: string },
+                            focusIndex: number): string {
   let formattedSyntax = syntax;
   let partialText = '';
   const memory = [];
@@ -168,7 +171,10 @@ function getFormattedSyntax(syntax: string, formulaPosition: { index: [number, n
       memory.pop();
     }
     if ((character === ',' || i === syntax.length - 1) && memory.length === 0) {
-      if (argumentFormulaIndex === focusIndex) {
+      const parameterNumbers = syntaxParameter.length;
+      const isOnInfiniteParameter = argumentFormulaIndex >= parameterNumbers - 1
+        && syntaxParameter[parameterNumbers - 1] === INFINITE_ARGUMENTS;
+      if (argumentFormulaIndex === focusIndex || isOnInfiniteParameter) {
         formattedSyntax = formattedSyntax.replace(partialText, '<span class="focus-argument">' + partialText + '</span>');
         break;
       } else {
@@ -182,7 +188,8 @@ function getFormattedSyntax(syntax: string, formulaPosition: { index: [number, n
   return formattedSyntax;
 }
 
-export function buildSyntax(formulaPosition: { index: [number, number]; operator: string }, inputText: string, initialCaretIndex: number, syntax: string): string {
+export function buildSyntax(formulaPosition: { index: [number, number]; operator: string; }, inputText: string, initialCaretIndex: number,
+                            syntax: string, syntaxParameter: number[]): string {
   let focusIndex = findFocusFormulaIndexOnInput(formulaPosition, inputText, initialCaretIndex);
-  return getFormattedSyntax(syntax, formulaPosition, focusIndex);
+  return getFormattedSyntax(syntax, syntaxParameter, formulaPosition, focusIndex);
 }

@@ -5,6 +5,7 @@ import {
   findAllPossibleOperations,
   findFocusFormulaIndexOnInput,
   findFormulasOnCaretPosition,
+  INFINITE_ARGUMENTS,
   NO_CLOSING_BRACKET_INDEX,
   splitInputText
 } from './input-utils';
@@ -125,64 +126,66 @@ describe('inputUtils', () => {
       let caretIndex;
       let syntax;
       let expectedSyntax;
-
+      let syntaxParameter;
       beforeEach(() => {
         caretIndex = 4;
         syntax = 'SUM(var1,var2,var3)';
+        syntaxParameter = [1, 1, 1];
         expectedSyntax = 'SUM(' + '<span class="focus-argument">' + 'var1' + '</span>' + ',var2,var3)';
       });
 
-      it('should build simple syntax with closing bracket', () => {
+      it('should build syntax with closing bracket', () => {
         const formula: { index: [number, number]; operator: string } = {
           index: [0, 8],
           operator: 'SUM'
         };
         const inputContent = 'SUM(1,2,3)';
-        expect(buildSyntax(formula, inputContent, caretIndex, syntax)).toEqual(expectedSyntax);
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax, syntaxParameter)).toEqual(expectedSyntax);
       });
-      it('should build simple syntax with non closing bracket 1', () => {
+      it('should build syntax with non closing bracket 1', () => {
         const formula: { index: [number, number]; operator: string } = {
           index: [0, NO_CLOSING_BRACKET_INDEX],
           operator: 'SUM'
         };
         const inputContent = 'SUM(1';
-        expect(buildSyntax(formula, inputContent, caretIndex, syntax)).toEqual(expectedSyntax);
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax, syntaxParameter)).toEqual(expectedSyntax);
       });
-      it('should build simple syntax with non closing bracket 2', () => {
+      it('should build syntax with non closing bracket 2', () => {
         const formula: { index: [number, number]; operator: string } = {
           index: [0, NO_CLOSING_BRACKET_INDEX],
           operator: 'SUM'
         };
         const inputContent = 'SUM(';
-        expect(buildSyntax(formula, inputContent, caretIndex, syntax)).toEqual(expectedSyntax);
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax, syntaxParameter)).toEqual(expectedSyntax);
       });
-      it('should build simple syntax with non closing bracket 8', () => {
+      it('should build syntax with non closing bracket 8', () => {
         const formula: { index: [number, number]; operator: string } = {
           index: [0, NO_CLOSING_BRACKET_INDEX],
           operator: 'SUM'
         };
         const inputContent = 'SUM(test + 5';
-        expect(buildSyntax(formula, inputContent, caretIndex, syntax)).toEqual(expectedSyntax);
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax, syntaxParameter)).toEqual(expectedSyntax);
       });
     });
     describe('simple syntax with focus on second argument', () => {
       let caretIndex;
       let syntax;
       let expectedSyntax;
-
+      let syntaxParameter;
       beforeEach(() => {
         caretIndex = 6;
         syntax = 'SUM(var1,var2,var3)';
+        syntaxParameter = [1, 1, 1];
         expectedSyntax = 'SUM(var1,' + '<span class="focus-argument">' + 'var2' + '</span>' + ',var3)';
       });
 
-      it('should build simple syntax with closing bracket', () => {
+      it('should build syntax with closing bracket', () => {
         const formula: { index: [number, number]; operator: string } = {
           index: [0, 8],
           operator: 'SUM'
         };
         const inputContent = 'SUM(1,2,3)';
-        expect(buildSyntax(formula, inputContent, caretIndex, syntax)).toEqual(expectedSyntax);
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax, syntaxParameter)).toEqual(expectedSyntax);
       });
 
       it('should build complex syntax with closing bracket', () => {
@@ -192,63 +195,105 @@ describe('inputUtils', () => {
         };
         caretIndex = 10;
         const inputContent = 'SUM([1,4],2,3)';
-        expect(buildSyntax(formula, inputContent, caretIndex, syntax)).toEqual(expectedSyntax);
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax, syntaxParameter)).toEqual(expectedSyntax);
       });
 
-      it('should build simple syntax with non closing bracket 1', () => {
+      it('should build syntax with non closing bracket 1', () => {
         const formula: { index: [number, number]; operator: string } = {
           index: [0, NO_CLOSING_BRACKET_INDEX],
           operator: 'SUM'
         };
         const inputContent = 'SUM(1,2,';
-        expect(buildSyntax(formula, inputContent, caretIndex, syntax)).toEqual(expectedSyntax);
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax, syntaxParameter)).toEqual(expectedSyntax);
       });
-      it('should build simple syntax with non closing bracket 2', () => {
+      it('should build syntax with non closing bracket 2', () => {
         const formula: { index: [number, number]; operator: string } = {
           index: [0, NO_CLOSING_BRACKET_INDEX],
           operator: 'SUM'
         };
         caretIndex = 10;
         const inputContent = 'SUM(1,2/900';
-        expect(buildSyntax(formula, inputContent, caretIndex, syntax)).toEqual(expectedSyntax);
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax, syntaxParameter)).toEqual(expectedSyntax);
       });
     });
     describe('simple syntax with focus on last argument', () => {
       let caretIndex;
       let syntax;
       let expectedSyntax;
-
+      let syntaxParameter;
       beforeEach(() => {
         caretIndex = 8;
         syntax = 'SUM(var1,var2,var3)';
+        syntaxParameter = [1, 1, 1];
         expectedSyntax = 'SUM(var1,var2,' + '<span class="focus-argument">' + 'var3' + '</span>' + ')';
       });
 
-      it('should build simple syntax with closing bracket', () => {
+      it('should build syntax with closing bracket', () => {
         const formula: { index: [number, number]; operator: string } = {
           index: [0, 8],
           operator: 'SUM'
         };
         const inputContent = 'SUM(1,2,3)';
-        expect(buildSyntax(formula, inputContent, caretIndex, syntax)).toEqual(expectedSyntax);
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax, syntaxParameter)).toEqual(expectedSyntax);
       });
-      it('should build simple syntax with non closing bracket 1', () => {
+      it('should build syntax with non closing bracket 1', () => {
         const formula: { index: [number, number]; operator: string } = {
           index: [0, NO_CLOSING_BRACKET_INDEX],
           operator: 'SUM'
         };
         const inputContent = 'SUM(1,2,';
-        expect(buildSyntax(formula, inputContent, caretIndex, syntax)).toEqual(expectedSyntax);
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax, syntaxParameter)).toEqual(expectedSyntax);
       });
 
-      it('should build simple syntax with non closing bracket 2', () => {
+      it('should build syntax with non closing bracket 2', () => {
         const formula: { index: [number, number]; operator: string } = {
           index: [0, NO_CLOSING_BRACKET_INDEX],
           operator: 'SUM'
         };
         caretIndex = 11;
         const inputContent = 'SUM(1,2, 3+5';
-        expect(buildSyntax(formula, inputContent, caretIndex, syntax)).toEqual(expectedSyntax);
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax, syntaxParameter)).toEqual(expectedSyntax);
+      });
+    });
+    describe('complex syntax', () => {
+      let caretIndex;
+      let syntax;
+      let expectedSyntax;
+      let syntaxParameter;
+      beforeEach(() => {
+        caretIndex = 9;
+        syntax = 'SUM(var1,[var2, ...])';
+        syntaxParameter = [1, INFINITE_ARGUMENTS];
+        expectedSyntax = 'SUM(var1,' + '<span class="focus-argument">' + '[var2, ...]' + '</span>' + ')';
+      });
+
+      it('should build syntax with closing bracket on second argument', () => {
+        caretIndex = 7;
+        const formula: { index: [number, number]; operator: string } = {
+          index: [0, 8],
+          operator: 'SUM'
+        };
+        const inputContent = 'SUM(1,2,3)';
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax, syntaxParameter)).toEqual(expectedSyntax);
+      });
+
+      it('should build syntax with closing bracket', () => {
+        const formula: { index: [number, number]; operator: string } = {
+          index: [0, 8],
+          operator: 'SUM'
+        };
+        const inputContent = 'SUM(1,2,3)';
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax, syntaxParameter)).toEqual(expectedSyntax);
+      });
+
+      it('should build syntax with non closing bracket', () => {
+        const formula: { index: [number, number]; operator: string } = {
+          index: [0, NO_CLOSING_BRACKET_INDEX],
+          operator: 'SUM'
+        };
+        caretIndex = 11;
+        const inputContent = 'SUM(1,2,3 ';
+        expect(buildSyntax(formula, inputContent, caretIndex, syntax, syntaxParameter)).toEqual(expectedSyntax);
       });
     });
   });

@@ -1,12 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  HostListener,
-  OnInit,
-  SecurityContext,
-  ViewChild
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnInit, SecurityContext, ViewChild } from '@angular/core';
 import { getCaretIndex, setCaret } from './carret-utils';
 import { Formula } from '../interfaces/formula';
 import { storedFormulas } from '../dataset/formula-list';
@@ -44,11 +36,11 @@ export class FormulaInputComponent implements OnInit {
 
   getCaretIndex: (element: Node) => number = getCaretIndex;
 
-  constructor(private sanitizer: DomSanitizer) {
-  }
-
   get isEmptySuggestion(): boolean {
     return this.suggestions.length === 0;
+  }
+
+  constructor(private sanitizer: DomSanitizer) {
   }
 
   @HostListener('keydown', ['$event'])
@@ -104,7 +96,8 @@ export class FormulaInputComponent implements OnInit {
       if (onFormulaWithClosingBracket) {
         const formulaPosition = formulasOnCaretPosition[0];
         const syntax = this.formulas.item[formulaPosition.operator].syntax;
-        let formattedSyntax = buildSyntax(formulaPosition, innerHTML, initialCaretIndex, syntax);
+        const syntaxParameter = this.formulas.item[formulaPosition.operator].syntaxParameter;
+        let formattedSyntax = buildSyntax(formulaPosition, innerHTML, initialCaretIndex, syntax, syntaxParameter);
         this.formulaSyntax = this.sanitizer.sanitize(SecurityContext.HTML, formattedSyntax);
       }
     }
