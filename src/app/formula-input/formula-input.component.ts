@@ -98,11 +98,11 @@ export class FormulaInputComponent implements OnInit {
       this.suggestions = suggestions;
     }
     if (this.isEmptySuggestion) {
-      const closingOperationIndexes = findAllPossibleOperations(innerHTML, this.formulas.ids);
-      const formulaPositions = findFormulasOnCaretPosition(initialCaretIndex, closingOperationIndexes);
-      const onFormulaWithClosingBracket = formulaPositions.length > 0;
+      const allPossibleOperations = findAllPossibleOperations(innerHTML, this.formulas.ids);
+      const formulasOnCaretPosition = findFormulasOnCaretPosition(initialCaretIndex, allPossibleOperations);
+      const onFormulaWithClosingBracket = formulasOnCaretPosition.length > 0;
       if (onFormulaWithClosingBracket) {
-        const formulaPosition = formulaPositions[0];
+        const formulaPosition = formulasOnCaretPosition[0];
         const syntax = this.formulas.item[formulaPosition.operator].syntax;
         let formattedSyntax = buildSyntax(formulaPosition, innerHTML, initialCaretIndex, syntax);
         this.formulaSyntax = this.sanitizer.sanitize(SecurityContext.HTML, formattedSyntax);

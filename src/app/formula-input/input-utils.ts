@@ -71,36 +71,48 @@ export function areAllBracketsClosed(text): boolean {
 
 export function findAllPossibleOperations(text: string, existingOperators: string[]): { index: [number, number], operator: string }[] {
   const holder: { index: [number, number], operator: string }[] = [];
-  const closingBracketRegex = /(\w+\([\w,.\/+ *@\-]*\))/g;
-  const nonClosingBracketRegex = /(\w*\([^(]*)$/g;
-  let match: RegExpExecArray;
-  let index = 0;
-  while ((match = closingBracketRegex.exec(text)) !== null) {
-    const matchingOperation = match[0];
-    text = match.input.replace(matchingOperation, '@'.repeat(matchingOperation.length - Math.trunc(index / 10) - 1) + index);
-    const operator = matchingOperation.split('(')[0];
-    if (existingOperators.includes(operator)) {
-      holder.push({
-        index: [match.index, match.index + matchingOperation.length - 1],
+  const memory: { firstIndex: number, operator: string, bracket: number }[] = [];
+  let firstIndex = 0;
+  let operator = '';
+  for (let i = 0; i < text.length; i++) {
+    const character = text[i];
+    if (OPENING_BRACKETS.includes(character)) {
+      memory.push({
+        firstIndex,
         operator,
+        bracket: OPENING_BRACKETS.indexOf(character)
       });
+      operator = '';
+      firstIndex = i + 1;
+    } else if (CLOSING_BRACKETS.includes(character) && CLOSING_BRACKETS.indexOf(character) === memory[memory.length - 1].bracket) {
+      operator = '';
+      firstIndex = i + 1;
+      const lastOperator = memory[memory.length - 1].operator;
+      if (!!lastOperator) {
+        holder.push({
+          index: [memory[memory.length - 1].firstIndex, i],
+          operator: memory[memory.length - 1].operator
+        });
+      }
+      memory.pop();
+    } else if (!!character.match(/\w/g)) {
+      operator += character;
+      if (operator.length === 0) {
+        firstIndex = i;
+      }
+    } else {
+      operator = '';
+      firstIndex = i + 1;
     }
-    index++;
-    closingBracketRegex.lastIndex = 0;
   }
-  while ((match = nonClosingBracketRegex.exec(text)) !== null) {
-    const matchingOperation = match[0];
-    text = match.input.replace(matchingOperation, '@'.repeat(matchingOperation.length - Math.trunc(index / 10) - 1) + index);
-    const operatorName = matchingOperation.split('(')[0];
-    if (existingOperators.includes(operatorName)) {
+  memory.forEach(formula => {
+    if (!!formula.operator) {
       holder.push({
-        index: [match.index, NO_CLOSING_BRACKET_INDEX],
-        operator: operatorName,
+        index: [formula.firstIndex, NO_CLOSING_BRACKET_INDEX],
+        operator: formula.operator
       });
     }
-    index++;
-    closingBracketRegex.lastIndex = 0;
-  }
+  });
   return holder;
 }
 

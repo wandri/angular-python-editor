@@ -164,6 +164,16 @@ describe('FormulaInputComponent', () => {
           expect(details.innerHTML.trim()).toContain('SUM(<span class="focus-argument">var 1</span>,var2)');
         });
 
+        it('should not display the syntax when outside operations with nested brackets', () => {
+          spyOn(component, 'getCaretIndex').and.returnValue(12);
+          const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
+          input.innerHTML = 'SUM([1,2]) + 1';
+          input.dispatchEvent(new InputEvent('input'));
+          fixture.detectChanges();
+          const details = fixture.debugElement.nativeElement.querySelector('.formula-description');
+          expect(details).toBeFalsy();
+        });
+
         it('should display the syntax with focus on last argument', () => {
           spyOn(component, 'getCaretIndex').and.returnValue(10);
           const input = fixture.debugElement.nativeElement.querySelector('.cell-input');

@@ -59,6 +59,30 @@ describe('inputUtils', () => {
       expect(findAllPossibleOperations('PI() + 2 / SUM(1,SUM(4,PI())) - @M4', ['SUM', 'SEARCH', 'PI'])).toEqual(expectedIndexes);
     });
 
+    it('should detect complex closing bracket 3', () => {
+      const expectedIndexes: { index: [number, number], operator: string }[] = [
+        { index: [0, 11], operator: 'SUM' },
+        { index: [15, 18], operator: 'PI' },
+      ];
+      expect(findAllPossibleOperations('SUM([1,4],6) + PI()', ['SUM', 'PI'])).toEqual(expectedIndexes);
+    });
+
+    it('should detect complex closing bracket 4', () => {
+      const expectedIndexes: { index: [number, number], operator: string }[] = [
+        { index: [0, 11], operator: 'SUM' },
+        { index: [15, 18], operator: 'PI' },
+      ];
+      expect(findAllPossibleOperations('SUM({1,4},6) + PI()', ['SUM', 'PI'])).toEqual(expectedIndexes);
+    });
+
+    it('should detect complex closing bracket 5', () => {
+      const expectedIndexes: { index: [number, number], operator: string }[] = [
+        { index: [0, 11], operator: 'SUM' },
+        { index: [15, 18], operator: 'PI' },
+      ];
+      expect(findAllPossibleOperations('SUM((1,4),6) + PI()', ['SUM', 'PI'])).toEqual(expectedIndexes);
+    });
+
     it('should find the good formula focus from position', () => {
       const indexes: { index: [number, number], operator: string }[] = [
         { index: [0, 4], operator: 'PI' },
