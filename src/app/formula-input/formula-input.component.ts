@@ -62,6 +62,7 @@ export class FormulaInputComponent implements OnInit {
 
   onNameChange(): void {
     const innerHTML = this.formulaElement.nativeElement.innerHTML;
+    const allPossibleOperations: { index: [number, number], operator: string }[] = findAllPossibleOperations(innerHTML, this.formulas.ids);
     let initialCaretIndex = this.getInputCaretIndex();
     const allCharactersBeforeCaret = innerHTML.slice(0, initialCaretIndex).split(/[()\/ ,+*-]/);
     const charactersJustBeforeCaret = allCharactersBeforeCaret[allCharactersBeforeCaret.length - 1];
@@ -92,7 +93,6 @@ export class FormulaInputComponent implements OnInit {
       this.suggestions = suggestions;
     }
     if (this.isEmptySuggestion) {
-      const allPossibleOperations: { index: [number, number], operator: string }[] = findAllPossibleOperations(innerHTML, this.formulas.ids);
       const formulasOnCaretPosition: { index: [number, number], operator: string }[] = findFormulasOnCaretPosition(initialCaretIndex, allPossibleOperations);
       const onFormulaWithClosingBracket = formulasOnCaretPosition.length > 0;
       if (onFormulaWithClosingBracket) {
@@ -106,6 +106,7 @@ export class FormulaInputComponent implements OnInit {
     if (!this.isEmptySuggestion) {
       this.suggestionFocusIndex = 0;
     }
+    this.generateFormulaJSON(innerHTML, allPossibleOperations);
   }
 
   focusSuggestion(index: number): void {
@@ -217,5 +218,10 @@ export class FormulaInputComponent implements OnInit {
         this.enterSelectedSuggestion(this.suggestionFocusIndex, this.getInputCaretIndex());
       }
     }
+  }
+
+  private generateFormulaJSON(innerHTML: string, allPossibleOperations: { index: [number, number]; operator: string }[]) {
+    const formattedFormulaIntoObject = null;
+    this.formattedFormulaIntoObject = formattedFormulaIntoObject;
   }
 }
