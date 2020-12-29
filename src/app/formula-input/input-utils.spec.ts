@@ -165,7 +165,7 @@ describe('inputUtils', () => {
         const inputContent = 'SUM(';
         expect(buildSyntax(formula, inputContent, caretIndex, syntax, syntaxParameter)).toEqual(expectedSyntax);
       });
-      it('should build syntax with non closing bracket 8', () => {
+      it('should build syntax with non closing bracket 3', () => {
         const formula: { index: [number, number]; operator: string } = {
           index: [0, NO_CLOSING_BRACKET_INDEX],
           operator: 'SUM'

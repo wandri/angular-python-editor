@@ -15,6 +15,7 @@ import { storedVariables } from '../dataset/variable-list';
 import { InputType, } from '../interfaces/type.enum';
 import { Suggestion } from '../interfaces/suggestion';
 import { DomSanitizer } from '@angular/platform-browser';
+import { FormulaJson } from '../interfaces/formula-json';
 
 @Component({
   selector: 'app-formula-input',
@@ -29,7 +30,7 @@ export class FormulaInputComponent implements OnInit {
   variables: Store<Variable> = new Store<Variable>();
   types = InputType;
   formulaSyntax: string;
-
+  formattedFormulaIntoObject: FormulaJson;
   suggestionFocusIndex: number = 0;
 
   @ViewChild('formulaInput', { static: true }) formulaElement: ElementRef;
@@ -91,8 +92,8 @@ export class FormulaInputComponent implements OnInit {
       this.suggestions = suggestions;
     }
     if (this.isEmptySuggestion) {
-      const allPossibleOperations = findAllPossibleOperations(innerHTML, this.formulas.ids);
-      const formulasOnCaretPosition = findFormulasOnCaretPosition(initialCaretIndex, allPossibleOperations);
+      const allPossibleOperations: { index: [number, number], operator: string }[] = findAllPossibleOperations(innerHTML, this.formulas.ids);
+      const formulasOnCaretPosition: { index: [number, number], operator: string }[] = findFormulasOnCaretPosition(initialCaretIndex, allPossibleOperations);
       const onFormulaWithClosingBracket = formulasOnCaretPosition.length > 0;
       if (onFormulaWithClosingBracket) {
         const formulaPosition = formulasOnCaretPosition[0];

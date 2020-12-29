@@ -5,6 +5,7 @@ import { Formula } from '../interfaces/formula';
 import { Store } from '../interfaces/store';
 import { Variable } from '../interfaces/variable';
 import { By } from '@angular/platform-browser';
+import { FormulaJson } from '../interfaces/formula-json';
 
 describe('FormulaInputComponent', () => {
   let component: FormulaInputComponent;
@@ -361,5 +362,65 @@ describe('FormulaInputComponent', () => {
       component.variables = variables;
       component.formulas = new Store<Formula>();
     }));
+  });
+
+  describe('translation into object', () => {
+    const variables = new Store<Variable>();
+    const formulas = new Store<Formula>();
+    variables.addAllAndSort([
+      { name: 'var 1', id: 'id var 1', },
+      { name: 'SuperCarMatch', id: 'id SuperCarMatch', },
+      { name: 'SUPER', id: 'id SUPER' },
+      { name: 'Variable 2', id: 'id Variable 2' },
+    ]);
+    formulas.addAllAndSort([
+      {
+        name: 'SUM',
+        description: 'SUM details',
+        syntax: 'SUM(var 1,var2)',
+        syntaxParameter: [1, 1],
+        shortDescription: 'short Sum details'
+      },
+      {
+        name: 'PI',
+        description: 'PI details',
+        syntax: 'PI()',
+        syntaxParameter: []
+      },
+    ]);
+
+    beforeEach(async(() => {
+      component.variables = variables;
+      component.formulas = formulas;
+    }));
+
+    it('should transform simple formula when writing', () => {
+      spyOn(component, 'getCaretIndex').and.returnValue(1);
+      const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
+      input.innerHTML = 'SUM(1,4)';
+      fixture.detectChanges();
+      input.dispatchEvent(new InputEvent('input'));
+      fixture.detectChanges();
+
+      expect(component.formattedFormulaIntoObject).toEqual({
+        operation: 'SUM',
+        inputs: [1, 4]
+      });
+    });
+
+    it('should transform complex formula when writing', () => {
+      spyOn(component, 'getCaretIndex').and.returnValue(1);
+      const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
+      input.innerHTML = 'SUM(1,4,SUM(2,PI()))';
+      fixture.detectChanges();
+      input.dispatchEvent(new InputEvent('input'));
+      fixture.detectChanges();
+
+      const expectedFormula: FormulaJson = {
+        operation: 'SUM',
+        inputs: [1, 4, { operation: 'SUM', inputs: [2, { operation: 'PI', inputs: [] }] }]
+      };
+      expect(component.formattedFormulaIntoObject).toEqual(expectedFormula);
+    });
   });
 });
