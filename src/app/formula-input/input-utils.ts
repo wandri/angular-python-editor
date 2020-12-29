@@ -85,14 +85,15 @@ export function findAllPossibleOperations(text: string, existingOperators: strin
       });
       operator = '';
       firstIndex = i + 1;
-    } else if (CLOSING_BRACKETS.includes(character) && CLOSING_BRACKETS.indexOf(character) === memory[memory.length - 1].bracket) {
+    } else if (CLOSING_BRACKETS.includes(character)
+      && CLOSING_BRACKETS.indexOf(character) === memory[memory.length - 1].bracket) {
       operator = '';
       firstIndex = i + 1;
       const lastOperator = memory[memory.length - 1].operator;
-      if (!!lastOperator) {
+      if (!!lastOperator && existingOperators.includes(lastOperator)) {
         holder.push({
           index: [memory[memory.length - 1].firstIndex, i],
-          operator: memory[memory.length - 1].operator
+          operator: lastOperator
         });
       }
       memory.pop();
@@ -107,7 +108,7 @@ export function findAllPossibleOperations(text: string, existingOperators: strin
     }
   }
   memory.forEach(formula => {
-    if (!!formula.operator) {
+    if (!!formula.operator && existingOperators.includes(formula.operator)) {
       holder.push({
         index: [formula.firstIndex, NO_CLOSING_BRACKET_INDEX],
         operator: formula.operator

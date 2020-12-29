@@ -10,8 +10,9 @@
   <div *ngIf="suggestions.length>0 && !formulaSyntax" class="formula-details suggestions">
     <ng-container *ngFor="let suggestion of suggestions; let index = index">
       <div *ngIf="index>0 && suggestions[index-1].type !== suggestion.type" class="separator"></div>
-      <div (click)="selectSuggestion(index)"
+      <div (mousedown)="registerPreviousSelection()"
            (mouseenter)="focusSuggestion(index)"
+           (mouseup)="selectSuggestion(index)"
            [class.active]="suggestionFocusIndex == index"
            class="suggestion">
         <ng-container *ngIf="suggestion.type === types.FORMULA">

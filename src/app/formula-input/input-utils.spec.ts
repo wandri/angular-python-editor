@@ -50,6 +50,13 @@ describe('inputUtils', () => {
       expect(findAllPossibleOperations('SEARCH(SUM(1,PI()),4)', ['SUM', 'SEARCH', 'PI'])).toEqual(expectedIndexes);
     });
 
+    it('should not detect non existent formula', () => {
+      const expectedIndexes: { index: [number, number], operator: string }[] = [
+        { index: [7, 17], operator: 'SUM' },
+      ];
+      expect(findAllPossibleOperations('SEARCH(SUM(1,PI()),4)', ['SUM'])).toEqual(expectedIndexes);
+    });
+
     it('should detect complex closing bracket 2', () => {
       const expectedIndexes: { index: [number, number], operator: string }[] = [
         { index: [0, 3], operator: 'PI' },

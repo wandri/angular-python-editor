@@ -4,6 +4,7 @@ import { FormulaInputComponent } from './formula-input.component';
 import { Formula } from '../interfaces/formula';
 import { Store } from '../interfaces/store';
 import { Variable } from '../interfaces/variable';
+import { By } from '@angular/platform-browser';
 
 describe('FormulaInputComponent', () => {
   let component: FormulaInputComponent;
@@ -338,9 +339,10 @@ describe('FormulaInputComponent', () => {
       fixture.detectChanges();
       input.dispatchEvent(new InputEvent('input'));
       fixture.detectChanges();
-      const otherContent = fixture.debugElement.nativeElement.querySelector('.suggestions');
-      const suggestions: NodeList = otherContent.querySelectorAll('.suggestion');
-      (suggestions.item(1) as HTMLButtonElement).click();
+      const selection = fixture.debugElement.queryAll(By.css('.suggestion'))[1];
+      selection.triggerEventHandler('mousedown', {});
+      selection.triggerEventHandler('mouseup', {});
+
       fixture.detectChanges();
       expect(input.innerHTML).toEqual('SUMO(');
     });

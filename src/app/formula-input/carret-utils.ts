@@ -14,7 +14,6 @@ export function getCaretIndex(element: Node): number {
     // Return the text length from contenteditable start to the range end
     position = preCaretRange.toString().length;
   }
-  new Range();
   return position;
 }
 

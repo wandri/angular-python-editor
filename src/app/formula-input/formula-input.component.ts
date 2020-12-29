@@ -35,6 +35,7 @@ export class FormulaInputComponent implements OnInit {
   @ViewChild('formulaInput', { static: true }) formulaElement: ElementRef;
 
   getCaretIndex: (element: Node) => number = getCaretIndex;
+  savedCaretIndex = 0;
 
   get isEmptySuggestion(): boolean {
     return this.suggestions.length === 0;
@@ -110,7 +111,11 @@ export class FormulaInputComponent implements OnInit {
     this.suggestionFocusIndex = index;
   }
 
-  enterSelectedSuggestion(index: number): void {
+  registerPreviousSelection(): void {
+    this.savedCaretIndex = this.getInputCaretIndex();
+  }
+
+  enterSelectedSuggestion(index: number, caretIndex: number): void {
     const suggestion = this.suggestions[index];
     const isFormula = suggestion.type === InputType.FORMULA;
     const focusSuggestion = isFormula ? suggestion.formula : suggestion.variable;
@@ -119,7 +124,7 @@ export class FormulaInputComponent implements OnInit {
       beforeContent,
       afterContent,
       focusContent
-    } = splitInputText(inputElement.innerText, this.getInputCaretIndex());
+    } = splitInputText(inputElement.innerText, caretIndex);
     let formattedName = suggestionNameWithSpaceBeforeIfExistent(focusSuggestion.name, focusContent[0]);
     let contentToWrite = `${beforeContent}${formattedName}${afterContent}`;
     if (isFormula) {
@@ -149,7 +154,7 @@ export class FormulaInputComponent implements OnInit {
 
   selectSuggestion(index: number): void {
     if (!this.isEmptySuggestion) {
-      this.enterSelectedSuggestion(index);
+      this.enterSelectedSuggestion(index, this.savedCaretIndex);
     }
   }
 
@@ -206,9 +211,9 @@ export class FormulaInputComponent implements OnInit {
         $event.preventDefault();
         this.selectPreviousSuggestion();
       }
-      if ($event.key === 'Enter') {
+      if ($event.key === 'Enter' || $event.key === 'Tab') {
         $event.preventDefault();
-        this.enterSelectedSuggestion(this.suggestionFocusIndex);
+        this.enterSelectedSuggestion(this.suggestionFocusIndex, this.getInputCaretIndex());
       }
     }
   }
