@@ -1,7 +1,14 @@
+import { Store } from '../interfaces/store';
+import { Formula } from '../interfaces/formula';
+import { Variable } from '../interfaces/variable';
+import { FlatFormula } from '../interfaces/flat-formula';
+
 export const NO_CLOSING_BRACKET_INDEX = 9999;
 export const INFINITE_ARGUMENTS = 1000;
 export const OPENING_BRACKETS = ['(', '[', '{'];
 export const CLOSING_BRACKETS = [')', ']', '}'];
+export const QUOTES = [`'`, `"`];
+export const SPECIAL_OPERATION = [`+`, `-`, `/`, `*`, `^`, `%`];
 
 export function splitInputText(text: string, caretIndex: number):
   { focusContent: string; beforeContent: string, afterContent: string } {
@@ -68,6 +75,119 @@ export function areAllBracketsClosed(text): boolean {
     }
   }
   return (holder.length === 0);
+}
+
+export function parseInputToFlatFormulas(text: string, existingOperators: Store<Formula>, existingVariables: Store<Variable>):
+  FlatFormula[] {
+  const holder: FlatFormula[] = [];
+  const bracketMemory: { firstIndex: number, operator: string, typeIndex: number }[] = [];
+  const quotesMemory: { firstIndex: number, typeIndex: number }[] = [];
+  let partialText = '';
+  for (let i = 0; i < text.length; i++) {
+    let resetPartialText = false;
+
+    const character: string = text[i];
+    const emptyQuoteMemory = quotesMemory.length === 0;
+
+    if (character === ' ' && emptyQuoteMemory) {
+      resetPartialText = true;
+    }
+    if (character === ',' && emptyQuoteMemory) {
+      resetPartialText = true;
+    }
+
+    if (OPENING_BRACKETS.includes(character) && emptyQuoteMemory) {
+      if (character === '(') {
+        if (!!partialText && !existingOperators.ids.includes(partialText)) {
+          throw new Error(`The formula "${partialText}" is not known`);
+        }
+        bracketMemory.push({
+          firstIndex: i - partialText.length,
+          operator: partialText,
+          typeIndex: OPENING_BRACKETS.indexOf('(')
+        });
+        resetPartialText = true;
+      }
+    }
+    if (CLOSING_BRACKETS.includes(character) && emptyQuoteMemory) {
+      if (character === ')') {
+        if (bracketMemory.length === 0) {
+          throw new Error(`The bracket ")" at the position ${i + 1} is unnecessary`);
+        }
+        const lastOperator = bracketMemory[bracketMemory.length - 1].operator;
+        if (!!lastOperator) {
+          holder.push({
+            index: [bracketMemory[bracketMemory.length - 1].firstIndex, i],
+            operator: lastOperator,
+            type: 'OPERATION',
+            value: null,
+          });
+        }
+        resetPartialText = true;
+        bracketMemory.pop();
+      }
+    }
+    if (QUOTES.includes(character)) {
+      const lastQuote = quotesMemory.length > 0 ? quotesMemory[quotesMemory.length - 1] : null;
+      if (!!lastQuote && QUOTES.indexOf(character) === lastQuote.typeIndex) {
+        holder.push({
+          index: [lastQuote.firstIndex, i],
+          operator: null,
+          type: 'STRING',
+          value: partialText,
+        });
+        quotesMemory.pop();
+        resetPartialText = true;
+      } else if (!lastQuote) {
+        quotesMemory.push({
+          firstIndex: i,
+          typeIndex: QUOTES.indexOf(character),
+        });
+        resetPartialText = true;
+      }
+    }
+    if (SPECIAL_OPERATION.includes(character) && emptyQuoteMemory) {
+      const isPowerOperatorWithDoubleStar = character === '*' && i !== text.length - 1 && text[i + 1] === '*';
+      if (isPowerOperatorWithDoubleStar) {
+        holder.push({
+          index: [i, i + 1],
+          operator: '**',
+          type: 'OPERATION',
+          value: null,
+          argumentIndex: null,
+        });
+        i++;
+      } else {
+        holder.push({
+          index: [i, i],
+          operator: character,
+          type: 'OPERATION',
+          value: null,
+          argumentIndex: null,
+        });
+      }
+      resetPartialText = true;
+    }
+
+    if (resetPartialText) {
+      partialText = '';
+    } else {
+      partialText += character;
+    }
+  }
+
+  bracketMemory.forEach(formula => {
+    if (!!formula.operator) {
+      holder.push({
+        index: [formula.firstIndex, NO_CLOSING_BRACKET_INDEX],
+        operator: formula.operator,
+        type: 'OPERATION',
+        value: null,
+      });
+    }
+  });
+  console.log(holder);
+  return holder;
 }
 
 export function findAllPossibleOperations(text: string, existingOperators: string[]): { index: [number, number], operator: string }[] {

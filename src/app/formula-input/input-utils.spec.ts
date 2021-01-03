@@ -7,8 +7,13 @@ import {
   findFormulasOnCaretPosition,
   INFINITE_ARGUMENTS,
   NO_CLOSING_BRACKET_INDEX,
+  parseInputToFlatFormulas,
   splitInputText
 } from './input-utils';
+import { Store } from '../interfaces/store';
+import { Variable } from '../interfaces/variable';
+import { Formula } from '../interfaces/formula';
+import { FlatFormula } from '../interfaces/flat-formula';
 
 describe('inputUtils', () => {
 
@@ -346,6 +351,104 @@ describe('inputUtils', () => {
     it('should find the focus on last argument', () => {
       const initialCaretIndex = 12;
       expect(findFocusFormulaIndexOnInput(formula, inputContent, initialCaretIndex)).toEqual(2);
+    });
+  });
+
+  describe('input parsing into formula', () => {
+    let variables: Store<Variable>;
+    let formulas: Store<Formula>;
+
+    beforeEach(() => {
+      variables = new Store<Variable>();
+      formulas = new Store<Formula>();
+      variables.addAllAndSort([
+        { name: 'car 1', id: '', },
+        { name: 'car 2', id: '', },
+        { name: 'Super car', id: '' },
+        { name: 'camping-car', id: 'i' },
+        { name: 'car', id: '' },
+      ]);
+      formulas.addAllAndSort([
+        {
+          name: 'SUM',
+          description: 'SUM details',
+          syntax: 'SUM(var 1,var2)',
+          syntaxParameter: [1, 1],
+          shortDescription: 'short Sum details'
+        },
+        {
+          name: 'PI',
+          description: 'PI details',
+          syntax: 'PI()',
+          syntaxParameter: []
+        },
+      ]);
+    });
+
+    it('should parse simple formula with string', () => {
+      const expectedFormulas: FlatFormula[] = [
+        {
+          type: 'STRING',
+          operator: null,
+          value: 'TEST',
+          index: [0, 5],
+        },
+      ];
+      expect(parseInputToFlatFormulas('"TEST"', formulas, variables)).toEqual(expectedFormulas);
+    });
+
+    fit('should parse simple formula with string', () => {
+      const expectedFormulas: FlatFormula[] = [
+        {
+          type: 'STRING',
+          operator: null,
+          value: 'TEST',
+          index: [4, 9],
+        },
+        {
+          type: 'STRING',
+          operator: null,
+          value: 'ME',
+          index: [11, 14],
+        },
+        {
+          type: 'OPERATION',
+          operator: 'SUM',
+          index: [0, 15],
+          value: null,
+        },
+      ];
+      expect(parseInputToFlatFormulas('SUM("TEST","ME")', formulas, variables)).toEqual(expectedFormulas);
+    });
+
+    it('should parse simple formula', () => {
+      const expectedFormulas: FlatFormula[] = [
+        {
+          type: 'NUMBER',
+          operator: null,
+          value: 1,
+          index: [4, 4],
+        },
+        {
+          type: 'NUMBER',
+          operator: null,
+          value: 4,
+          index: [6, 6],
+        },
+        {
+          type: 'NUMBER',
+          operator: null,
+          value: 5,
+          index: [8, 8],
+        },
+        {
+          type: 'OPERATION',
+          operator: 'SUM',
+          index: [0, 8],
+          value: null,
+        },
+      ];
+      expect(parseInputToFlatFormulas('SUM(1,4,5)', formulas, variables)).toEqual(expectedFormulas);
     });
   });
 });

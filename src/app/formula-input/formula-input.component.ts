@@ -15,7 +15,7 @@ import { storedVariables } from '../dataset/variable-list';
 import { InputType, } from '../interfaces/type.enum';
 import { Suggestion } from '../interfaces/suggestion';
 import { DomSanitizer } from '@angular/platform-browser';
-import { FormulaJson } from '../interfaces/formula-json';
+import { FlatFormula } from '../interfaces/flat-formula';
 
 @Component({
   selector: 'app-formula-input',
@@ -30,7 +30,7 @@ export class FormulaInputComponent implements OnInit {
   variables: Store<Variable> = new Store<Variable>();
   types = InputType;
   formulaSyntax: string;
-  formattedFormulaIntoObject: FormulaJson;
+  formattedFormulaIntoObject: FlatFormula;
   suggestionFocusIndex: number = 0;
 
   @ViewChild('formulaInput', { static: true }) formulaElement: ElementRef;
@@ -106,7 +106,7 @@ export class FormulaInputComponent implements OnInit {
     if (!this.isEmptySuggestion) {
       this.suggestionFocusIndex = 0;
     }
-    this.generateFormulaJSON(innerHTML, allPossibleOperations);
+    this.parseFormula(innerHTML, allPossibleOperations);
   }
 
   focusSuggestion(index: number): void {
@@ -220,7 +220,7 @@ export class FormulaInputComponent implements OnInit {
     }
   }
 
-  private generateFormulaJSON(innerHTML: string, allPossibleOperations: { index: [number, number]; operator: string }[]) {
+  private parseFormula(innerHTML: string, allPossibleOperations: { index: [number, number]; operator: string }[]): void {
     const formattedFormulaIntoObject = null;
     this.formattedFormulaIntoObject = formattedFormulaIntoObject;
   }
