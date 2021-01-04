@@ -397,7 +397,7 @@ describe('inputUtils', () => {
       expect(parseInputToFlatFormulas('"TEST"', formulas, variables)).toEqual(expectedFormulas);
     });
 
-    fit('should parse simple formula with string', () => {
+    it('should parse simple formula with string', () => {
       const expectedFormulas: FlatFormula[] = [
         {
           type: 'STRING',
@@ -438,17 +438,17 @@ describe('inputUtils', () => {
         {
           type: 'NUMBER',
           operator: null,
-          value: 5,
-          index: [8, 8],
+          value: 53,
+          index: [8, 9],
         },
         {
           type: 'OPERATION',
           operator: 'SUM',
-          index: [0, 8],
+          index: [0, 10],
           value: null,
         },
       ];
-      expect(parseInputToFlatFormulas('SUM(1,4,5)', formulas, variables)).toEqual(expectedFormulas);
+      expect(parseInputToFlatFormulas('SUM(1,4,53)', formulas, variables)).toEqual(expectedFormulas);
     });
   });
 });

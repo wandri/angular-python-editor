@@ -77,15 +77,15 @@ export function areAllBracketsClosed(text): boolean {
   return (holder.length === 0);
 }
 
-export function parseInputToFlatFormulas(text: string, existingOperators: Store<Formula>, existingVariables: Store<Variable>):
-  FlatFormula[] {
+export function parseInputToFlatFormulas(text: string, existingOperators: Store<Formula>, existingVariables: Store<Variable>): FlatFormula[] {
   const holder: FlatFormula[] = [];
   const bracketMemory: { firstIndex: number, operator: string, typeIndex: number }[] = [];
   const quotesMemory: { firstIndex: number, typeIndex: number }[] = [];
   let partialText = '';
+  const regexNumber = /^\d*\.?\d+$/;
   for (let i = 0; i < text.length; i++) {
     let resetPartialText = false;
-
+    let flatFormula: FlatFormula = null;
     const character: string = text[i];
     const emptyQuoteMemory = quotesMemory.length === 0;
 
@@ -95,7 +95,25 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
     if (character === ',' && emptyQuoteMemory) {
       resetPartialText = true;
     }
-
+    if (QUOTES.includes(character)) {
+      const lastQuote = quotesMemory.length > 0 ? quotesMemory[quotesMemory.length - 1] : null;
+      if (!!lastQuote && QUOTES.indexOf(character) === lastQuote.typeIndex) {
+        flatFormula = {
+          index: [lastQuote.firstIndex, i],
+          operator: null,
+          type: 'STRING',
+          value: partialText,
+        };
+        quotesMemory.pop();
+        resetPartialText = true;
+      } else if (!lastQuote) {
+        quotesMemory.push({
+          firstIndex: i,
+          typeIndex: QUOTES.indexOf(character),
+        });
+        resetPartialText = true;
+      }
+    }
     if (OPENING_BRACKETS.includes(character) && emptyQuoteMemory) {
       if (character === '(') {
         if (!!partialText && !existingOperators.ids.includes(partialText)) {
@@ -116,60 +134,52 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
         }
         const lastOperator = bracketMemory[bracketMemory.length - 1].operator;
         if (!!lastOperator) {
-          holder.push({
+          flatFormula = {
             index: [bracketMemory[bracketMemory.length - 1].firstIndex, i],
             operator: lastOperator,
             type: 'OPERATION',
             value: null,
-          });
+          };
         }
         resetPartialText = true;
         bracketMemory.pop();
       }
     }
-    if (QUOTES.includes(character)) {
-      const lastQuote = quotesMemory.length > 0 ? quotesMemory[quotesMemory.length - 1] : null;
-      if (!!lastQuote && QUOTES.indexOf(character) === lastQuote.typeIndex) {
-        holder.push({
-          index: [lastQuote.firstIndex, i],
-          operator: null,
-          type: 'STRING',
-          value: partialText,
-        });
-        quotesMemory.pop();
-        resetPartialText = true;
-      } else if (!lastQuote) {
-        quotesMemory.push({
-          firstIndex: i,
-          typeIndex: QUOTES.indexOf(character),
-        });
-        resetPartialText = true;
-      }
-    }
     if (SPECIAL_OPERATION.includes(character) && emptyQuoteMemory) {
       const isPowerOperatorWithDoubleStar = character === '*' && i !== text.length - 1 && text[i + 1] === '*';
       if (isPowerOperatorWithDoubleStar) {
-        holder.push({
+        flatFormula = {
           index: [i, i + 1],
           operator: '**',
           type: 'OPERATION',
           value: null,
           argumentIndex: null,
-        });
+        };
         i++;
       } else {
-        holder.push({
+        flatFormula = {
           index: [i, i],
           operator: character,
           type: 'OPERATION',
           value: null,
           argumentIndex: null,
-        });
+        };
       }
       resetPartialText = true;
     }
 
     if (resetPartialText) {
+      if (partialText.match(regexNumber)) {
+        holder.push({
+          index: [i - partialText.length, i - 1],
+          operator: null,
+          type: 'NUMBER',
+          value: Number.parseFloat(partialText),
+        });
+      }
+      if (!!flatFormula) {
+        holder.push(flatFormula);
+      }
       partialText = '';
     } else {
       partialText += character;
@@ -186,7 +196,6 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
       });
     }
   });
-  console.log(holder);
   return holder;
 }
 
