@@ -463,5 +463,125 @@ describe('inputUtils', () => {
       ];
       expect(parseInputToFlatFormulas('SUM(1,4,53)', formulas, variables)).toEqual(expectedFormulas);
     });
+
+    it('should parse classic operations', () => {
+      const expectedFormulas: FlatFormula[] = [
+        {
+          type: 'NUMBER',
+          operator: null,
+          value: 1,
+          index: [0, 0],
+        },
+        {
+          type: 'OPERATION',
+          operator: '+',
+          value: null,
+          index: [2, 2],
+        },
+        {
+          type: 'NUMBER',
+          operator: null,
+          value: 2,
+          index: [4, 4],
+        },
+        {
+          type: 'OPERATION',
+          operator: '^',
+          value: null,
+          index: [5, 5],
+        },
+        {
+          type: 'NUMBER',
+          operator: null,
+          value: 3,
+          index: [6, 6],
+        },
+        {
+          type: 'OPERATION',
+          operator: '-',
+          value: null,
+          index: [8, 8],
+        },
+        {
+          type: 'NUMBER',
+          operator: null,
+          value: 4,
+          index: [10, 10],
+        },
+        {
+          type: 'OPERATION',
+          operator: '*',
+          value: null,
+          index: [11, 11],
+        },
+        {
+          type: 'NUMBER',
+          operator: null,
+          value: 90,
+          index: [12, 13],
+        },
+        {
+          type: 'OPERATION',
+          operator: '/',
+          value: null,
+          index: [14, 14],
+        },
+        {
+          type: 'NUMBER',
+          operator: null,
+          value: 9,
+          index: [15, 15],
+        },
+        {
+          type: 'OPERATION',
+          operator: '**',
+          value: null,
+          index: [16, 17],
+        },
+        {
+          type: 'NUMBER',
+          operator: null,
+          value: 64,
+          index: [18, 19],
+        },
+      ];
+      expect(parseInputToFlatFormulas('1 + 2^3 - 4*90/9**64', formulas, variables)).toEqual(expectedFormulas);
+    });
+
+    it('should parse classic operation inside formula', () => {
+      const expectedFormulas: FlatFormula[] = [
+        {
+          type: 'NUMBER',
+          operator: null,
+          value: 1,
+          index: [4, 4],
+        },
+        {
+          type: 'NUMBER',
+          operator: null,
+          value: 6,
+          index: [6, 6],
+        },
+        {
+          type: 'OPERATION',
+          operator: '%',
+          value: null,
+          index: [7, 7],
+        },
+        {
+          type: 'NUMBER',
+          operator: null,
+          value: 3,
+          index: [8, 8],
+        },
+        {
+          type: 'OPERATION',
+          operator: 'SUM',
+          value: null,
+          index: [0, 9],
+        },
+      ];
+      expect(parseInputToFlatFormulas('SUM(1,6%3)', formulas, variables)).toEqual(expectedFormulas);
+    });
   });
 });

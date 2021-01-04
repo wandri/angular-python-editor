@@ -83,10 +83,12 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
   const quotesMemory: { firstIndex: number, typeIndex: number }[] = [];
   let partialText = '';
   const regexNumber = /^\d*\.?\d+$/;
-  for (let i = 0; i < text.length; i++) {
+  const textLength = text.length;
+  for (let i = 0; i < textLength; i++) {
     let resetPartialText = false;
     let flatFormula: FlatFormula = null;
-    const character: string = text[i];
+    const index = i;
+    const character: string = text[index];
     const emptyQuoteMemory = quotesMemory.length === 0;
 
     if (character === ' ' && emptyQuoteMemory) {
@@ -99,7 +101,7 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
       const lastQuote = quotesMemory.length > 0 ? quotesMemory[quotesMemory.length - 1] : null;
       if (!!lastQuote && QUOTES.indexOf(character) === lastQuote.typeIndex) {
         flatFormula = {
-          index: [lastQuote.firstIndex, i],
+          index: [lastQuote.firstIndex, index],
           operator: null,
           type: 'STRING',
           value: partialText,
@@ -108,7 +110,7 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
         resetPartialText = true;
       } else if (!lastQuote) {
         quotesMemory.push({
-          firstIndex: i,
+          firstIndex: index,
           typeIndex: QUOTES.indexOf(character),
         });
         resetPartialText = true;
@@ -120,7 +122,7 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
           throw new Error(`The formula "${partialText}" is not known`);
         }
         bracketMemory.push({
-          firstIndex: i - partialText.length,
+          firstIndex: index - partialText.length,
           operator: partialText,
           typeIndex: OPENING_BRACKETS.indexOf('(')
         });
@@ -130,12 +132,12 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
     if (CLOSING_BRACKETS.includes(character) && emptyQuoteMemory) {
       if (character === ')') {
         if (bracketMemory.length === 0) {
-          throw new Error(`The bracket ")" at the position ${i + 1} is unnecessary`);
+          throw new Error(`The bracket ")" at the position ${index + 1} is unnecessary`);
         }
         const lastOperator = bracketMemory[bracketMemory.length - 1].operator;
         if (!!lastOperator) {
           flatFormula = {
-            index: [bracketMemory[bracketMemory.length - 1].firstIndex, i],
+            index: [bracketMemory[bracketMemory.length - 1].firstIndex, index],
             operator: lastOperator,
             type: 'OPERATION',
             value: null,
@@ -146,23 +148,21 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
       }
     }
     if (SPECIAL_OPERATION.includes(character) && emptyQuoteMemory) {
-      const isPowerOperatorWithDoubleStar = character === '*' && i !== text.length - 1 && text[i + 1] === '*';
+      const isPowerOperatorWithDoubleStar = character === '*' && index !== textLength - 1 && text[index + 1] === '*';
       if (isPowerOperatorWithDoubleStar) {
         flatFormula = {
-          index: [i, i + 1],
+          index: [index, index + 1],
           operator: '**',
           type: 'OPERATION',
           value: null,
-          argumentIndex: null,
         };
         i++;
       } else {
         flatFormula = {
-          index: [i, i],
+          index: [index, index],
           operator: character,
           type: 'OPERATION',
           value: null,
-          argumentIndex: null,
         };
       }
       resetPartialText = true;
@@ -171,7 +171,7 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
     if (resetPartialText) {
       if (partialText.match(regexNumber)) {
         holder.push({
-          index: [i - partialText.length, i - 1],
+          index: [index - partialText.length, index - 1],
           operator: null,
           type: 'NUMBER',
           value: Number.parseFloat(partialText),
@@ -184,6 +184,15 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
     } else {
       partialText += character;
     }
+  }
+
+  if (partialText.match(regexNumber)) {
+    holder.push({
+      index: [textLength - partialText.length, textLength - 1],
+      operator: null,
+      type: 'NUMBER',
+      value: Number.parseFloat(partialText),
+    });
   }
 
   bracketMemory.forEach(formula => {
