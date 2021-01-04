@@ -195,7 +195,8 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
     });
   }
 
-  bracketMemory.forEach(formula => {
+  for (let i = bracketMemory.length - 1; i >= 0; i--) {
+    const formula = bracketMemory[i];
     if (!!formula.operator) {
       holder.push({
         index: [formula.firstIndex, NO_CLOSING_BRACKET_INDEX],
@@ -204,7 +205,7 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
         value: null,
       });
     }
-  });
+  }
   return holder;
 }
 

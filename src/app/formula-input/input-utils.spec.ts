@@ -392,7 +392,7 @@ describe('inputUtils', () => {
       ]);
     });
 
-    it('should parse simple formula with string', () => {
+    it('should parse string', () => {
       const expectedFormulas: FlatFormula[] = [
         {
           type: 'STRING',
@@ -404,7 +404,7 @@ describe('inputUtils', () => {
       expect(parseInputToFlatFormulas('"TEST"', formulas, variables)).toEqual(expectedFormulas);
     });
 
-    it('should parse simple formula with string', () => {
+    it('should parse formula with strings', () => {
       const expectedFormulas: FlatFormula[] = [
         {
           type: 'STRING',
@@ -434,7 +434,7 @@ describe('inputUtils', () => {
       expect(parseInputToFlatFormulas('REPLACE("TEST ME","ME","YOU")', formulas, variables)).toEqual(expectedFormulas);
     });
 
-    it('should parse simple formula', () => {
+    it('should parse formula with numbers', () => {
       const expectedFormulas: FlatFormula[] = [
         {
           type: 'NUMBER',
@@ -548,7 +548,7 @@ describe('inputUtils', () => {
       expect(parseInputToFlatFormulas('1 + 2^3 - 4*90/9**64', formulas, variables)).toEqual(expectedFormulas);
     });
 
-    it('should parse classic operation inside formula', () => {
+    it('should parse formula with classic operation', () => {
       const expectedFormulas: FlatFormula[] = [
         {
           type: 'NUMBER',
@@ -582,6 +582,36 @@ describe('inputUtils', () => {
         },
       ];
       expect(parseInputToFlatFormulas('SUM(1,6%3)', formulas, variables)).toEqual(expectedFormulas);
+    });
+
+    it('should parse formula with opened bracket', () => {
+      const expectedFormulas: FlatFormula[] = [
+        {
+          type: 'OPERATION',
+          operator: 'PI',
+          value: null,
+          index: [4, 7],
+        },
+        {
+          type: 'NUMBER',
+          operator: null,
+          value: 2,
+          index: [13, 13],
+        },
+        {
+          type: 'OPERATION',
+          operator: 'SUM',
+          value: null,
+          index: [9, NO_CLOSING_BRACKET_INDEX],
+        },
+        {
+          type: 'OPERATION',
+          operator: 'SUM',
+          value: null,
+          index: [0, NO_CLOSING_BRACKET_INDEX],
+        },
+      ];
+      expect(parseInputToFlatFormulas('SUM(PI(),SUM(2', formulas, variables)).toEqual(expectedFormulas);
     });
   });
 });
