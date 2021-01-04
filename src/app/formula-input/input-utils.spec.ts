@@ -377,6 +377,13 @@ describe('inputUtils', () => {
           shortDescription: 'short Sum details'
         },
         {
+          name: 'REPLACE',
+          description: 'REPLACE details',
+          syntax: 'REPLACE(text 1,text 2)',
+          syntaxParameter: [1, 1, 1],
+          shortDescription: 'short Replace details'
+        },
+        {
           name: 'PI',
           description: 'PI details',
           syntax: 'PI()',
@@ -402,23 +409,29 @@ describe('inputUtils', () => {
         {
           type: 'STRING',
           operator: null,
-          value: 'TEST',
-          index: [4, 9],
+          value: 'TEST ME',
+          index: [8, 16],
         },
         {
           type: 'STRING',
           operator: null,
           value: 'ME',
-          index: [11, 14],
+          index: [18, 21],
+        },
+        {
+          type: 'STRING',
+          operator: null,
+          value: 'YOU',
+          index: [23, 27],
         },
         {
           type: 'OPERATION',
-          operator: 'SUM',
-          index: [0, 15],
+          operator: 'REPLACE',
+          index: [0, 28],
           value: null,
         },
       ];
-      expect(parseInputToFlatFormulas('SUM("TEST","ME")', formulas, variables)).toEqual(expectedFormulas);
+      expect(parseInputToFlatFormulas('REPLACE("TEST ME","ME","YOU")', formulas, variables)).toEqual(expectedFormulas);
     });
 
     it('should parse simple formula', () => {
