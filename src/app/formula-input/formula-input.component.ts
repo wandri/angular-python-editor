@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnInit, SecurityContext, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  OnInit,
+  Output,
+  SecurityContext,
+  ViewChild
+} from '@angular/core';
 import { getCaretIndex, setCaret } from './carret-utils';
 import { Formula } from '../interfaces/formula';
 import { storedFormulas } from '../dataset/formula-list';
@@ -6,6 +16,7 @@ import {
   buildSyntax,
   findAllPossibleOperations,
   findFormulasOnCaretPosition,
+  parseInputToFlatFormulas,
   splitInputText,
   suggestionNameWithSpaceBeforeIfExistent
 } from './input-utils';
@@ -24,13 +35,13 @@ import { FlatFormula } from '../interfaces/flat-formula';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormulaInputComponent implements OnInit {
+  @Output() onFormulaParsing = new EventEmitter<FlatFormula[]>();
   suggestions: Suggestion[] = [];
   formulaText: string;
   formulas: Store<Formula> = new Store<Formula>();
   variables: Store<Variable> = new Store<Variable>();
   types = InputType;
   formulaSyntax: string;
-  formattedFormulaIntoObject: FlatFormula;
   suggestionFocusIndex: number = 0;
 
   @ViewChild('formulaInput', { static: true }) formulaElement: ElementRef;
@@ -106,7 +117,7 @@ export class FormulaInputComponent implements OnInit {
     if (!this.isEmptySuggestion) {
       this.suggestionFocusIndex = 0;
     }
-    this.parseFormula(innerHTML, allPossibleOperations);
+    this.parseFormula(innerHTML);
   }
 
   focusSuggestion(index: number): void {
@@ -220,8 +231,7 @@ export class FormulaInputComponent implements OnInit {
     }
   }
 
-  private parseFormula(innerHTML: string, allPossibleOperations: { index: [number, number]; operator: string }[]): void {
-    const formattedFormulaIntoObject = null;
-    this.formattedFormulaIntoObject = formattedFormulaIntoObject;
+  private parseFormula(innerHTML: string): void {
+    this.onFormulaParsing.emit(parseInputToFlatFormulas(innerHTML, this.formulas, this.variables));
   }
 }

@@ -2,6 +2,7 @@ import { Store } from '../interfaces/store';
 import { Formula } from '../interfaces/formula';
 import { Variable } from '../interfaces/variable';
 import { FlatFormula } from '../interfaces/flat-formula';
+import { SmartFormula } from '../interfaces/smart-formula';
 
 export const NO_CLOSING_BRACKET_INDEX = 9999;
 export const INFINITE_ARGUMENTS = 1000;
@@ -268,6 +269,12 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
     }
   }
   return holder;
+}
+
+export function parseFlatFormulasToSmartFormula(flatFormula: FlatFormula[]): SmartFormula {
+  const smartFormula = null;
+
+  return smartFormula;
 }
 
 export function findAllPossibleOperations(text: string, existingOperators: string[]): { index: [number, number], operator: string }[] {

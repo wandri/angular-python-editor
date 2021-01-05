@@ -7,6 +7,7 @@ import {
   findFormulasOnCaretPosition,
   INFINITE_ARGUMENTS,
   NO_CLOSING_BRACKET_INDEX,
+  parseFlatFormulasToSmartFormula,
   parseInputToFlatFormulas,
   splitInputText
 } from './input-utils';
@@ -14,6 +15,7 @@ import { Store } from '../interfaces/store';
 import { Variable } from '../interfaces/variable';
 import { Formula } from '../interfaces/formula';
 import { FlatFormula } from '../interfaces/flat-formula';
+import { SmartFormula } from '../interfaces/smart-formula';
 
 describe('inputUtils', () => {
 
@@ -785,6 +787,63 @@ describe('inputUtils', () => {
         },
       ];
       expect(parseInputToFlatFormulas('4<5', formulas, variables)).toEqual(expectedFormulas);
+    });
+  });
+
+  describe('FlatFormula parsing to SmartFormula', () => {
+    it('should parse simple flat formula', () => {
+      const expectedParsing: SmartFormula = {
+        type: 'OPERATION',
+        operator: 'REPLACE',
+        value: null,
+        arguments: [
+          {
+            type: 'STRING',
+            operator: null,
+            value: 'TEST ME',
+            arguments: null
+          },
+          {
+            type: 'STRING',
+            operator: null,
+            value: 'ME',
+            arguments: null
+          },
+          {
+            type: 'STRING',
+            operator: null,
+            value: 'YOU',
+            arguments: null
+          },
+        ]
+      };
+      const flatFormula: FlatFormula[] = [
+        {
+          type: 'STRING',
+          operator: null,
+          value: 'TEST ME',
+          index: [8, 16],
+        },
+        {
+          type: 'STRING',
+          operator: null,
+          value: 'ME',
+          index: [18, 21],
+        },
+        {
+          type: 'STRING',
+          operator: null,
+          value: 'YOU',
+          index: [23, 27],
+        },
+        {
+          type: 'OPERATION',
+          operator: 'REPLACE',
+          index: [0, 28],
+          value: null,
+        },
+      ];
+      expect(parseFlatFormulasToSmartFormula(flatFormula)).toEqual(expectedParsing);
     });
   });
 });

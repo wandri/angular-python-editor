@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { FlatFormula } from './interfaces/flat-formula';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +8,9 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'excel-like';
+  formula: string = null;
+
+  parseFormula(flatFormula: FlatFormula[]) {
+    this.formula = JSON.stringify(flatFormula, null, 4);
+  }
 }

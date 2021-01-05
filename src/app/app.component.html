@@ -1,3 +1,6 @@
 <div>
-  <app-formula-input></app-formula-input>
+  <app-formula-input (onFormulaParsing)="parseFormula($event)"></app-formula-input>
+  <div class="example">
+      {{ formula }}
+  </div>
 </div>
