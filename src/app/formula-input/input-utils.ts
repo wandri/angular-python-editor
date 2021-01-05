@@ -8,7 +8,8 @@ export const INFINITE_ARGUMENTS = 1000;
 export const OPENING_BRACKETS = ['(', '[', '{'];
 export const CLOSING_BRACKETS = [')', ']', '}'];
 export const QUOTES = [`'`, `"`];
-export const SPECIAL_OPERATION = [`+`, `-`, `/`, `*`, `^`, `%`];
+export const BASIC_OPERATOR = [`+`, `-`, `/`, `*`, `^`, `%`];
+export const CONDITION_OPERATOR = [`=`, `!`, `<`, `>`, `>`, `<`];
 
 export function splitInputText(text: string, caretIndex: number):
   { focusContent: string; beforeContent: string, afterContent: string } {
@@ -79,6 +80,10 @@ export function areAllBracketsClosed(text): boolean {
 
 export function parseInputToFlatFormulas(text: string, existingOperators: Store<Formula>, existingVariables: Store<Variable>): FlatFormula[] {
   const holder: FlatFormula[] = [];
+  const variables = {
+    ...existingVariables,
+    formattedNames: existingVariables.ids.map(name => name.replace(/[ ()/*^%+-]/g, '_'))
+  };
   const bracketMemory: { firstIndex: number, operator: string, typeIndex: number }[] = [];
   const quotesMemory: { firstIndex: number, typeIndex: number }[] = [];
   let partialText = '';
@@ -142,12 +147,19 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
             type: 'OPERATION',
             value: null,
           };
+        } else {
+          flatFormula = {
+            index: [bracketMemory[bracketMemory.length - 1].firstIndex, index],
+            operator: null,
+            type: 'GROUP',
+            value: null,
+          };
         }
         resetPartialText = true;
         bracketMemory.pop();
       }
     }
-    if (SPECIAL_OPERATION.includes(character) && emptyQuoteMemory) {
+    if (BASIC_OPERATOR.includes(character) && emptyQuoteMemory) {
       const isPowerOperatorWithDoubleStar = character === '*' && index !== textLength - 1 && text[index + 1] === '*';
       if (isPowerOperatorWithDoubleStar) {
         flatFormula = {
@@ -167,6 +179,26 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
       }
       resetPartialText = true;
     }
+    if (CONDITION_OPERATOR.includes(character) && emptyQuoteMemory) {
+      const isWithEqual = index !== textLength - 1 && text[index + 1] === '=';
+      if (isWithEqual) {
+        flatFormula = {
+          index: [index, index + 1],
+          operator: null,
+          type: 'CONDITION',
+          value: character + '=',
+        };
+        i++;
+      } else {
+        flatFormula = {
+          index: [index, index],
+          operator: null,
+          type: 'CONDITION',
+          value: character,
+        };
+      }
+      resetPartialText = true;
+    }
 
     if (resetPartialText) {
       if (partialText.match(regexNumber)) {
@@ -175,6 +207,17 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
           operator: null,
           type: 'NUMBER',
           value: Number.parseFloat(partialText),
+        });
+      }
+      const variablePosition = variables.formattedNames.indexOf(partialText);
+      if (variablePosition !== -1) {
+        const variableName = variables.ids[variablePosition];
+        holder.push({
+          index: [index - partialText.length, index - 1],
+          operator: null,
+          type: 'VARIABLE',
+          id: variables.item[variableName].id,
+          value: variableName,
         });
       }
       if (!!flatFormula) {
@@ -194,6 +237,17 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
       value: Number.parseFloat(partialText),
     });
   }
+  const variablePosition = variables.formattedNames.indexOf(partialText);
+  if (variablePosition !== -1) {
+    const variableName = variables.ids[variablePosition];
+    holder.push({
+      index: [textLength - partialText.length, textLength - 1],
+      operator: null,
+      type: 'VARIABLE',
+      id: variables.item[variableName].id,
+      value: variableName,
+    });
+  }
 
   for (let i = bracketMemory.length - 1; i >= 0; i--) {
     const formula = bracketMemory[i];
@@ -202,6 +256,13 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
         index: [formula.firstIndex, NO_CLOSING_BRACKET_INDEX],
         operator: formula.operator,
         type: 'OPERATION',
+        value: null,
+      });
+    } else {
+      holder.push({
+        index: [formula.firstIndex, NO_CLOSING_BRACKET_INDEX],
+        operator: null,
+        type: 'GROUP',
         value: null,
       });
     }

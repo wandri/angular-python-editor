@@ -362,24 +362,24 @@ describe('inputUtils', () => {
       variables = new Store<Variable>();
       formulas = new Store<Formula>();
       variables.addAllAndSort([
-        { name: 'car 1', id: '', },
-        { name: 'car 2', id: '', },
-        { name: 'Super car', id: '' },
-        { name: 'camping-car', id: 'i' },
-        { name: 'car', id: '' },
+        { name: 'car 95/100%', id: '1', },
+        { name: 'car 2', id: '2', },
+        { name: 'Super car', id: '3' },
+        { name: 'camping-car', id: '4' },
+        { name: 'car', id: '5' },
       ]);
       formulas.addAllAndSort([
         {
           name: 'SUM',
           description: 'SUM details',
-          syntax: 'SUM(var 1,var2)',
+          syntax: 'SUM(var1,var2)',
           syntaxParameter: [1, 1],
           shortDescription: 'short Sum details'
         },
         {
           name: 'REPLACE',
           description: 'REPLACE details',
-          syntax: 'REPLACE(text 1,text 2)',
+          syntax: 'REPLACE(text1,text2)',
           syntaxParameter: [1, 1, 1],
           shortDescription: 'short Replace details'
         },
@@ -462,6 +462,78 @@ describe('inputUtils', () => {
         },
       ];
       expect(parseInputToFlatFormulas('SUM(1,4,53)', formulas, variables)).toEqual(expectedFormulas);
+    });
+
+    it('should parse simple operation with closed bracket', () => {
+      const expectedFormulas: FlatFormula[] = [
+        {
+          type: 'NUMBER',
+          operator: null,
+          value: 1,
+          index: [1, 1],
+        },
+        {
+          type: 'OPERATION',
+          operator: '+',
+          index: [2, 2],
+          value: null,
+        },
+        {
+          type: 'NUMBER',
+          operator: null,
+          value: 2,
+          index: [3, 3],
+        },
+        {
+          type: 'GROUP',
+          operator: null,
+          value: null,
+          index: [0, 4],
+        },
+        {
+          type: 'OPERATION',
+          operator: '*',
+          index: [5, 5],
+          value: null,
+        },
+        {
+          type: 'NUMBER',
+          operator: null,
+          value: 4,
+          index: [6, 6],
+        },
+      ];
+      expect(parseInputToFlatFormulas('(1+2)*4', formulas, variables)).toEqual(expectedFormulas);
+    });
+
+    it('should parse simple operation with closed bracket', () => {
+      const expectedFormulas: FlatFormula[] = [
+        {
+          type: 'NUMBER',
+          operator: null,
+          value: 1,
+          index: [1, 1],
+        },
+        {
+          type: 'OPERATION',
+          operator: '+',
+          index: [2, 2],
+          value: null,
+        },
+        {
+          type: 'NUMBER',
+          operator: null,
+          value: 2,
+          index: [3, 3],
+        },
+        {
+          type: 'GROUP',
+          operator: null,
+          value: null,
+          index: [0, NO_CLOSING_BRACKET_INDEX],
+        },
+      ];
+      expect(parseInputToFlatFormulas('(1+2', formulas, variables)).toEqual(expectedFormulas);
     });
 
     it('should parse classic operations', () => {
@@ -612,6 +684,107 @@ describe('inputUtils', () => {
         },
       ];
       expect(parseInputToFlatFormulas('SUM(PI(),SUM(2', formulas, variables)).toEqual(expectedFormulas);
+    });
+
+    it('should parse simple variable', () => {
+      const expectedFormulas: FlatFormula[] = [
+        {
+          type: 'VARIABLE',
+          operator: null,
+          value: 'car 2',
+          id: '2',
+          index: [0, 4],
+        },
+      ];
+      expect(parseInputToFlatFormulas('car_2', formulas, variables)).toEqual(expectedFormulas);
+    });
+
+    it('should parse variables with simple operation', () => {
+      const expectedFormulas: FlatFormula[] = [
+        {
+          type: 'VARIABLE',
+          operator: null,
+          value: 'car 2',
+          id: '2',
+          index: [0, 4],
+        },
+        {
+          type: 'OPERATION',
+          operator: '+',
+          value: null,
+          index: [6, 6],
+        },
+        {
+          type: 'VARIABLE',
+          operator: null,
+          value: 'camping-car',
+          id: '4',
+          index: [8, 18],
+        },
+        {
+          type: 'OPERATION',
+          operator: '-',
+          value: null,
+          index: [20, 20],
+        },
+        {
+          type: 'VARIABLE',
+          operator: null,
+          value: 'car 95/100%',
+          id: '1',
+          index: [22, 32],
+        },
+      ];
+      expect(parseInputToFlatFormulas('car_2 + camping_car - car_95_100_', formulas, variables)).toEqual(expectedFormulas);
+    });
+
+    it('should parse condition with variable and number', () => {
+      const expectedFormulas: FlatFormula[] = [
+        {
+          type: 'VARIABLE',
+          operator: null,
+          value: 'car 2',
+          id: '2',
+          index: [0, 4],
+        },
+        {
+          type: 'CONDITION',
+          operator: null,
+          value: '<=',
+          index: [6, 7],
+        },
+        {
+          type: 'NUMBER',
+          operator: null,
+          value: 5,
+          index: [9, 9],
+        },
+      ];
+      expect(parseInputToFlatFormulas('car_2 <= 5', formulas, variables)).toEqual(expectedFormulas);
+    });
+
+    it('should parse condition with numbers', () => {
+      const expectedFormulas: FlatFormula[] = [
+        {
+          type: 'NUMBER',
+          operator: null,
+          value: 4,
+          index: [0, 0],
+        },
+        {
+          type: 'CONDITION',
+          operator: null,
+          value: '<',
+          index: [1, 1],
+        },
+        {
+          type: 'NUMBER',
+          operator: null,
+          value: 5,
+          index: [2, 2],
+        },
+      ];
+      expect(parseInputToFlatFormulas('4<5', formulas, variables)).toEqual(expectedFormulas);
     });
   });
 });
