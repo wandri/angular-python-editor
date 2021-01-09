@@ -49,11 +49,11 @@ export class FormulaInputComponent implements OnInit {
   getCaretIndex: (element: Node) => number = getCaretIndex;
   savedCaretIndex = 0;
 
-  get isEmptySuggestion(): boolean {
-    return this.suggestions.length === 0;
+  constructor(private sanitizer: DomSanitizer) {
   }
 
-  constructor(private sanitizer: DomSanitizer) {
+  get isEmptySuggestion(): boolean {
+    return this.suggestions.length === 0;
   }
 
   @HostListener('keydown', ['$event'])
@@ -84,7 +84,7 @@ export class FormulaInputComponent implements OnInit {
       const suggestions = [];
       for (let name of this.formulas.ids) {
         if (name.startsWith(charactersJustBeforeCaret)) {
-          suggestions.push({ type: InputType.FORMULA, name, formula: this.formulas.item[name] });
+          suggestions.push({ type: InputType.OPERATION, name, formula: this.formulas.item[name] });
           formulaSuggestionsNumber++;
           if (formulaSuggestionsNumber >= 10) {
             break;
@@ -130,7 +130,7 @@ export class FormulaInputComponent implements OnInit {
 
   enterSelectedSuggestion(index: number, caretIndex: number): void {
     const suggestion = this.suggestions[index];
-    const isFormula = suggestion.type === InputType.FORMULA;
+    const isFormula = suggestion.type === InputType.OPERATION;
     const focusSuggestion = isFormula ? suggestion.formula : suggestion.variable;
     const inputElement = this.formulaElement.nativeElement;
     const {

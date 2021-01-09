@@ -3,6 +3,7 @@ import { Formula } from '../interfaces/formula';
 import { Variable } from '../interfaces/variable';
 import { FlatFormula } from '../interfaces/flat-formula';
 import { SmartFormula } from '../interfaces/smart-formula';
+import { InputType } from '../interfaces/type.enum';
 
 export const NO_CLOSING_BRACKET_INDEX = 9999;
 export const INFINITE_ARGUMENTS = 1000;
@@ -10,7 +11,9 @@ export const OPENING_BRACKETS = ['(', '[', '{'];
 export const CLOSING_BRACKETS = [')', ']', '}'];
 export const QUOTES = [`'`, `"`];
 export const BASIC_OPERATOR = [`+`, `-`, `/`, `*`, `^`, `%`];
-export const CONDITION_OPERATOR = [`=`, `!`, `<`, `>`, `>`, `<`];
+export const EXTENDED_BASIC_OPERATOR = [`+`, `-`, `/`, `*`, `^`, `%`, '**'];
+export const CONDITION_OPERATOR = [`=`, `!`, `<`, `>`];
+export const EXTENDED_CONDITION_OPERATOR = [`=`, `!`, `<`, `>`, '<=', '>='];
 
 export function splitInputText(text: string, caretIndex: number):
   { focusContent: string; beforeContent: string, afterContent: string } {
@@ -109,7 +112,7 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
         flatFormula = {
           index: [lastQuote.firstIndex, index],
           operator: null,
-          type: 'STRING',
+          type: InputType.STRING,
           value: partialText,
         };
         quotesMemory.pop();
@@ -145,14 +148,14 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
           flatFormula = {
             index: [bracketMemory[bracketMemory.length - 1].firstIndex, index],
             operator: lastOperator,
-            type: 'OPERATION',
+            type: InputType.OPERATION,
             value: null,
           };
         } else {
           flatFormula = {
             index: [bracketMemory[bracketMemory.length - 1].firstIndex, index],
             operator: null,
-            type: 'GROUP',
+            type: InputType.GROUP,
             value: null,
           };
         }
@@ -166,7 +169,7 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
         flatFormula = {
           index: [index, index + 1],
           operator: '**',
-          type: 'OPERATION',
+          type: InputType.OPERATION,
           value: null,
         };
         i++;
@@ -174,7 +177,7 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
         flatFormula = {
           index: [index, index],
           operator: character,
-          type: 'OPERATION',
+          type: InputType.OPERATION,
           value: null,
         };
       }
@@ -186,7 +189,7 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
         flatFormula = {
           index: [index, index + 1],
           operator: null,
-          type: 'CONDITION',
+          type: InputType.CONDITION,
           value: character + '=',
         };
         i++;
@@ -194,7 +197,7 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
         flatFormula = {
           index: [index, index],
           operator: null,
-          type: 'CONDITION',
+          type: InputType.CONDITION,
           value: character,
         };
       }
@@ -206,7 +209,7 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
         holder.push({
           index: [index - partialText.length, index - 1],
           operator: null,
-          type: 'NUMBER',
+          type: InputType.NUMBER,
           value: Number.parseFloat(partialText),
         });
       }
@@ -216,7 +219,7 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
         holder.push({
           index: [index - partialText.length, index - 1],
           operator: null,
-          type: 'VARIABLE',
+          type: InputType.VARIABLE,
           id: variables.item[variableName].id,
           value: variableName,
         });
@@ -234,7 +237,7 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
     holder.push({
       index: [textLength - partialText.length, textLength - 1],
       operator: null,
-      type: 'NUMBER',
+      type: InputType.NUMBER,
       value: Number.parseFloat(partialText),
     });
   }
@@ -244,7 +247,7 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
     holder.push({
       index: [textLength - partialText.length, textLength - 1],
       operator: null,
-      type: 'VARIABLE',
+      type: InputType.VARIABLE,
       id: variables.item[variableName].id,
       value: variableName,
     });
@@ -256,14 +259,14 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
       holder.push({
         index: [formula.firstIndex, NO_CLOSING_BRACKET_INDEX],
         operator: formula.operator,
-        type: 'OPERATION',
+        type: InputType.OPERATION,
         value: null,
       });
     } else {
       holder.push({
         index: [formula.firstIndex, NO_CLOSING_BRACKET_INDEX],
         operator: null,
-        type: 'GROUP',
+        type: InputType.GROUP,
         value: null,
       });
     }
@@ -272,6 +275,7 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
 }
 
 export function parseFlatFormulasToSmartFormula(flatFormula: FlatFormula[]): SmartFormula {
+
   const smartFormula = null;
 
   return smartFormula;

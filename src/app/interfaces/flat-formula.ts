@@ -1,7 +1,9 @@
+import { InputType } from './type.enum';
+
 export interface FlatFormula {
   index: [number, number];
   operator: string;
-  type: 'STRING' | 'NUMBER' | 'VARIABLE' | 'GROUP' | 'OPERATION' | 'CONDITION';
+  type: InputType;
   value: string | number;
   id?: string;
   argumentIndex?: number;

@@ -16,6 +16,7 @@ import { Variable } from '../interfaces/variable';
 import { Formula } from '../interfaces/formula';
 import { FlatFormula } from '../interfaces/flat-formula';
 import { SmartFormula } from '../interfaces/smart-formula';
+import { InputType } from '../interfaces/type.enum';
 
 describe('inputUtils', () => {
 
@@ -397,7 +398,7 @@ describe('inputUtils', () => {
     it('should parse string', () => {
       const expectedFormulas: FlatFormula[] = [
         {
-          type: 'STRING',
+          type: InputType.STRING,
           operator: null,
           value: 'TEST',
           index: [0, 5],
@@ -409,25 +410,25 @@ describe('inputUtils', () => {
     it('should parse formula with strings', () => {
       const expectedFormulas: FlatFormula[] = [
         {
-          type: 'STRING',
+          type: InputType.STRING,
           operator: null,
           value: 'TEST ME',
           index: [8, 16],
         },
         {
-          type: 'STRING',
+          type: InputType.STRING,
           operator: null,
           value: 'ME',
           index: [18, 21],
         },
         {
-          type: 'STRING',
+          type: InputType.STRING,
           operator: null,
           value: 'YOU',
           index: [23, 27],
         },
         {
-          type: 'OPERATION',
+          type: InputType.OPERATION,
           operator: 'REPLACE',
           index: [0, 28],
           value: null,
@@ -439,25 +440,25 @@ describe('inputUtils', () => {
     it('should parse formula with numbers', () => {
       const expectedFormulas: FlatFormula[] = [
         {
-          type: 'NUMBER',
+          type: InputType.NUMBER,
           operator: null,
           value: 1,
           index: [4, 4],
         },
         {
-          type: 'NUMBER',
+          type: InputType.NUMBER,
           operator: null,
           value: 4,
           index: [6, 6],
         },
         {
-          type: 'NUMBER',
+          type: InputType.NUMBER,
           operator: null,
           value: 53,
           index: [8, 9],
         },
         {
-          type: 'OPERATION',
+          type: InputType.OPERATION,
           operator: 'SUM',
           index: [0, 10],
           value: null,
@@ -469,37 +470,37 @@ describe('inputUtils', () => {
     it('should parse simple operation with closed bracket', () => {
       const expectedFormulas: FlatFormula[] = [
         {
-          type: 'NUMBER',
+          type: InputType.NUMBER,
           operator: null,
           value: 1,
           index: [1, 1],
         },
         {
-          type: 'OPERATION',
+          type: InputType.OPERATION,
           operator: '+',
           index: [2, 2],
           value: null,
         },
         {
-          type: 'NUMBER',
+          type: InputType.NUMBER,
           operator: null,
           value: 2,
           index: [3, 3],
         },
         {
-          type: 'GROUP',
+          type: InputType.GROUP,
           operator: null,
           value: null,
           index: [0, 4],
         },
         {
-          type: 'OPERATION',
+          type: InputType.OPERATION,
           operator: '*',
           index: [5, 5],
           value: null,
         },
         {
-          type: 'NUMBER',
+          type: InputType.NUMBER,
           operator: null,
           value: 4,
           index: [6, 6],
@@ -511,25 +512,25 @@ describe('inputUtils', () => {
     it('should parse simple operation with closed bracket', () => {
       const expectedFormulas: FlatFormula[] = [
         {
-          type: 'NUMBER',
+          type: InputType.NUMBER,
           operator: null,
           value: 1,
           index: [1, 1],
         },
         {
-          type: 'OPERATION',
+          type: InputType.OPERATION,
           operator: '+',
           index: [2, 2],
           value: null,
         },
         {
-          type: 'NUMBER',
+          type: InputType.NUMBER,
           operator: null,
           value: 2,
           index: [3, 3],
         },
         {
-          type: 'GROUP',
+          type: InputType.GROUP,
           operator: null,
           value: null,
           index: [0, NO_CLOSING_BRACKET_INDEX],
@@ -541,79 +542,79 @@ describe('inputUtils', () => {
     it('should parse classic operations', () => {
       const expectedFormulas: FlatFormula[] = [
         {
-          type: 'NUMBER',
+          type: InputType.NUMBER,
           operator: null,
           value: 1,
           index: [0, 0],
         },
         {
-          type: 'OPERATION',
+          type: InputType.OPERATION,
           operator: '+',
           value: null,
           index: [2, 2],
         },
         {
-          type: 'NUMBER',
+          type: InputType.NUMBER,
           operator: null,
           value: 2,
           index: [4, 4],
         },
         {
-          type: 'OPERATION',
+          type: InputType.OPERATION,
           operator: '^',
           value: null,
           index: [5, 5],
         },
         {
-          type: 'NUMBER',
+          type: InputType.NUMBER,
           operator: null,
           value: 3,
           index: [6, 6],
         },
         {
-          type: 'OPERATION',
+          type: InputType.OPERATION,
           operator: '-',
           value: null,
           index: [8, 8],
         },
         {
-          type: 'NUMBER',
+          type: InputType.NUMBER,
           operator: null,
           value: 4,
           index: [10, 10],
         },
         {
-          type: 'OPERATION',
+          type: InputType.OPERATION,
           operator: '*',
           value: null,
           index: [11, 11],
         },
         {
-          type: 'NUMBER',
+          type: InputType.NUMBER,
           operator: null,
           value: 90,
           index: [12, 13],
         },
         {
-          type: 'OPERATION',
+          type: InputType.OPERATION,
           operator: '/',
           value: null,
           index: [14, 14],
         },
         {
-          type: 'NUMBER',
+          type: InputType.NUMBER,
           operator: null,
           value: 9,
           index: [15, 15],
         },
         {
-          type: 'OPERATION',
+          type: InputType.OPERATION,
           operator: '**',
           value: null,
           index: [16, 17],
         },
         {
-          type: 'NUMBER',
+          type: InputType.NUMBER,
           operator: null,
           value: 64,
           index: [18, 19],
@@ -625,31 +626,31 @@ describe('inputUtils', () => {
     it('should parse formula with classic operation', () => {
       const expectedFormulas: FlatFormula[] = [
         {
-          type: 'NUMBER',
+          type: InputType.NUMBER,
           operator: null,
           value: 1,
           index: [4, 4],
         },
         {
-          type: 'NUMBER',
+          type: InputType.NUMBER,
           operator: null,
           value: 6,
           index: [6, 6],
         },
         {
-          type: 'OPERATION',
+          type: InputType.OPERATION,
           operator: '%',
           value: null,
           index: [7, 7],
         },
         {
-          type: 'NUMBER',
+          type: InputType.NUMBER,
           operator: null,
           value: 3,
           index: [8, 8],
         },
         {
-          type: 'OPERATION',
+          type: InputType.OPERATION,
           operator: 'SUM',
           value: null,
           index: [0, 9],
@@ -661,25 +662,25 @@ describe('inputUtils', () => {
     it('should parse formula with opened bracket', () => {
       const expectedFormulas: FlatFormula[] = [
         {
-          type: 'OPERATION',
+          type: InputType.OPERATION,
           operator: 'PI',
           value: null,
           index: [4, 7],
         },
         {
-          type: 'NUMBER',
+          type: InputType.NUMBER,
           operator: null,
           value: 2,
           index: [13, 13],
         },
         {
-          type: 'OPERATION',
+          type: InputType.OPERATION,
           operator: 'SUM',
           value: null,
           index: [9, NO_CLOSING_BRACKET_INDEX],
         },
         {
-          type: 'OPERATION',
+          type: InputType.OPERATION,
           operator: 'SUM',
           value: null,
           index: [0, NO_CLOSING_BRACKET_INDEX],
@@ -691,7 +692,7 @@ describe('inputUtils', () => {
     it('should parse simple variable', () => {
       const expectedFormulas: FlatFormula[] = [
         {
-          type: 'VARIABLE',
+          type: InputType.VARIABLE,
           operator: null,
           value: 'car 2',
           id: '2',
@@ -704,33 +705,33 @@ describe('inputUtils', () => {
     it('should parse variables with simple operation', () => {
       const expectedFormulas: FlatFormula[] = [
         {
-          type: 'VARIABLE',
+          type: InputType.VARIABLE,
           operator: null,
           value: 'car 2',
           id: '2',
           index: [0, 4],
         },
         {
-          type: 'OPERATION',
+          type: InputType.OPERATION,
           operator: '+',
           value: null,
           index: [6, 6],
         },
         {
-          type: 'VARIABLE',
+          type: InputType.VARIABLE,
           operator: null,
           value: 'camping-car',
           id: '4',
           index: [8, 18],
         },
         {
-          type: 'OPERATION',
+          type: InputType.OPERATION,
           operator: '-',
           value: null,
           index: [20, 20],
         },
         {
-          type: 'VARIABLE',
+          type: InputType.VARIABLE,
           operator: null,
           value: 'car 95/100%',
           id: '1',
@@ -743,20 +744,20 @@ describe('inputUtils', () => {
     it('should parse condition with variable and number', () => {
       const expectedFormulas: FlatFormula[] = [
         {
-          type: 'VARIABLE',
+          type: InputType.VARIABLE,
           operator: null,
           value: 'car 2',
           id: '2',
           index: [0, 4],
         },
         {
-          type: 'CONDITION',
+          type: InputType.CONDITION,
           operator: null,
           value: '<=',
           index: [6, 7],
         },
         {
-          type: 'NUMBER',
+          type: InputType.NUMBER,
           operator: null,
           value: 5,
           index: [9, 9],
@@ -768,19 +769,19 @@ describe('inputUtils', () => {
     it('should parse condition with numbers', () => {
       const expectedFormulas: FlatFormula[] = [
         {
-          type: 'NUMBER',
+          type: InputType.NUMBER,
           operator: null,
           value: 4,
           index: [0, 0],
         },
         {
-          type: 'CONDITION',
+          type: InputType.CONDITION,
           operator: null,
           value: '<',
           index: [1, 1],
         },
         {
-          type: 'NUMBER',
+          type: InputType.NUMBER,
           operator: null,
           value: 5,
           index: [2, 2],
@@ -791,26 +792,26 @@ describe('inputUtils', () => {
   });
 
   describe('FlatFormula parsing to SmartFormula', () => {
-    it('should parse simple flat formula', () => {
+    fit('should parse simple flat formula', () => {
       const expectedParsing: SmartFormula = {
-        type: 'OPERATION',
+        type: InputType.OPERATION,
         operator: 'REPLACE',
         value: null,
         arguments: [
           {
-            type: 'STRING',
+            type: InputType.STRING,
             operator: null,
             value: 'TEST ME',
             arguments: null
           },
           {
-            type: 'STRING',
+            type: InputType.STRING,
             operator: null,
             value: 'ME',
             arguments: null
           },
           {
-            type: 'STRING',
+            type: InputType.STRING,
             operator: null,
             value: 'YOU',
             arguments: null
@@ -819,25 +820,25 @@ describe('inputUtils', () => {
       };
       const flatFormula: FlatFormula[] = [
         {
-          type: 'STRING',
+          type: InputType.STRING,
           operator: null,
           value: 'TEST ME',
           index: [8, 16],
         },
         {
-          type: 'STRING',
+          type: InputType.STRING,
           operator: null,
           value: 'ME',
           index: [18, 21],
         },
         {
-          type: 'STRING',
+          type: InputType.STRING,
           operator: null,
           value: 'YOU',
           index: [23, 27],
         },
         {
-          type: 'OPERATION',
+          type: InputType.OPERATION,
           operator: 'REPLACE',
           index: [0, 28],
           value: null,
