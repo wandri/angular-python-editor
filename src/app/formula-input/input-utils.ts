@@ -86,7 +86,7 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
   const holder: FlatFormula[] = [];
   const variables = {
     ...existingVariables,
-    formattedNames: existingVariables.ids.map(name => name.replace(/[ ()/*^%+-]/g, '_'))
+    formattedNames: existingVariables.ids.map(name => name.replace(/[ ()/,*^%+-]/g, '_'))
   };
   const bracketMemory: { firstIndex: number, operator: string, typeIndex: number }[] = [];
   const quotesMemory: { firstIndex: number, typeIndex: number }[] = [];
@@ -277,6 +277,10 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
 export function parseFlatFormulasToSmartFormula(flatFormula: FlatFormula[]): SmartFormula {
 
   const smartFormula = null;
+
+  for (let i = 0; i < flatFormula.length; i++) {
+
+  }
 
   return smartFormula;
 }
