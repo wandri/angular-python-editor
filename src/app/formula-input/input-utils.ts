@@ -1,9 +1,9 @@
-import { Store } from '../interfaces/store';
-import { Formula } from '../interfaces/formula';
-import { Variable } from '../interfaces/variable';
-import { FlatFormula } from '../interfaces/flat-formula';
-import { SmartFormula } from '../interfaces/smart-formula';
-import { InputType } from '../interfaces/type.enum';
+import {Store} from '../interfaces/store';
+import {Formula} from '../interfaces/formula';
+import {Variable} from '../interfaces/variable';
+import {FlatFormula} from '../interfaces/flat-formula';
+import {SmartFormula} from '../interfaces/smart-formula';
+import {InputType} from '../interfaces/type.enum';
 
 export const NO_CLOSING_BRACKET_INDEX = 9999;
 export const INFINITE_ARGUMENTS = 1000;
@@ -25,8 +25,7 @@ export function splitInputText(text: string, caretIndex: number):
   const specialCharacters = ['/', '*', '+', '(', ','];
   let content = '';
   const formattedContents = [];
-  for (let i = 0; i < text.length; i++) {
-    const character = text[i];
+  for (const character of text) {
     content += character;
     if (specialCharacters.includes(character)) {
       formattedContents.push(content);
@@ -34,17 +33,17 @@ export function splitInputText(text: string, caretIndex: number):
     }
   }
   formattedContents.push(content);
-  formattedContents.forEach(content => {
-    const isBeforeFormula = characterPosition + content.length < caretIndex;
-    const isOnFormulaPosition = characterPosition <= caretIndex && caretIndex <= characterPosition + content.length;
+  formattedContents.forEach(formattedContent => {
+    const isBeforeFormula = characterPosition + formattedContent.length < caretIndex;
+    const isOnFormulaPosition = characterPosition <= caretIndex && caretIndex <= characterPosition + formattedContent.length;
     if (isBeforeFormula) {
-      contentBeforeFormula += content;
-      characterPosition += content.length;
+      contentBeforeFormula += formattedContent;
+      characterPosition += formattedContent.length;
     } else if (isOnFormulaPosition) {
-      contentOnFormula = content;
+      contentOnFormula = formattedContent;
       characterPosition += 9999;
     } else {
-      contentAfterFormula += content;
+      contentAfterFormula += formattedContent;
     }
   });
   return {
@@ -66,7 +65,7 @@ export function areAllBracketsClosed(text): boolean {
   const holder = [];
   const openBrackets = ['(', '{', '['];
   const closedBrackets = [')', '}', ']'];
-  for (let letter of text) {
+  for (const letter of text) {
     if (openBrackets.includes(letter)) {
       holder.push(letter);
     } else if (closedBrackets.includes(letter)) {
@@ -82,7 +81,8 @@ export function areAllBracketsClosed(text): boolean {
   return (holder.length === 0);
 }
 
-export function parseInputToFlatFormulas(text: string, existingOperators: Store<Formula>, existingVariables: Store<Variable>): FlatFormula[] {
+export function parseInputToFlatFormulas(text: string, existingOperators: Store<Formula>, existingVariables: Store<Variable>):
+  FlatFormula[] {
   const holder: FlatFormula[] = [];
   const variables = {
     ...existingVariables,
@@ -213,9 +213,9 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
           value: Number.parseFloat(partialText),
         });
       }
-      const variablePosition = variables.formattedNames.indexOf(partialText);
-      if (variablePosition !== -1) {
-        const variableName = variables.ids[variablePosition];
+      const variablePositionInName = variables.formattedNames.indexOf(partialText);
+      if (variablePositionInName !== -1) {
+        const variableName = variables.ids[variablePositionInName];
         holder.push({
           index: [index - partialText.length, index - 1],
           operator: null,
@@ -333,8 +333,9 @@ export function findAllPossibleOperations(text: string, existingOperators: strin
   return holder;
 }
 
-export function findFormulasOnCaretPosition(index: number, formulas: { index: [number, number], operator: string }[]): { index: [number, number], operator: string }[] {
-  let result: { index: [number, number], operator: string }[] = [];
+export function findFormulasOnCaretPosition(index: number, formulas: { index: [number, number], operator: string }[]):
+  { index: [number, number], operator: string }[] {
+  const result: { index: [number, number], operator: string }[] = [];
   formulas.forEach(formula => {
     const firstPosition = formula.index[0];
     if (firstPosition <= index && formula.index[1] >= index) {
@@ -345,7 +346,8 @@ export function findFormulasOnCaretPosition(index: number, formulas: { index: [n
   return result;
 }
 
-export function findFocusFormulaIndexOnInput(formulaPosition: { index: [number, number]; operator: string }, inputText: string, initialCaretIndex: number) {
+export function findFocusFormulaIndexOnInput(formulaPosition: { index: [number, number]; operator: string },
+                                             inputText: string, initialCaretIndex: number) {
   const startArgumentIndex = formulaPosition.index[0];
   const argumentsStartIndex = startArgumentIndex + formulaPosition.operator.length + 1;
   const formulaWithArguments = inputText
@@ -406,6 +408,6 @@ function getFormattedSyntax(syntax: string, syntaxParameter: number[],
 
 export function buildSyntax(formulaPosition: { index: [number, number]; operator: string; }, inputText: string, initialCaretIndex: number,
                             syntax: string, syntaxParameter: number[]): string {
-  let focusIndex = findFocusFormulaIndexOnInput(formulaPosition, inputText, initialCaretIndex);
+  const focusIndex = findFocusFormulaIndexOnInput(formulaPosition, inputText, initialCaretIndex);
   return getFormattedSyntax(syntax, syntaxParameter, formulaPosition, focusIndex);
 }
