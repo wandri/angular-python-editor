@@ -1,4 +1,4 @@
-import { async, TestBed } from '@angular/core/testing';
+import {async, TestBed} from '@angular/core/testing';
 import {
   areAllBracketsClosed,
   buildSyntax,
@@ -11,12 +11,12 @@ import {
   parseInputToFlatFormulas,
   splitInputText
 } from './input-utils';
-import { Store } from '../interfaces/store';
-import { Variable } from '../interfaces/variable';
-import { Formula } from '../interfaces/formula';
-import { FlatFormula } from '../interfaces/flat-formula';
-import { SmartFormula } from '../interfaces/smart-formula';
-import { InputType } from '../interfaces/type.enum';
+import {Store} from '../interfaces/store';
+import {Variable} from '../interfaces/variable';
+import {Formula} from '../interfaces/formula';
+import {FlatFormula} from '../interfaces/flat-formula';
+import {SmartFormula} from '../interfaces/smart-formula';
+import {InputType} from '../interfaces/type.enum';
 
 describe('inputUtils', () => {
 
@@ -51,80 +51,80 @@ describe('inputUtils', () => {
   describe('Index of operation', () => {
     it('should detect complex closing bracket 1', () => {
       const expectedIndexes: { index: [number, number], operator: string }[] = [
-        { index: [13, 16], operator: 'PI' },
-        { index: [7, 17], operator: 'SUM' },
-        { index: [0, 20], operator: 'SEARCH' }
+        {index: [13, 16], operator: 'PI'},
+        {index: [7, 17], operator: 'SUM'},
+        {index: [0, 20], operator: 'SEARCH'}
       ];
       expect(findAllPossibleOperations('SEARCH(SUM(1,PI()),4)', ['SUM', 'SEARCH', 'PI'])).toEqual(expectedIndexes);
     });
 
     it('should not detect non existent formula', () => {
       const expectedIndexes: { index: [number, number], operator: string }[] = [
-        { index: [7, 17], operator: 'SUM' },
+        {index: [7, 17], operator: 'SUM'},
       ];
       expect(findAllPossibleOperations('SEARCH(SUM(1,PI()),4)', ['SUM'])).toEqual(expectedIndexes);
     });
 
     it('should detect complex closing bracket 2', () => {
       const expectedIndexes: { index: [number, number], operator: string }[] = [
-        { index: [0, 3], operator: 'PI' },
-        { index: [23, 26], operator: 'PI' },
-        { index: [17, 27], operator: 'SUM' },
-        { index: [11, 28], operator: 'SUM' },
+        {index: [0, 3], operator: 'PI'},
+        {index: [23, 26], operator: 'PI'},
+        {index: [17, 27], operator: 'SUM'},
+        {index: [11, 28], operator: 'SUM'},
       ];
       expect(findAllPossibleOperations('PI() + 2 / SUM(1,SUM(4,PI())) - @M4', ['SUM', 'SEARCH', 'PI'])).toEqual(expectedIndexes);
     });
 
     it('should detect complex closing bracket 3', () => {
       const expectedIndexes: { index: [number, number], operator: string }[] = [
-        { index: [0, 11], operator: 'SUM' },
-        { index: [15, 18], operator: 'PI' },
+        {index: [0, 11], operator: 'SUM'},
+        {index: [15, 18], operator: 'PI'},
       ];
       expect(findAllPossibleOperations('SUM([1,4],6) + PI()', ['SUM', 'PI'])).toEqual(expectedIndexes);
     });
 
     it('should detect complex closing bracket 4', () => {
       const expectedIndexes: { index: [number, number], operator: string }[] = [
-        { index: [0, 11], operator: 'SUM' },
-        { index: [15, 18], operator: 'PI' },
+        {index: [0, 11], operator: 'SUM'},
+        {index: [15, 18], operator: 'PI'},
       ];
       expect(findAllPossibleOperations('SUM({1,4},6) + PI()', ['SUM', 'PI'])).toEqual(expectedIndexes);
     });
 
     it('should detect complex closing bracket 5', () => {
       const expectedIndexes: { index: [number, number], operator: string }[] = [
-        { index: [0, 11], operator: 'SUM' },
-        { index: [15, 18], operator: 'PI' },
+        {index: [0, 11], operator: 'SUM'},
+        {index: [15, 18], operator: 'PI'},
       ];
       expect(findAllPossibleOperations('SUM((1,4),6) + PI()', ['SUM', 'PI'])).toEqual(expectedIndexes);
     });
 
     it('should find the good formula focus from position', () => {
       const indexes: { index: [number, number], operator: string }[] = [
-        { index: [0, 4], operator: 'PI' },
-        { index: [23, 27], operator: 'PI' },
-        { index: [17, 28], operator: 'SUM' },
-        { index: [11, 29], operator: 'SUM' },
+        {index: [0, 4], operator: 'PI'},
+        {index: [23, 27], operator: 'PI'},
+        {index: [17, 28], operator: 'SUM'},
+        {index: [11, 29], operator: 'SUM'},
       ];
-      expect(findFormulasOnCaretPosition(2, indexes)).toEqual([{ index: [0, 4], operator: 'PI' }]);
+      expect(findFormulasOnCaretPosition(2, indexes)).toEqual([{index: [0, 4], operator: 'PI'}]);
     });
 
     it('should find no formula focus from position without formula', () => {
       const indexes: { index: [number, number], operator: string }[] = [
-        { index: [0, 4], operator: 'PI' },
-        { index: [23, 27], operator: 'PI' },
-        { index: [17, 28], operator: 'SUM' },
-        { index: [11, 29], operator: 'SUM' },
+        {index: [0, 4], operator: 'PI'},
+        {index: [23, 27], operator: 'PI'},
+        {index: [17, 28], operator: 'SUM'},
+        {index: [11, 29], operator: 'SUM'},
       ];
       expect(findFormulasOnCaretPosition(5, indexes)).toEqual([]);
     });
 
     it('should find the formula inside another formula', () => {
       const indexes: { index: [number, number], operator: string }[] = [
-        { index: [0, 4], operator: 'PI' },
-        { index: [23, 27], operator: 'PI' },
-        { index: [17, 28], operator: 'SUM' },
-        { index: [11, 29], operator: 'SUM' },
+        {index: [0, 4], operator: 'PI'},
+        {index: [23, 27], operator: 'PI'},
+        {index: [17, 28], operator: 'SUM'},
+        {index: [11, 29], operator: 'SUM'},
       ];
       expect(findFormulasOnCaretPosition(22, indexes)).toEqual([{
         index: [17, 28],
@@ -365,11 +365,11 @@ describe('inputUtils', () => {
       variables = new Store<Variable>();
       formulas = new Store<Formula>();
       variables.addAllAndSort([
-        { name: 'car 95/100%', id: '1', },
-        { name: 'car 2', id: '2', },
-        { name: 'Super car', id: '3' },
-        { name: 'camping-car', id: '4' },
-        { name: 'car', id: '5' },
+        {name: 'car 95/100%', id: '1',},
+        {name: 'car 2', id: '2',},
+        {name: 'Super car', id: '3'},
+        {name: 'camping-car', id: '4'},
+        {name: 'car', id: '5'},
       ]);
       formulas.addAllAndSort([
         {

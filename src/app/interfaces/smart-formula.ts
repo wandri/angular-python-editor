@@ -1,4 +1,4 @@
-import { InputType } from './type.enum';
+import {InputType} from './type.enum';
 
 export interface SmartFormula {
   operator: string;

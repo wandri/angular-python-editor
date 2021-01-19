@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { FlatFormula } from './interfaces/flat-formula';
+import {Component} from '@angular/core';
+import {FlatFormula} from './interfaces/flat-formula';
 
 @Component({
   selector: 'app-root',

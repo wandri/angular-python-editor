@@ -1,10 +1,10 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { FormulaInputComponent } from './formula-input.component';
-import { Formula } from '../interfaces/formula';
-import { Store } from '../interfaces/store';
-import { Variable } from '../interfaces/variable';
-import { By } from '@angular/platform-browser';
+import {FormulaInputComponent} from './formula-input.component';
+import {Formula} from '../interfaces/formula';
+import {Store} from '../interfaces/store';
+import {Variable} from '../interfaces/variable';
+import {By} from '@angular/platform-browser';
 
 describe('FormulaInputComponent', () => {
   let component: FormulaInputComponent;
@@ -239,7 +239,7 @@ describe('FormulaInputComponent', () => {
           input.innerHTML = 'S';
           input.dispatchEvent(new InputEvent('input'));
           fixture.detectChanges();
-          fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+          fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowDown'}));
           fixture.detectChanges();
           const details = fixture.debugElement.nativeElement.querySelector('.active .suggestion-short-description');
           const shortDescription = formulas.item['SUM'].shortDescription;
@@ -251,7 +251,7 @@ describe('FormulaInputComponent', () => {
           input.innerHTML = 'S';
           input.dispatchEvent(new InputEvent('input'));
           fixture.detectChanges();
-          fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
+          fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowUp'}));
           fixture.detectChanges();
           const details = fixture.debugElement.nativeElement.querySelector('.active  .suggestion-short-description');
           expect(details.innerHTML.trim()).toEqual(formulas.item['SUMO'].description);
@@ -265,7 +265,7 @@ describe('FormulaInputComponent', () => {
           input.innerHTML = 'S';
           input.dispatchEvent(new InputEvent('input'));
           fixture.detectChanges();
-          fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+          fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter'}));
           fixture.detectChanges();
           expect(input.innerHTML).toEqual('SOM(');
         });
@@ -275,7 +275,7 @@ describe('FormulaInputComponent', () => {
           input.innerHTML = 'PI';
           input.dispatchEvent(new InputEvent('input'));
           fixture.detectChanges();
-          fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+          fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter'}));
           fixture.detectChanges();
           expect(input.innerHTML).toEqual('PI()');
         });
@@ -285,7 +285,7 @@ describe('FormulaInputComponent', () => {
           input.innerHTML = 'SUM(SO';
           input.dispatchEvent(new InputEvent('input'));
           fixture.detectChanges();
-          fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+          fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter'}));
           fixture.detectChanges();
           expect(input.innerHTML).toEqual('SUM(SOM(');
         });
@@ -295,9 +295,9 @@ describe('FormulaInputComponent', () => {
           input.innerHTML = 'SUM(SO';
           input.dispatchEvent(new InputEvent('input'));
           fixture.detectChanges();
-          fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+          fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowDown'}));
           fixture.detectChanges();
-          fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+          fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter'}));
           fixture.detectChanges();
           expect(input.innerHTML).toEqual('SUMO(SO');
         });
@@ -311,7 +311,7 @@ describe('FormulaInputComponent', () => {
               input.innerHTML = `1${character}SU`;
               input.dispatchEvent(new InputEvent('input'));
               fixture.detectChanges();
-              fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+              fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter'}));
               fixture.detectChanges();
               expect(input.innerHTML).toEqual('1' + character + 'SUM(');
             });
@@ -321,7 +321,7 @@ describe('FormulaInputComponent', () => {
               input.innerHTML = `1 ${character} SU`;
               input.dispatchEvent(new InputEvent('input'));
               fixture.detectChanges();
-              fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+              fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter'}));
               fixture.detectChanges();
               expect(input.innerHTML).toEqual('1 ' + character + ' SUM(');
             });
@@ -351,10 +351,10 @@ describe('FormulaInputComponent', () => {
   describe('with variable only', () => {
     const variables = new Store<Variable>();
     variables.addAllAndSort([
-      { name: 'var 1', id: 'id var 1', },
-      { name: 'SuperCarMatch', id: 'id SuperCarMatch', },
-      { name: 'SUPER', id: 'id SUPER' },
-      { name: 'Variable 2', id: 'id Variable 2' },
+      {name: 'var 1', id: 'id var 1',},
+      {name: 'SuperCarMatch', id: 'id SuperCarMatch',},
+      {name: 'SUPER', id: 'id SUPER'},
+      {name: 'Variable 2', id: 'id Variable 2'},
     ]);
 
     beforeEach(async(() => {
@@ -367,10 +367,10 @@ describe('FormulaInputComponent', () => {
     const variables = new Store<Variable>();
     const formulas = new Store<Formula>();
     variables.addAllAndSort([
-      { name: 'var 1', id: 'id var 1', },
-      { name: 'SuperCarMatch', id: 'id SuperCarMatch', },
-      { name: 'SUPER', id: 'id SUPER' },
-      { name: 'Variable 2', id: 'id Variable 2' },
+      {name: 'var 1', id: 'id var 1',},
+      {name: 'SuperCarMatch', id: 'id SuperCarMatch',},
+      {name: 'SUPER', id: 'id SUPER'},
+      {name: 'Variable 2', id: 'id Variable 2'},
     ]);
     formulas.addAllAndSort([
       {
