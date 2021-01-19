@@ -9,9 +9,9 @@ import {
   SecurityContext,
   ViewChild
 } from '@angular/core';
-import { getCaretIndex, setCaret } from './carret-utils';
-import { Formula } from '../interfaces/formula';
-import { storedFormulas } from '../dataset/formula-list';
+import {getCaretIndex, setCaret} from './carret-utils';
+import {Formula} from '../interfaces/formula';
+import {storedFormulas} from '../dataset/formula-list';
 import {
   buildSyntax,
   findAllPossibleOperations,
@@ -20,13 +20,14 @@ import {
   splitInputText,
   suggestionNameWithSpaceBeforeIfExistent
 } from './input-utils';
-import { Store } from '../interfaces/store';
-import { Variable } from '../interfaces/variable';
-import { storedVariables } from '../dataset/variable-list';
-import { InputType, } from '../interfaces/type.enum';
-import { Suggestion } from '../interfaces/suggestion';
-import { DomSanitizer } from '@angular/platform-browser';
-import { FlatFormula } from '../interfaces/flat-formula';
+import {Store} from '../interfaces/store';
+import {Variable} from '../interfaces/variable';
+import {storedVariables} from '../dataset/variable-list';
+import {InputType,} from '../interfaces/type.enum';
+import {Suggestion} from '../interfaces/suggestion';
+import {DomSanitizer} from '@angular/platform-browser';
+import {FlatFormula} from '../interfaces/flat-formula';
+import * as acorn from 'acorn';
 
 @Component({
   selector: 'app-formula-input',
@@ -42,9 +43,9 @@ export class FormulaInputComponent implements OnInit {
   variables: Store<Variable> = new Store<Variable>();
   types = InputType;
   formulaSyntax: string;
-  suggestionFocusIndex: number = 0;
+  suggestionFocusIndex = 0;
 
-  @ViewChild('formulaInput', { static: true }) formulaElement: ElementRef;
+  @ViewChild('formulaInput', {static: true}) formulaElement: ElementRef;
 
   getCaretIndex: (element: Node) => number = getCaretIndex;
   savedCaretIndex = 0;
@@ -74,17 +75,18 @@ export class FormulaInputComponent implements OnInit {
   onNameChange(): void {
     const innerHTML = this.formulaElement.nativeElement.innerHTML;
     const allPossibleOperations: { index: [number, number], operator: string }[] = findAllPossibleOperations(innerHTML, this.formulas.ids);
-    let initialCaretIndex = this.getInputCaretIndex();
+    const initialCaretIndex = this.getInputCaretIndex();
     const allCharactersBeforeCaret = innerHTML.slice(0, initialCaretIndex).split(/[()\/ ,+*-]/);
+    console.log(acorn.parse(innerHTML, {ecmaVersion: 2021}));
     const charactersJustBeforeCaret = allCharactersBeforeCaret[allCharactersBeforeCaret.length - 1];
     this.resetFormulaSyntax();
     this.resetSuggestion();
     if (!!charactersJustBeforeCaret) {
       let formulaSuggestionsNumber = 0;
       const suggestions = [];
-      for (let name of this.formulas.ids) {
+      for (const name of this.formulas.ids) {
         if (name.startsWith(charactersJustBeforeCaret)) {
-          suggestions.push({ type: InputType.OPERATION, name, formula: this.formulas.item[name] });
+          suggestions.push({type: InputType.OPERATION, name, formula: this.formulas.item[name]});
           formulaSuggestionsNumber++;
           if (formulaSuggestionsNumber >= 10) {
             break;
@@ -92,9 +94,9 @@ export class FormulaInputComponent implements OnInit {
         }
       }
       let variableSuggestionsNumber = 0;
-      for (let name of this.variables.ids) {
+      for (const name of this.variables.ids) {
         if (name.toLowerCase().startsWith(charactersJustBeforeCaret.toLowerCase())) {
-          suggestions.push({ type: InputType.VARIABLE, name, variable: this.variables.item[name] });
+          suggestions.push({type: InputType.VARIABLE, name, variable: this.variables.item[name]});
           variableSuggestionsNumber++;
           if (variableSuggestionsNumber >= 10) {
             break;
@@ -104,13 +106,14 @@ export class FormulaInputComponent implements OnInit {
       this.suggestions = suggestions;
     }
     if (this.isEmptySuggestion) {
-      const formulasOnCaretPosition: { index: [number, number], operator: string }[] = findFormulasOnCaretPosition(initialCaretIndex, allPossibleOperations);
+      const formulasOnCaretPosition: { index: [number, number], operator: string }[] =
+        findFormulasOnCaretPosition(initialCaretIndex, allPossibleOperations);
       const onFormulaWithClosingBracket = formulasOnCaretPosition.length > 0;
       if (onFormulaWithClosingBracket) {
         const formulaPosition = formulasOnCaretPosition[0];
         const syntax = this.formulas.item[formulaPosition.operator].syntax;
         const syntaxParameter = this.formulas.item[formulaPosition.operator].syntaxParameter;
-        let formattedSyntax = buildSyntax(formulaPosition, innerHTML, initialCaretIndex, syntax, syntaxParameter);
+        const formattedSyntax = buildSyntax(formulaPosition, innerHTML, initialCaretIndex, syntax, syntaxParameter);
         this.formulaSyntax = this.sanitizer.sanitize(SecurityContext.HTML, formattedSyntax);
       }
     }
@@ -138,7 +141,7 @@ export class FormulaInputComponent implements OnInit {
       afterContent,
       focusContent
     } = splitInputText(inputElement.innerText, caretIndex);
-    let formattedName = suggestionNameWithSpaceBeforeIfExistent(focusSuggestion.name, focusContent[0]);
+    const formattedName = suggestionNameWithSpaceBeforeIfExistent(focusSuggestion.name, focusContent[0]);
     let contentToWrite = `${beforeContent}${formattedName}${afterContent}`;
     if (isFormula) {
       if (suggestion.formula.syntaxParameter.length === 0) {
