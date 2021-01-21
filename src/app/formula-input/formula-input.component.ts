@@ -16,18 +16,17 @@ import {
   buildSyntax,
   findAllPossibleOperations,
   findFormulasOnCaretPosition,
-  parseInputToFlatFormulas,
   splitInputText,
   suggestionNameWithSpaceBeforeIfExistent
 } from './input-utils';
 import {Store} from '../interfaces/store';
 import {Variable} from '../interfaces/variable';
 import {storedVariables} from '../dataset/variable-list';
-import {InputType,} from '../interfaces/type.enum';
+import {InputType} from '../interfaces/type.enum';
 import {Suggestion} from '../interfaces/suggestion';
 import {DomSanitizer} from '@angular/platform-browser';
-import {FlatFormula} from '../interfaces/flat-formula';
 import * as acorn from 'acorn';
+import {AcornNode} from '../interfaces/acorn/acorn-node';
 
 @Component({
   selector: 'app-formula-input',
@@ -36,7 +35,7 @@ import * as acorn from 'acorn';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormulaInputComponent implements OnInit {
-  @Output() onFormulaParsing = new EventEmitter<FlatFormula[]>();
+  @Output() onFormulaParsing = new EventEmitter<AcornNode>();
   suggestions: Suggestion[] = [];
   formulaText: string;
   formulas: Store<Formula> = new Store<Formula>();
@@ -77,7 +76,6 @@ export class FormulaInputComponent implements OnInit {
     const allPossibleOperations: { index: [number, number], operator: string }[] = findAllPossibleOperations(innerHTML, this.formulas.ids);
     const initialCaretIndex = this.getInputCaretIndex();
     const allCharactersBeforeCaret = innerHTML.slice(0, initialCaretIndex).split(/[()\/ ,+*-]/);
-    console.log(acorn.parse(innerHTML, {ecmaVersion: 2021}));
     const charactersJustBeforeCaret = allCharactersBeforeCaret[allCharactersBeforeCaret.length - 1];
     this.resetFormulaSyntax();
     this.resetSuggestion();
@@ -235,6 +233,6 @@ export class FormulaInputComponent implements OnInit {
   }
 
   private parseFormula(innerHTML: string): void {
-    this.onFormulaParsing.emit(parseInputToFlatFormulas(innerHTML, this.formulas, this.variables));
+    this.onFormulaParsing.emit(acorn.parse(innerHTML, {ecmaVersion: 2021}) as AcornNode);
   }
 }

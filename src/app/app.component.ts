@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {FlatFormula} from './interfaces/flat-formula';
+import {AcornNode} from './interfaces/acorn/acorn-node';
 
 @Component({
   selector: 'app-root',
@@ -10,7 +10,7 @@ export class AppComponent {
   title = 'excel-like';
   formula: string = null;
 
-  parseFormula(flatFormula: FlatFormula[]) {
+  parseFormula(flatFormula: AcornNode) {
     this.formula = JSON.stringify(flatFormula, null, 4);
   }
 }
