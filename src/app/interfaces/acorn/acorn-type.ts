@@ -5,5 +5,6 @@ export enum AcornType {
   BinaryExpression = 'BinaryExpression',
   ExpressionStatement = 'ExpressionStatement',
   Identifier = 'Identifier',
-  EmptyStatement = 'EmptyStatement',
+  ConditionalExpression = 'ConditionalExpression',
+  UnaryExpression = 'UnaryExpression',
 }

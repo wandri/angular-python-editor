@@ -233,6 +233,12 @@ export class FormulaInputComponent implements OnInit {
   }
 
   private parseFormula(innerHTML: string): void {
-    this.onFormulaParsing.emit(acorn.parse(innerHTML, {ecmaVersion: 2021}) as AcornNode);
+    try {
+      const formulaTree: AcornNode = acorn.parse(innerHTML, {ecmaVersion: 2021}) as AcornNode;
+      this.onFormulaParsing.emit(formulaTree);
+    } catch (e) {
+      console.log(e);
+      this.onFormulaParsing.emit();
+    }
   }
 }
