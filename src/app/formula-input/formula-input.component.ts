@@ -73,13 +73,15 @@ export class FormulaInputComponent implements OnInit {
   }
 
   onNameChange(): void {
+    this.resetFormulaSyntax();
+    this.resetSuggestion();
+
     const innerHTML = this.formulaElement.nativeElement.innerHTML;
     const allPossibleOperations: { index: [number, number], operator: string }[] = findAllPossibleOperations(innerHTML, this.formulas.ids);
     const initialCaretIndex = this.getInputCaretIndex();
     const allCharactersBeforeCaret = innerHTML.slice(0, initialCaretIndex).split(/[()\/ ,+*-]/);
     const charactersJustBeforeCaret = allCharactersBeforeCaret[allCharactersBeforeCaret.length - 1];
-    this.resetFormulaSyntax();
-    this.resetSuggestion();
+
     if (!!charactersJustBeforeCaret) {
       let formulaSuggestionsNumber = 0;
       const suggestions = [];

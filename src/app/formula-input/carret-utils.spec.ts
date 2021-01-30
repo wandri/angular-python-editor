@@ -8,17 +8,19 @@ describe('caretUtils', () => {
       .compileComponents();
   }));
 
-  it('should find the position of the caret', () => {
-    const text = document.createTextNode('abcdefghijklmnop');
-    const range = new Range();
-    range.setStart(text, 4);
-    range.setEnd(text, 4);
-    spyOn(window, 'getSelection').and.returnValue({
-      getRangeAt: () => range,
-      rangeCount: 4,
-    } as any);
+  describe(`Find caret index - function "${getCaretIndex.name}"`, () => {
+    it('should find the position of the caret', () => {
+      const text = document.createTextNode('abcdefghijklmnop');
+      const range = new Range();
+      range.setStart(text, 4);
+      range.setEnd(text, 4);
+      spyOn(window, 'getSelection').and.returnValue({
+        getRangeAt: () => range,
+        rangeCount: 4,
+      } as any);
 
-    const carretPosition = getCaretIndex(text);
-    expect(carretPosition).toEqual(4);
+      const carretPosition = getCaretIndex(text);
+      expect(carretPosition).toEqual(4);
+    });
   });
 });

@@ -28,39 +28,47 @@ export const EXTENDED_CONDITION_OPERATOR = [`=`, `!`, `<`, `>`, '<=', '>='];
 
 export function splitInputText(text: string, caretIndex: number):
   { focusContent: string; beforeContent: string, afterContent: string } {
-  let contentBeforeFormula = '';
-  let contentAfterFormula = '';
-  let contentOnFormula = '';
+  let contentBeforeFocus = '';
+  let contentAfterFocus = '';
+  let contentOnFocus = '';
   let characterPosition = 0;
 
-  const specialCharacters = ['/', '*', '+', '(', ','];
+  const specialCharacters = [...BASIC_OPERATOR, ...CONDITION_OPERATOR, ' ', ','];
   let content = '';
   const formattedContents = [];
   for (const character of text) {
-    content += character;
     if (specialCharacters.includes(character)) {
-      formattedContents.push(content);
+      if (!!content) {
+        formattedContents.push(content);
+      }
+      formattedContents.push(character);
       content = '';
+    } else {
+      content += character;
+      if (OPENING_BRACKETS.includes(character)) {
+        formattedContents.push(content);
+        content = '';
+      }
     }
   }
   formattedContents.push(content);
   formattedContents.forEach(formattedContent => {
-    const isBeforeFormula = characterPosition + formattedContent.length < caretIndex;
-    const isOnFormulaPosition = characterPosition <= caretIndex && caretIndex <= characterPosition + formattedContent.length;
-    if (isBeforeFormula) {
-      contentBeforeFormula += formattedContent;
+    const isBeforeFocus = characterPosition + formattedContent.length < caretIndex;
+    const isOnFocusPosition = characterPosition <= caretIndex && caretIndex <= characterPosition + formattedContent.length;
+    if (isBeforeFocus) {
+      contentBeforeFocus += formattedContent;
       characterPosition += formattedContent.length;
-    } else if (isOnFormulaPosition) {
-      contentOnFormula = formattedContent;
+    } else if (isOnFocusPosition) {
+      contentOnFocus = formattedContent;
       characterPosition += 9999;
     } else {
-      contentAfterFormula += formattedContent;
+      contentAfterFocus += formattedContent;
     }
   });
   return {
-    beforeContent: contentBeforeFormula,
-    afterContent: contentAfterFormula,
-    focusContent: contentOnFormula
+    beforeContent: contentBeforeFocus,
+    afterContent: contentAfterFocus,
+    focusContent: contentOnFocus
   };
 }
 
@@ -300,7 +308,7 @@ export function findAllPossibleOperations(text: string, existingOperators: strin
       });
       operator = '';
       firstIndex = i + 1;
-    } else if (CLOSING_BRACKETS.includes(character)
+    } else if (CLOSING_BRACKETS.includes(character) && memory.length > 0
       && CLOSING_BRACKETS.indexOf(character) === memory[memory.length - 1].bracket) {
       operator = '';
       firstIndex = i + 1;
@@ -430,10 +438,26 @@ export function syntaxErrorInFormula(node: ANode, formulas: Store<Formula>, vari
     if (!formulas.ids.includes(functionName)) {
       return `The formula "${functionName}" doesn't exit`;
     }
-    const argumentNumber = node.arguments.length;
-    if (formulas.item[functionName].syntaxParameter.length < argumentNumber) {
-      // TODO: manage case about the arguments [1, 0, 0, 0, 1000]
-      return `Too many arguments`;
+    let argumentNumber = node.arguments.length;
+    let isInfiniteArgumentsOrLimitedOptional = false;
+    for (let i = 0; i < formulas.item[functionName].syntaxParameter.length; i++) {
+      const argumentType = formulas.item[functionName].syntaxParameter[i];
+      if (argumentType === 1000) {
+        isInfiniteArgumentsOrLimitedOptional = true;
+        break;
+      }
+      if (argumentType === 0 && i === node.arguments.length) {
+        isInfiniteArgumentsOrLimitedOptional = true;
+        break;
+      } else if (argumentType === 1 || argumentType === 0) {
+        argumentNumber--;
+        if (argumentNumber < 0) {
+          return `The formula "${functionName}" has missing arguments`;
+        }
+      }
+    }
+    if (!isInfiniteArgumentsOrLimitedOptional && argumentNumber > 0) {
+      return `The formula "${functionName}" has too many arguments`;
     }
     return node.arguments
       .map(child => syntaxErrorInFormula(child, formulas, variables))

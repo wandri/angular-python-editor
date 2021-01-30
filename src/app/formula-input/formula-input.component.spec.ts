@@ -302,6 +302,16 @@ describe('FormulaInputComponent', () => {
           expect(input.innerHTML).toEqual('SUMO(SO');
         });
 
+        it('should enter the formula before existing content', () => {
+          spyOn(component, 'getCaretIndex').and.returnValue(2);
+          input.innerHTML = 'SU+1';
+          input.dispatchEvent(new InputEvent('input'));
+          fixture.detectChanges();
+          fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter'}));
+          fixture.detectChanges();
+          expect(input.innerHTML).toEqual('SUM(+1');
+        });
+
         describe('should enter the formula after special character', () => {
           const specialCharacters = ['/', '*', '+', '('];
 
@@ -351,8 +361,8 @@ describe('FormulaInputComponent', () => {
   describe('with variable only', () => {
     const variables = new Store<Variable>();
     variables.addAllAndSort([
-      {name: 'var 1', id: 'id var 1',},
-      {name: 'SuperCarMatch', id: 'id SuperCarMatch',},
+      {name: 'var 1', id: 'id var 1'},
+      {name: 'SuperCarMatch', id: 'id SuperCarMatch'},
       {name: 'SUPER', id: 'id SUPER'},
       {name: 'Variable 2', id: 'id Variable 2'},
     ]);
@@ -367,8 +377,8 @@ describe('FormulaInputComponent', () => {
     const variables = new Store<Variable>();
     const formulas = new Store<Formula>();
     variables.addAllAndSort([
-      {name: 'var 1', id: 'id var 1',},
-      {name: 'SuperCarMatch', id: 'id SuperCarMatch',},
+      {name: 'var 1', id: 'id var 1'},
+      {name: 'SuperCarMatch', id: 'id SuperCarMatch'},
       {name: 'SUPER', id: 'id SUPER'},
       {name: 'Variable 2', id: 'id Variable 2'},
     ]);

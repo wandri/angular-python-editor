@@ -8,13 +8,23 @@ import {
   INFINITE_ARGUMENTS,
   NO_CLOSING_BRACKET_INDEX,
   parseInputToFlatFormulas,
-  splitInputText
+  splitInputText,
+  syntaxErrorInFormula
 } from './input-utils';
 import {Store} from '../interfaces/store';
 import {Variable} from '../interfaces/variable';
 import {Formula} from '../interfaces/formula';
 import {FlatFormula} from '../interfaces/flat-formula';
 import {InputType} from '../interfaces/type.enum';
+import {
+  AcornNode,
+  BinaryOperationNode,
+  FunctionNode,
+  IdentifierNode,
+  PotentialNode,
+  StringOrNumberNode
+} from '../interfaces/acorn/acorn-node';
+import {AcornType} from '../interfaces/acorn/acorn-type';
 
 describe('inputUtils', () => {
 
@@ -23,15 +33,33 @@ describe('inputUtils', () => {
       .compileComponents();
   }));
 
-  it('should split text between caret position', () => {
-    const content = splitInputText('1 + SUM(MAT(RESEARCH(', 10);
+  describe(`Split text between Caret - function "${splitInputText.name}"`, () => {
+    it('should split text between caret position 1', () => {
+      const content = splitInputText('1 + SUM(MAT(RESEARCH(', 10);
 
-    expect(content.beforeContent).toEqual('1 + SUM(');
-    expect(content.afterContent).toEqual('RESEARCH(');
-    expect(content.focusContent).toEqual('MAT(');
+      expect(content.beforeContent).toEqual('1 + SUM(');
+      expect(content.afterContent).toEqual('RESEARCH(');
+      expect(content.focusContent).toEqual('MAT(');
+    });
+
+    it('should split text between caret position 2', () => {
+      const content = splitInputText('SU+1 -2', 2);
+
+      expect(content.beforeContent).toEqual('');
+      expect(content.afterContent).toEqual('+1 -2');
+      expect(content.focusContent).toEqual('SU');
+    });
+
+    it('should split text between caret position 3', () => {
+      const content = splitInputText('1/PI(3)1**2', 3);
+
+      expect(content.beforeContent).toEqual('1/');
+      expect(content.afterContent).toEqual('3)1**2');
+      expect(content.focusContent).toEqual('PI(');
+    });
   });
 
-  describe('Detection of not closing bracket', () => {
+  describe(`Detection of not closing bracket - function "${areAllBracketsClosed.name}"`, () => {
     it('should detect complex closing bracket 1', () => {
       expect(areAllBracketsClosed('{[(3+1)+2]+}')).toBeTruthy();
     });
@@ -46,7 +74,7 @@ describe('inputUtils', () => {
     });
   });
 
-  describe('Index of operation', () => {
+  describe(`Index of operation - function "${findAllPossibleOperations.name}"`, () => {
     it('should detect complex closing bracket 1', () => {
       const expectedIndexes: { index: [number, number], operator: string }[] = [
         {index: [13, 16], operator: 'PI'},
@@ -134,7 +162,7 @@ describe('inputUtils', () => {
     });
   });
 
-  describe('Syntax build', () => {
+  describe(`Syntax build - function "${buildSyntax.name}"`, () => {
     describe('simple syntax with focus on first argument', () => {
       let caretIndex;
       let syntax;
@@ -311,7 +339,7 @@ describe('inputUtils', () => {
     });
   });
 
-  describe('focus formula index in input without non opened bracket', () => {
+  describe(`focus formula index in input without non opened bracket - function "${findFocusFormulaIndexOnInput.name}"`, () => {
     let formula: { index: [number, number]; operator: string };
     let inputContent;
     beforeEach(() => {
@@ -355,7 +383,7 @@ describe('inputUtils', () => {
     });
   });
 
-  describe('input parsing into formula', () => {
+  describe(`input parsing into formula - function "${parseInputToFlatFormulas.name}"`, () => {
     let variables: Store<Variable>;
     let formulas: Store<Formula>;
 
@@ -787,5 +815,351 @@ describe('inputUtils', () => {
       ];
       expect(parseInputToFlatFormulas('4<5', formulas, variables)).toEqual(expectedFormulas);
     });
+  });
+
+  describe(`Check full formula syntax - function "${syntaxErrorInFormula.name}"`, () => {
+    const existingFormulaNameWithInfiniteArguments = 'OPERATION_WITH_INFINITE';
+    const existingFormulaNameWith2Arguments = 'OPERATION_WITH_FIX';
+    const existingFormulaNameWithOptionalArguments = 'OPERATION_WITH_OPTIONAL';
+    const existingFormulaNameWithComplexArguments = 'OPERATION_WITH_COMPLEX';
+    const existingFormulaNameWithNoArguments = 'OPERATION_NO_ARGUMENTS';
+    const existingVariableName = 'existing variable';
+    const notExistingVariableName = 'not existing variable';
+    let formulas: Store<Formula>;
+
+    beforeEach(() => {
+      formulas = new Store<Formula>();
+      formulas.addAllAndSort([
+        {
+          name: existingFormulaNameWithInfiniteArguments,
+          description: '',
+          syntax: '',
+          syntaxParameter: [1, 1000],
+        },
+        {
+          name: existingFormulaNameWith2Arguments,
+          description: '',
+          syntax: '',
+          syntaxParameter: [1, 1],
+        },
+        {
+          name: existingFormulaNameWithOptionalArguments,
+          description: '',
+          syntax: '',
+          syntaxParameter: [1, 1, 0],
+        },
+        {
+          name: existingFormulaNameWithComplexArguments,
+          description: '',
+          syntax: '',
+          syntaxParameter: [1, 0, 1],
+        },
+        {
+          name: existingFormulaNameWithNoArguments,
+          description: '',
+          syntax: '',
+          syntaxParameter: [],
+        },
+      ]);
+    });
+
+    describe('with function', () => {
+      let argument1: StringOrNumberNode;
+
+      beforeEach(() => {
+        argument1 = {
+          value: 'test 1',
+          raw: 'test 1',
+          type: AcornType.Literal,
+        };
+      });
+
+      it('should send an error when operation does not exist', () => {
+        const notExistingFunctionName = 'not existing function';
+        const functionNode: FunctionNode = {
+          type: AcornType.CallExpression,
+          arguments: [argument1, argument1],
+          callee: {
+            name: notExistingFunctionName,
+            type: AcornType.Identifier,
+          }
+        };
+        expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+          .toEqual(`The formula "${notExistingFunctionName}" doesn't exit`);
+      });
+
+      it('should send no error when operation name exists', () => {
+        const functionNode: FunctionNode = {
+          type: AcornType.CallExpression,
+          arguments: [argument1, argument1],
+          callee: {
+            name: existingFormulaNameWithInfiniteArguments,
+            type: AcornType.Identifier,
+          }
+        };
+        expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+          .toBeUndefined();
+      });
+
+      describe('Fix Arguments', () => {
+        it('should send an error when arguments are missing 1', () => {
+          const functionNode: FunctionNode = {
+            type: AcornType.CallExpression,
+            arguments: [],
+            callee: {
+              name: existingFormulaNameWith2Arguments,
+              type: AcornType.Identifier,
+            }
+          };
+          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+            .toEqual(`The formula "${existingFormulaNameWith2Arguments}" has missing arguments`);
+        });
+        it('should send an error when arguments are missing 2', () => {
+          const functionNode: FunctionNode = {
+            type: AcornType.CallExpression,
+            arguments: [argument1],
+            callee: {
+              name: existingFormulaNameWith2Arguments,
+              type: AcornType.Identifier,
+            }
+          };
+          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+            .toEqual(`The formula "${existingFormulaNameWith2Arguments}" has missing arguments`);
+        });
+
+        it('should send an error when too many argument', () => {
+          const functionNode: FunctionNode = {
+            type: AcornType.CallExpression,
+            arguments: [argument1, argument1, argument1],
+            callee: {
+              name: existingFormulaNameWith2Arguments,
+              type: AcornType.Identifier,
+            }
+          };
+          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+            .toEqual(`The formula "${existingFormulaNameWith2Arguments}" has too many arguments`);
+        });
+
+        it('should send no error when the arguments are optional with one optional argument', () => {
+          const functionNode: FunctionNode = {
+            type: AcornType.CallExpression,
+            arguments: [argument1, argument1],
+            callee: {
+              name: existingFormulaNameWith2Arguments,
+              type: AcornType.Identifier,
+            }
+          };
+          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+            .toBeUndefined();
+        });
+      });
+
+      describe('Infinite Arguments', () => {
+        it('should send no error when the arguments are infinite with no infinite argument', () => {
+          const functionNode: FunctionNode = {
+            type: AcornType.CallExpression,
+            arguments: [argument1],
+            callee: {
+              name: existingFormulaNameWithInfiniteArguments,
+              type: AcornType.Identifier,
+            }
+          };
+          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+            .toBeUndefined();
+        });
+        it('should send no error when the arguments are infinite with one infinite argument', () => {
+          const functionNode: FunctionNode = {
+            type: AcornType.CallExpression,
+            arguments: [argument1, argument1],
+            callee: {
+              name: existingFormulaNameWithInfiniteArguments,
+              type: AcornType.Identifier,
+            }
+          };
+          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+            .toBeUndefined();
+        });
+        it('should send no error when the arguments are infinite with two infinite arguments', () => {
+          const functionNode: FunctionNode = {
+            type: AcornType.CallExpression,
+            arguments: [argument1, argument1],
+            callee: {
+              name: existingFormulaNameWithInfiniteArguments,
+              type: AcornType.Identifier,
+            }
+          };
+          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+            .toBeUndefined();
+        });
+      });
+
+      describe('Optional Arguments', () => {
+        it('should send no error when the arguments are optional with no optional argument', () => {
+          const functionNode: FunctionNode = {
+            type: AcornType.CallExpression,
+            arguments: [argument1, argument1],
+            callee: {
+              name: existingFormulaNameWithOptionalArguments,
+              type: AcornType.Identifier,
+            }
+          };
+          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+            .toBeUndefined();
+        });
+        it('should send no error when the arguments are optional with one optional argument', () => {
+          const functionNode: FunctionNode = {
+            type: AcornType.CallExpression,
+            arguments: [argument1, argument1, argument1],
+            callee: {
+              name: existingFormulaNameWithOptionalArguments,
+              type: AcornType.Identifier,
+            }
+          };
+          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+            .toBeUndefined();
+        });
+      });
+
+      describe('Complex Arguments', () => {
+        it('should send no error when the arguments are complex 1', () => {
+          const functionNode: FunctionNode = {
+            type: AcornType.CallExpression,
+            arguments: [argument1],
+            callee: {
+              name: existingFormulaNameWithComplexArguments,
+              type: AcornType.Identifier,
+            }
+          };
+          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+            .toBeUndefined();
+        });
+        it('should send no error when the arguments are complex 2', () => {
+          const functionNode: FunctionNode = {
+            type: AcornType.CallExpression,
+            arguments: [argument1, argument1, argument1],
+            callee: {
+              name: existingFormulaNameWithComplexArguments,
+              type: AcornType.Identifier,
+            }
+          };
+          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+            .toBeUndefined();
+        });
+        it('should send an error when arguments are missing 1', () => {
+          const functionNode: FunctionNode = {
+            type: AcornType.CallExpression,
+            arguments: [argument1, argument1],
+            callee: {
+              name: existingFormulaNameWithComplexArguments,
+              type: AcornType.Identifier,
+            }
+          };
+          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+            .toEqual(`The formula "${existingFormulaNameWithComplexArguments}" has missing arguments`);
+        });
+      });
+
+      describe('No Arguments', () => {
+        it('should send no error when there is no argument', () => {
+          const functionNode: FunctionNode = {
+            type: AcornType.CallExpression,
+            arguments: [],
+            callee: {
+              name: existingFormulaNameWithNoArguments,
+              type: AcornType.Identifier,
+            }
+          };
+          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+            .toBeUndefined();
+        });
+      });
+    });
+
+    describe('with Binary operation', () => {
+
+      it('should return null when it works', () => {
+        const variableNode: BinaryOperationNode = {
+          type: AcornType.BinaryExpression,
+          operator: '+',
+          left: {
+            type: AcornType.Identifier,
+            name: existingVariableName,
+          },
+          right: {
+            type: AcornType.Identifier,
+            name: existingVariableName,
+          }
+        };
+        expect(syntaxErrorInFormula(initializeNode(variableNode), formulas, [existingVariableName]))
+          .toBeNull();
+      });
+
+      it('should send an error when variable does not exist in an operation - right side', () => {
+        const variableNode: BinaryOperationNode = {
+          type: AcornType.BinaryExpression,
+          operator: '+',
+          left: {
+            type: AcornType.Identifier,
+            name: existingVariableName,
+          },
+          right: {
+            type: AcornType.Identifier,
+            name: notExistingVariableName,
+          }
+        };
+        expect(syntaxErrorInFormula(initializeNode(variableNode), formulas, [existingVariableName]))
+          .toEqual(`The variable "${notExistingVariableName}" doesn't exit`);
+      });
+
+      it('should send an error when variable does not exist in an operation - left side', () => {
+        const variableNode: BinaryOperationNode = {
+          type: AcornType.BinaryExpression,
+          operator: '+',
+          left: {
+            type: AcornType.Identifier,
+            name: notExistingVariableName,
+          },
+          right: {
+            type: AcornType.Identifier,
+            name: existingVariableName,
+          }
+        };
+        expect(syntaxErrorInFormula(initializeNode(variableNode), formulas, [existingVariableName]))
+          .toEqual(`The variable "${notExistingVariableName}" doesn't exit`);
+      });
+    });
+
+    describe('with variable', () => {
+
+      it('should send an error when variable does not exist', () => {
+        const variableNode: IdentifierNode = {
+          type: AcornType.Identifier,
+          name: notExistingVariableName,
+        };
+        expect(syntaxErrorInFormula(initializeNode(variableNode), formulas, [existingVariableName]))
+          .toEqual(`The variable "${notExistingVariableName}" doesn't exit`);
+      });
+
+      it('should send no error when variable name exists', () => {
+        const variableNode: IdentifierNode = {
+          type: AcornType.Identifier,
+          name: existingVariableName,
+        };
+        expect(syntaxErrorInFormula(initializeNode(variableNode), formulas, [existingVariableName]))
+          .toBeNull();
+      });
+    });
+
+    function initializeNode(node: PotentialNode): AcornNode {
+      return {
+        type: AcornType.Program,
+        body: [
+          {
+            type: AcornType.ExpressionStatement,
+            expression: node,
+          }
+        ]
+      };
+    }
   });
 });
