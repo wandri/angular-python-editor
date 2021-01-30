@@ -7,7 +7,6 @@ import {
   findFormulasOnCaretPosition,
   INFINITE_ARGUMENTS,
   NO_CLOSING_BRACKET_INDEX,
-  parseFlatFormulasToSmartFormula,
   parseInputToFlatFormulas,
   splitInputText
 } from './input-utils';
@@ -15,7 +14,6 @@ import {Store} from '../interfaces/store';
 import {Variable} from '../interfaces/variable';
 import {Formula} from '../interfaces/formula';
 import {FlatFormula} from '../interfaces/flat-formula';
-import {SmartFormula} from '../interfaces/smart-formula';
 import {InputType} from '../interfaces/type.enum';
 
 describe('inputUtils', () => {
@@ -365,8 +363,8 @@ describe('inputUtils', () => {
       variables = new Store<Variable>();
       formulas = new Store<Formula>();
       variables.addAllAndSort([
-        {name: 'car 95/100%', id: '1',},
-        {name: 'car 2', id: '2',},
+        {name: 'car 95/100%', id: '1'},
+        {name: 'car 2', id: '2'},
         {name: 'Super car', id: '3'},
         {name: 'camping-car', id: '4'},
         {name: 'car', id: '5'},
@@ -788,63 +786,6 @@ describe('inputUtils', () => {
         },
       ];
       expect(parseInputToFlatFormulas('4<5', formulas, variables)).toEqual(expectedFormulas);
-    });
-  });
-
-  describe('FlatFormula parsing to SmartFormula', () => {
-    fit('should parse simple flat formula', () => {
-      const expectedParsing: SmartFormula = {
-        type: InputType.OPERATION,
-        operator: 'REPLACE',
-        value: null,
-        arguments: [
-          {
-            type: InputType.STRING,
-            operator: null,
-            value: 'TEST ME',
-            arguments: null
-          },
-          {
-            type: InputType.STRING,
-            operator: null,
-            value: 'ME',
-            arguments: null
-          },
-          {
-            type: InputType.STRING,
-            operator: null,
-            value: 'YOU',
-            arguments: null
-          },
-        ]
-      };
-      const flatFormula: FlatFormula[] = [
-        {
-          type: InputType.STRING,
-          operator: null,
-          value: 'TEST ME',
-          index: [8, 16],
-        },
-        {
-          type: InputType.STRING,
-          operator: null,
-          value: 'ME',
-          index: [18, 21],
-        },
-        {
-          type: InputType.STRING,
-          operator: null,
-          value: 'YOU',
-          index: [23, 27],
-        },
-        {
-          type: InputType.OPERATION,
-          operator: 'REPLACE',
-          index: [0, 28],
-          value: null,
-        },
-      ];
-      expect(parseFlatFormulasToSmartFormula(flatFormula)).toEqual(expectedParsing);
     });
   });
 });

@@ -22,9 +22,6 @@ export interface ANode {
 
 export interface Node extends ANode {
   expression?: PotentialNode;
-  arguments?: AcornNode[];
-  // Operator node
-  callee?: FunctionNode;
 }
 
 export interface RegexNode extends IdentifierNode {

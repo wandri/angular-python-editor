@@ -17,7 +17,8 @@ import {
   findAllPossibleOperations,
   findFormulasOnCaretPosition,
   splitInputText,
-  suggestionNameWithSpaceBeforeIfExistent
+  suggestionNameWithSpaceBeforeIfExistent,
+  syntaxErrorInFormula
 } from './input-utils';
 import {Store} from '../interfaces/store';
 import {Variable} from '../interfaces/variable';
@@ -35,7 +36,7 @@ import {AcornNode} from '../interfaces/acorn/acorn-node';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormulaInputComponent implements OnInit {
-  @Output() onFormulaParsing = new EventEmitter<AcornNode>();
+  @Output() formulaParsing = new EventEmitter<AcornNode>();
   suggestions: Suggestion[] = [];
   formulaText: string;
   formulas: Store<Formula> = new Store<Formula>();
@@ -233,12 +234,23 @@ export class FormulaInputComponent implements OnInit {
   }
 
   private parseFormula(innerHTML: string): void {
+    let error = null;
+    let formulaTree: AcornNode = null;
     try {
-      const formulaTree: AcornNode = acorn.parse(innerHTML, {ecmaVersion: 2021}) as AcornNode;
-      this.onFormulaParsing.emit(formulaTree);
+      formulaTree = acorn.parse(innerHTML, {ecmaVersion: 2021}) as AcornNode;
     } catch (e) {
-      console.log(e);
-      this.onFormulaParsing.emit();
+      error = `${e}`;
+    } finally {
+      if (!!formulaTree) {
+        error = syntaxErrorInFormula(formulaTree, this.formulas, this.variables.ids);
+        if (!error) {
+          this.formulaParsing.emit(formulaTree);
+        }
+      }
+      if (!!error) {
+        this.formulaParsing.emit();
+        console.log(error);
+      }
     }
   }
 }

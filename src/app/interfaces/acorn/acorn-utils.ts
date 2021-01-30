@@ -45,6 +45,10 @@ export function isExpressionStatement(node: ANode): node is ExpressionStatementN
   return node && node.type === AcornType.ExpressionStatement;
 }
 
+export function isConditionalExpression(node: ANode): node is ExpressionStatementNode {
+  return node && node.type === AcornType.ConditionalExpression;
+}
+
 export function isBasicOperation(node: BinaryOperationNode): boolean {
   return node && BASIC_OPERATIONS.includes(node.operator);
 }
@@ -53,6 +57,3 @@ export function isConditionalOperation(node: BinaryOperationNode): boolean {
   return node && CONDITIONAL_OPERATIONS.includes(node.operator);
 }
 
-export function isConditionalExpression(node: ANode): node is ExpressionStatementNode {
-  return node && node.type === AcornType.ConditionalExpression;
-}

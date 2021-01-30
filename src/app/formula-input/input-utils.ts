@@ -2,8 +2,19 @@ import {Store} from '../interfaces/store';
 import {Formula} from '../interfaces/formula';
 import {Variable} from '../interfaces/variable';
 import {FlatFormula} from '../interfaces/flat-formula';
-import {SmartFormula} from '../interfaces/smart-formula';
 import {InputType} from '../interfaces/type.enum';
+import {ANode, IdentifierNode} from '../interfaces/acorn/acorn-node';
+import {
+  isBinaryOperation,
+  isConditionalExpression,
+  isExpressionStatement,
+  isFunction,
+  isNumberOrString,
+  isProgram,
+  isRegex,
+  isUnary,
+  isVariableOrFunctionIdentifier
+} from '../interfaces/acorn/acorn-utils';
 
 export const NO_CLOSING_BRACKET_INDEX = 9999;
 export const INFINITE_ARGUMENTS = 1000;
@@ -274,17 +285,6 @@ export function parseInputToFlatFormulas(text: string, existingOperators: Store<
   return holder;
 }
 
-export function parseFlatFormulasToSmartFormula(flatFormula: FlatFormula[]): SmartFormula {
-
-  const smartFormula = null;
-
-  for (let i = 0; i < flatFormula.length; i++) {
-
-  }
-
-  return smartFormula;
-}
-
 export function findAllPossibleOperations(text: string, existingOperators: string[]): { index: [number, number], operator: string }[] {
   const holder: { index: [number, number], operator: string }[] = [];
   const memory: { firstIndex: number, operator: string, bracket: number }[] = [];
@@ -410,4 +410,45 @@ export function buildSyntax(formulaPosition: { index: [number, number]; operator
                             syntax: string, syntaxParameter: number[]): string {
   const focusIndex = findFocusFormulaIndexOnInput(formulaPosition, inputText, initialCaretIndex);
   return getFormattedSyntax(syntax, syntaxParameter, formulaPosition, focusIndex);
+}
+
+export function syntaxErrorInFormula(node: ANode, formulas: Store<Formula>, variables: string[]): string {
+  if (isProgram(node)) {
+    return node.body.length > 0 && syntaxErrorInFormula(node.body[0], formulas, variables);
+  } else if (isBinaryOperation(node)) {
+    const leftSideSyntaxError = syntaxErrorInFormula(node.left, formulas, variables);
+    if (leftSideSyntaxError) {
+      return leftSideSyntaxError;
+    }
+    const rightSideSyntaxError = syntaxErrorInFormula(node.right, formulas, variables);
+    if (rightSideSyntaxError) {
+      return rightSideSyntaxError;
+    }
+  } else if (isFunction(node)) {
+    const calleeNode: IdentifierNode = node.callee;
+    const functionName = calleeNode.name;
+    if (!formulas.ids.includes(functionName)) {
+      return `The formula "${functionName}" doesn't exit`;
+    }
+    const argumentNumber = node.arguments.length;
+    if (formulas.item[functionName].syntaxParameter.length < argumentNumber) {
+      // TODO: manage case about the arguments [1, 0, 0, 0, 1000]
+      return `Too many arguments`;
+    }
+    return node.arguments
+      .map(child => syntaxErrorInFormula(child, formulas, variables))
+      .find(child => !!child);
+
+  } else if (isVariableOrFunctionIdentifier(node)) {
+    return variables.includes(node.name) ? null : `The variable "${node.name}" doesn't exit`;
+  } else if (isUnary(node)) {
+    return syntaxErrorInFormula(node.argument, formulas, variables);
+  } else if (isExpressionStatement(node)) {
+    return syntaxErrorInFormula(node.expression, formulas, variables);
+  } else if (isConditionalExpression(node)) {
+    return syntaxErrorInFormula(node.expression, formulas, variables);
+  } else if (isNumberOrString(node)) {
+  } else if (isRegex(node)) {
+  }
+  return null;
 }
