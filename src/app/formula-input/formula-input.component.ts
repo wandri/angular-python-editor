@@ -68,6 +68,7 @@ export class FormulaInputComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // TODO Smarter management of special_character inside the name
     this.formulas.addAllAndSort(storedFormulas);
     this.variables.addAllAndSort(storedVariables);
   }

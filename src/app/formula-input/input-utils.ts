@@ -420,15 +420,15 @@ export function buildSyntax(formulaPosition: { index: [number, number]; operator
   return getFormattedSyntax(syntax, syntaxParameter, formulaPosition, focusIndex);
 }
 
-export function syntaxErrorInFormula(node: ANode, formulas: Store<Formula>, variables: string[]): string {
+export function syntaxErrorInFormula(node: ANode, formulas: Store<Formula>, formattedVariables: string[]): string {
   if (isProgram(node)) {
-    return node.body.length > 0 && syntaxErrorInFormula(node.body[0], formulas, variables);
+    return node.body.length > 0 && syntaxErrorInFormula(node.body[0], formulas, formattedVariables);
   } else if (isBinaryOperation(node)) {
-    const leftSideSyntaxError = syntaxErrorInFormula(node.left, formulas, variables);
+    const leftSideSyntaxError = syntaxErrorInFormula(node.left, formulas, formattedVariables);
     if (leftSideSyntaxError) {
       return leftSideSyntaxError;
     }
-    const rightSideSyntaxError = syntaxErrorInFormula(node.right, formulas, variables);
+    const rightSideSyntaxError = syntaxErrorInFormula(node.right, formulas, formattedVariables);
     if (rightSideSyntaxError) {
       return rightSideSyntaxError;
     }
@@ -460,17 +460,17 @@ export function syntaxErrorInFormula(node: ANode, formulas: Store<Formula>, vari
       return `The formula "${functionName}" has too many arguments`;
     }
     return node.arguments
-      .map(child => syntaxErrorInFormula(child, formulas, variables))
+      .map(child => syntaxErrorInFormula(child, formulas, formattedVariables))
       .find(child => !!child);
 
   } else if (isVariableOrFunctionIdentifier(node)) {
-    return variables.includes(node.name) ? null : `The variable "${node.name}" doesn't exit`;
+    return formattedVariables.includes(node.name) ? null : `The variable "${node.name}" doesn't exit`;
   } else if (isUnary(node)) {
-    return syntaxErrorInFormula(node.argument, formulas, variables);
+    return syntaxErrorInFormula(node.argument, formulas, formattedVariables);
   } else if (isExpressionStatement(node)) {
-    return syntaxErrorInFormula(node.expression, formulas, variables);
+    return syntaxErrorInFormula(node.expression, formulas, formattedVariables);
   } else if (isConditionalExpression(node)) {
-    return syntaxErrorInFormula(node.expression, formulas, variables);
+    return syntaxErrorInFormula(node.expression, formulas, formattedVariables);
   } else if (isNumberOrString(node)) {
   } else if (isRegex(node)) {
   }
