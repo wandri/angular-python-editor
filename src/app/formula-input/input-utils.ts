@@ -1,8 +1,5 @@
 import {Store} from '../interfaces/store';
 import {Formula} from '../interfaces/formula';
-import {Variable} from '../interfaces/variable';
-import {FlatFormula} from '../interfaces/flat-formula';
-import {InputType} from '../interfaces/type.enum';
 import {ANode, IdentifierNode} from '../interfaces/acorn/acorn-node';
 import {
   isBinaryOperation,
@@ -98,199 +95,6 @@ export function areAllBracketsClosed(text): boolean {
     }
   }
   return (holder.length === 0);
-}
-
-export function parseInputToFlatFormulas(text: string, existingOperators: Store<Formula>, existingVariables: Store<Variable>):
-  FlatFormula[] {
-  const holder: FlatFormula[] = [];
-  const variables = {
-    ...existingVariables,
-    formattedNames: existingVariables.ids.map(name => name.replace(/[ ()/,*^%+-]/g, '_'))
-  };
-  const bracketMemory: { firstIndex: number, operator: string, typeIndex: number }[] = [];
-  const quotesMemory: { firstIndex: number, typeIndex: number }[] = [];
-  let partialText = '';
-  const regexNumber = /^\d*\.?\d+$/;
-  const textLength = text.length;
-  for (let i = 0; i < textLength; i++) {
-    let resetPartialText = false;
-    let flatFormula: FlatFormula = null;
-    const index = i;
-    const character: string = text[index];
-    const emptyQuoteMemory = quotesMemory.length === 0;
-
-    if (character === ' ' && emptyQuoteMemory) {
-      resetPartialText = true;
-    }
-    if (character === ',' && emptyQuoteMemory) {
-      resetPartialText = true;
-    }
-    if (QUOTES.includes(character)) {
-      const lastQuote = quotesMemory.length > 0 ? quotesMemory[quotesMemory.length - 1] : null;
-      if (!!lastQuote && QUOTES.indexOf(character) === lastQuote.typeIndex) {
-        flatFormula = {
-          index: [lastQuote.firstIndex, index],
-          operator: null,
-          type: InputType.STRING,
-          value: partialText,
-        };
-        quotesMemory.pop();
-        resetPartialText = true;
-      } else if (!lastQuote) {
-        quotesMemory.push({
-          firstIndex: index,
-          typeIndex: QUOTES.indexOf(character),
-        });
-        resetPartialText = true;
-      }
-    }
-    if (OPENING_BRACKETS.includes(character) && emptyQuoteMemory) {
-      if (character === '(') {
-        if (!!partialText && !existingOperators.ids.includes(partialText)) {
-          throw new Error(`The formula "${partialText}" is not known`);
-        }
-        bracketMemory.push({
-          firstIndex: index - partialText.length,
-          operator: partialText,
-          typeIndex: OPENING_BRACKETS.indexOf('(')
-        });
-        resetPartialText = true;
-      }
-    }
-    if (CLOSING_BRACKETS.includes(character) && emptyQuoteMemory) {
-      if (character === ')') {
-        if (bracketMemory.length === 0) {
-          throw new Error(`The bracket ")" at the position ${index + 1} is unnecessary`);
-        }
-        const lastOperator = bracketMemory[bracketMemory.length - 1].operator;
-        if (!!lastOperator) {
-          flatFormula = {
-            index: [bracketMemory[bracketMemory.length - 1].firstIndex, index],
-            operator: lastOperator,
-            type: InputType.OPERATION,
-            value: null,
-          };
-        } else {
-          flatFormula = {
-            index: [bracketMemory[bracketMemory.length - 1].firstIndex, index],
-            operator: null,
-            type: InputType.GROUP,
-            value: null,
-          };
-        }
-        resetPartialText = true;
-        bracketMemory.pop();
-      }
-    }
-    if (BASIC_OPERATOR.includes(character) && emptyQuoteMemory) {
-      const isPowerOperatorWithDoubleStar = character === '*' && index !== textLength - 1 && text[index + 1] === '*';
-      if (isPowerOperatorWithDoubleStar) {
-        flatFormula = {
-          index: [index, index + 1],
-          operator: '**',
-          type: InputType.OPERATION,
-          value: null,
-        };
-        i++;
-      } else {
-        flatFormula = {
-          index: [index, index],
-          operator: character,
-          type: InputType.OPERATION,
-          value: null,
-        };
-      }
-      resetPartialText = true;
-    }
-    if (CONDITION_OPERATOR.includes(character) && emptyQuoteMemory) {
-      const isWithEqual = index !== textLength - 1 && text[index + 1] === '=';
-      if (isWithEqual) {
-        flatFormula = {
-          index: [index, index + 1],
-          operator: null,
-          type: InputType.CONDITION,
-          value: character + '=',
-        };
-        i++;
-      } else {
-        flatFormula = {
-          index: [index, index],
-          operator: null,
-          type: InputType.CONDITION,
-          value: character,
-        };
-      }
-      resetPartialText = true;
-    }
-
-    if (resetPartialText) {
-      if (partialText.match(regexNumber)) {
-        holder.push({
-          index: [index - partialText.length, index - 1],
-          operator: null,
-          type: InputType.NUMBER,
-          value: Number.parseFloat(partialText),
-        });
-      }
-      const variablePositionInName = variables.formattedNames.indexOf(partialText);
-      if (variablePositionInName !== -1) {
-        const variableName = variables.ids[variablePositionInName];
-        holder.push({
-          index: [index - partialText.length, index - 1],
-          operator: null,
-          type: InputType.VARIABLE,
-          id: variables.item[variableName].id,
-          value: variableName,
-        });
-      }
-      if (!!flatFormula) {
-        holder.push(flatFormula);
-      }
-      partialText = '';
-    } else {
-      partialText += character;
-    }
-  }
-
-  if (partialText.match(regexNumber)) {
-    holder.push({
-      index: [textLength - partialText.length, textLength - 1],
-      operator: null,
-      type: InputType.NUMBER,
-      value: Number.parseFloat(partialText),
-    });
-  }
-  const variablePosition = variables.formattedNames.indexOf(partialText);
-  if (variablePosition !== -1) {
-    const variableName = variables.ids[variablePosition];
-    holder.push({
-      index: [textLength - partialText.length, textLength - 1],
-      operator: null,
-      type: InputType.VARIABLE,
-      id: variables.item[variableName].id,
-      value: variableName,
-    });
-  }
-
-  for (let i = bracketMemory.length - 1; i >= 0; i--) {
-    const formula = bracketMemory[i];
-    if (!!formula.operator) {
-      holder.push({
-        index: [formula.firstIndex, NO_CLOSING_BRACKET_INDEX],
-        operator: formula.operator,
-        type: InputType.OPERATION,
-        value: null,
-      });
-    } else {
-      holder.push({
-        index: [formula.firstIndex, NO_CLOSING_BRACKET_INDEX],
-        operator: null,
-        type: InputType.GROUP,
-        value: null,
-      });
-    }
-  }
-  return holder;
 }
 
 export function findAllPossibleOperations(text: string, existingOperators: string[]): { index: [number, number], operator: string }[] {
@@ -414,8 +218,11 @@ function getFormattedSyntax(syntax: string, syntaxParameter: number[],
   return formattedSyntax;
 }
 
-export function buildSyntax(formulaPosition: { index: [number, number]; operator: string; }, inputText: string, initialCaretIndex: number,
-                            syntax: string, syntaxParameter: number[]): string {
+export function buildSyntax(formulaPosition: { index: [number, number]; operator: string; },
+                            inputText: string,
+                            initialCaretIndex: number,
+                            syntax: string,
+                            syntaxParameter: number[]): string {
   const focusIndex = findFocusFormulaIndexOnInput(formulaPosition, inputText, initialCaretIndex);
   return getFormattedSyntax(syntax, syntaxParameter, formulaPosition, focusIndex);
 }

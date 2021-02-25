@@ -1,6 +1,6 @@
 export class Store<T extends { name: string }> {
   ids: string[];
-  item: { [id: string]: T };
+  item: { [id: string]: T & { formattedName: string } };
 
   constructor() {
     this.ids = [];
@@ -9,14 +9,15 @@ export class Store<T extends { name: string }> {
 
   addAllAndSort(items: T[]): void {
     items.forEach(formula => {
-      this.add(formula);
+      this.addWithFormatting(formula);
     });
     this.sortIds();
   }
 
-  private add(item: T): void {
-    this.item[item.name] = item;
-    this.ids.push(item.name);
+  private addWithFormatting(item: T): void {
+    const formattedName = item.name.replace(/[ ()/,`'*^%+-]/g, '_');
+    this.item[formattedName] = {...item, formattedName};
+    this.ids.push(formattedName);
   }
 
   private sortIds(): void {

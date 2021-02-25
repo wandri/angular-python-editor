@@ -68,7 +68,6 @@ export class FormulaInputComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // TODO Smarter management of special_character inside the name
     this.formulas.addAllAndSort(storedFormulas);
     this.variables.addAllAndSort(storedVariables);
   }
@@ -86,9 +85,14 @@ export class FormulaInputComponent implements OnInit {
     if (!!charactersJustBeforeCaret) {
       let formulaSuggestionsNumber = 0;
       const suggestions = [];
-      for (const name of this.formulas.ids) {
-        if (name.startsWith(charactersJustBeforeCaret)) {
-          suggestions.push({type: InputType.OPERATION, name, formula: this.formulas.item[name]});
+      for (const formattedName of this.formulas.ids) {
+        if (formattedName.startsWith(charactersJustBeforeCaret)) {
+          const operation: Suggestion = {
+            type: InputType.OPERATION,
+            name: formattedName,
+            formula: this.formulas.item[formattedName],
+          };
+          suggestions.push(operation);
           formulaSuggestionsNumber++;
           if (formulaSuggestionsNumber >= 10) {
             break;
@@ -96,9 +100,14 @@ export class FormulaInputComponent implements OnInit {
         }
       }
       let variableSuggestionsNumber = 0;
-      for (const name of this.variables.ids) {
-        if (name.toLowerCase().startsWith(charactersJustBeforeCaret.toLowerCase())) {
-          suggestions.push({type: InputType.VARIABLE, name, variable: this.variables.item[name]});
+      for (const formattedName of this.variables.ids) {
+        if (formattedName.toLowerCase().startsWith(charactersJustBeforeCaret.toLowerCase())) {
+          const variable: Suggestion = {
+            type: InputType.VARIABLE,
+            name: formattedName,
+            variable: this.variables.item[formattedName],
+          };
+          suggestions.push(variable);
           variableSuggestionsNumber++;
           if (variableSuggestionsNumber >= 10) {
             break;
@@ -122,6 +131,7 @@ export class FormulaInputComponent implements OnInit {
     if (!this.isEmptySuggestion) {
       this.suggestionFocusIndex = 0;
     }
+    console.log('?????');
     this.parseFormula(innerHTML);
   }
 
@@ -138,12 +148,13 @@ export class FormulaInputComponent implements OnInit {
     const isFormula = suggestion.type === InputType.OPERATION;
     const focusSuggestion = isFormula ? suggestion.formula : suggestion.variable;
     const inputElement = this.formulaElement.nativeElement;
+    const innerHTML = inputElement.innerHTML;
     const {
       beforeContent,
       afterContent,
       focusContent
-    } = splitInputText(inputElement.innerText, caretIndex);
-    const formattedName = suggestionNameWithSpaceBeforeIfExistent(focusSuggestion.name, focusContent[0]);
+    } = splitInputText(innerHTML, caretIndex);
+    const formattedName = suggestionNameWithSpaceBeforeIfExistent(focusSuggestion.formattedName, focusContent[0]);
     let contentToWrite = `${beforeContent}${formattedName}${afterContent}`;
     if (isFormula) {
       if (suggestion.formula.syntaxParameter.length === 0) {
@@ -153,6 +164,7 @@ export class FormulaInputComponent implements OnInit {
       }
     }
     this.saveUserInput(contentToWrite);
+    this.parseFormula(contentToWrite);
     this.resetSuggestion();
     if (isFormula) {
       this.formulaSyntax = (focusSuggestion as Formula).syntax;
