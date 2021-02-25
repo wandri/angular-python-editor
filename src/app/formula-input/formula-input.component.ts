@@ -90,7 +90,7 @@ export class FormulaInputComponent implements OnInit {
       this.suggestionFocusIndex = 0;
     }
 
-    this.parseFormula(innerHTML);
+    this.parseAndEmitFormula(innerHTML);
   }
 
   focusSuggestion(index: number): void {
@@ -118,7 +118,7 @@ export class FormulaInputComponent implements OnInit {
       }
     }
     this.saveUserInput(contentToWrite);
-    this.parseFormula(contentToWrite);
+    this.parseAndEmitFormula(contentToWrite);
     this.resetSuggestion();
     if (isFormula) {
       this.formulaSyntax = (focusSuggestion as Formula).syntax;
@@ -196,6 +196,8 @@ export class FormulaInputComponent implements OnInit {
         }
       }
       return suggestions;
+    } else {
+      return [];
     }
   }
 
@@ -249,7 +251,7 @@ export class FormulaInputComponent implements OnInit {
     }
   }
 
-  private parseFormula(innerHTML: string): void {
+  private parseAndEmitFormula(innerHTML: string): void {
     let error = null;
     let formulaTree: AcornNode = null;
     try {

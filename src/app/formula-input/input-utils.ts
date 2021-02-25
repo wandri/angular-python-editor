@@ -160,7 +160,7 @@ export function findFormulasOnCaretPosition(index: number, formulas: { index: [n
 
 export function findFirstFormulasOnCaretPosition(index: number, formulas: { index: [number, number], operator: string }[]):
   { index: [number, number], operator: string } {
-  const formulasOnCaretPosition = this.findFormulasOnCaretPosition(index, formulas);
+  const formulasOnCaretPosition = findFormulasOnCaretPosition(index, formulas);
   return formulasOnCaretPosition.length > 0 && formulasOnCaretPosition[0];
 }
 
