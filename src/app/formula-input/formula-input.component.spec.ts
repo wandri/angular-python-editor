@@ -1,10 +1,10 @@
-import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import {FormulaInputComponent} from './formula-input.component';
-import {Formula} from '../interfaces/formula';
-import {Store} from '../interfaces/store';
-import {Variable} from '../interfaces/variable';
-import {By} from '@angular/platform-browser';
+import { FormulaInputComponent } from './formula-input.component';
+import { Formula } from '../interfaces/formula';
+import { Store } from '../interfaces/store';
+import { Variable } from '../interfaces/variable';
+import { By } from '@angular/platform-browser';
 
 describe('FormulaInputComponent', () => {
   let component: FormulaInputComponent;

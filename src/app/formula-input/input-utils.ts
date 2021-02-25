@@ -1,6 +1,6 @@
-import {Store} from '../interfaces/store';
-import {Formula} from '../interfaces/formula';
-import {ANode, IdentifierNode} from '../interfaces/acorn/acorn-node';
+import { Store } from '../interfaces/store';
+import { Formula } from '../interfaces/formula';
+import { ANode, IdentifierNode } from '../interfaces/acorn/acorn-node';
 import {
   isBinaryOperation,
   isConditionalExpression,
@@ -147,15 +147,21 @@ export function findAllPossibleOperations(text: string, existingOperators: strin
 
 export function findFormulasOnCaretPosition(index: number, formulas: { index: [number, number], operator: string }[]):
   { index: [number, number], operator: string }[] {
-  const result: { index: [number, number], operator: string }[] = [];
+  const results: { index: [number, number], operator: string }[] = [];
   formulas.forEach(formula => {
     const firstPosition = formula.index[0];
     if (firstPosition <= index && formula.index[1] >= index) {
-      result.push(formula);
+      results.push(formula);
     }
   });
-  result.sort((a, b) => a.index[0] > b.index[0] ? -1 : 1);
-  return result;
+  results.sort((a, b) => a.index[0] > b.index[0] ? -1 : 1);
+  return results;
+}
+
+export function findFirstFormulasOnCaretPosition(index: number, formulas: { index: [number, number], operator: string }[]):
+  { index: [number, number], operator: string } {
+  const formulasOnCaretPosition = this.findFormulasOnCaretPosition(index, formulas);
+  return formulasOnCaretPosition.length > 0 && formulasOnCaretPosition[0];
 }
 
 export function findFocusFormulaIndexOnInput(formulaPosition: { index: [number, number]; operator: string },

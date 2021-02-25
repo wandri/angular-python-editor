@@ -1,5 +1,5 @@
-import {TestBed, waitForAsync} from '@angular/core/testing';
-import {getCaretIndex} from './carret-utils';
+import { TestBed, waitForAsync } from '@angular/core/testing';
+import { getCaretIndex } from './carret-utils';
 
 describe('caretUtils', () => {
 

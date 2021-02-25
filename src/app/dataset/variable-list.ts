@@ -1,4 +1,4 @@
-import {Variable} from '../interfaces/variable';
+import { Variable } from '../interfaces/variable';
 
 export const storedVariables: Variable[] = [
   {name: 'Abbott\'s babbler', id: '4969471'},

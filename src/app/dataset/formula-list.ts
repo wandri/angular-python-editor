@@ -1,4 +1,4 @@
-import {Formula} from '../interfaces/formula';
+import { Formula } from '../interfaces/formula';
 
 export const storedFormulas: Formula[] = [
   {

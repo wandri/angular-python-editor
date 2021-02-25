@@ -1,5 +1,5 @@
-import {Component} from '@angular/core';
-import {AcornNode} from './interfaces/acorn/acorn-node';
+import { Component } from '@angular/core';
+import { AcornNode } from './interfaces/acorn/acorn-node';
 
 @Component({
   selector: 'app-root',

@@ -1,4 +1,4 @@
-import {AcornType} from './acorn-type';
+import { AcornType } from './acorn-type';
 import {
   AcornNode,
   ANode,

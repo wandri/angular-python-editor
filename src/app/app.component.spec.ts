@@ -1,6 +1,6 @@
-import {TestBed, waitForAsync} from '@angular/core/testing';
-import {AppComponent} from './app.component';
-import {FormulaInputComponent} from './formula-input/formula-input.component';
+import { TestBed, waitForAsync } from '@angular/core/testing';
+import { AppComponent } from './app.component';
+import { FormulaInputComponent } from './formula-input/formula-input.component';
 
 describe('AppComponent', () => {
   beforeEach(waitForAsync(() => {

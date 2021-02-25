@@ -1,4 +1,4 @@
-import {TestBed, waitForAsync} from '@angular/core/testing';
+import { TestBed, waitForAsync } from '@angular/core/testing';
 import {
   areAllBracketsClosed,
   buildSyntax,
@@ -10,8 +10,8 @@ import {
   splitInputText,
   syntaxErrorInFormula
 } from './input-utils';
-import {Store} from '../interfaces/store';
-import {Formula} from '../interfaces/formula';
+import { Store } from '../interfaces/store';
+import { Formula } from '../interfaces/formula';
 import {
   AcornNode,
   BinaryOperationNode,
@@ -20,7 +20,7 @@ import {
   PotentialNode,
   StringOrNumberNode
 } from '../interfaces/acorn/acorn-node';
-import {AcornType} from '../interfaces/acorn/acorn-type';
+import { AcornType } from '../interfaces/acorn/acorn-type';
 
 describe('inputUtils', () => {
 
