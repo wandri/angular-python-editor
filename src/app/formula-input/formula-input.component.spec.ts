@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
 
 import {FormulaInputComponent} from './formula-input.component';
 import {Formula} from '../interfaces/formula';
@@ -10,14 +10,14 @@ describe('FormulaInputComponent', () => {
   let component: FormulaInputComponent;
   let fixture: ComponentFixture<FormulaInputComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [FormulaInputComponent]
     })
       .compileComponents();
   }));
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     fixture = TestBed.createComponent(FormulaInputComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -65,7 +65,7 @@ describe('FormulaInputComponent', () => {
       },
     ]);
 
-    beforeEach(async(() => {
+    beforeEach(waitForAsync(() => {
       component.formulas = formulas;
       component.variables = new Store<Variable>();
     }));
@@ -367,7 +367,7 @@ describe('FormulaInputComponent', () => {
       {name: 'Variable 2', id: 'id Variable 2'},
     ]);
 
-    beforeEach(async(() => {
+    beforeEach(waitForAsync(() => {
       component.variables = variables;
       component.formulas = new Store<Formula>();
     }));
@@ -398,7 +398,7 @@ describe('FormulaInputComponent', () => {
       },
     ]);
 
-    beforeEach(async(() => {
+    beforeEach(waitForAsync(() => {
       component.variables = variables;
       component.formulas = formulas;
     }));
