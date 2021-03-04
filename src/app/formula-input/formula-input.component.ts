@@ -16,7 +16,7 @@ import {
   buildSyntax,
   findAllPossibleOperations,
   findFirstFormulasOnCaretPosition,
-  splitInputText,
+  getContentAroundCaret,
   suggestionNameWithSpaceBeforeIfExistent,
   syntaxErrorInFormula
 } from './input-utils';
@@ -107,7 +107,7 @@ export class FormulaInputComponent implements OnInit {
     const focusSuggestion = isFormula ? suggestion.formula : suggestion.variable;
     const inputElement = this.formulaElement.nativeElement;
     const innerHTML = inputElement.innerHTML;
-    const {beforeContent, afterContent, focusContent} = splitInputText(innerHTML, caretIndex);
+    const {beforeContent, afterContent, focusContent} = getContentAroundCaret(innerHTML, caretIndex);
     const formattedName = suggestionNameWithSpaceBeforeIfExistent(focusSuggestion.formattedName, focusContent[0]);
     let contentToWrite = `${beforeContent}${formattedName}${afterContent}`;
     if (isFormula) {

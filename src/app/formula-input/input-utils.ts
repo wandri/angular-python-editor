@@ -17,20 +17,17 @@ export const NO_CLOSING_BRACKET_INDEX = 9999;
 export const INFINITE_ARGUMENTS = 1000;
 export const OPENING_BRACKETS = ['(', '[', '{'];
 export const CLOSING_BRACKETS = [')', ']', '}'];
-export const QUOTES = [`'`, `"`];
 export const BASIC_OPERATOR = [`+`, `-`, `/`, `*`, `^`, `%`];
-export const EXTENDED_BASIC_OPERATOR = [`+`, `-`, `/`, `*`, `^`, `%`, '**'];
 export const CONDITION_OPERATOR = [`=`, `!`, `<`, `>`];
-export const EXTENDED_CONDITION_OPERATOR = [`=`, `!`, `<`, `>`, '<=', '>='];
 
-export function splitInputText(text: string, caretIndex: number):
+export function getContentAroundCaret(text: string, caretIndex: number):
   { focusContent: string; beforeContent: string, afterContent: string } {
-  let contentBeforeFocus = '';
-  let contentAfterFocus = '';
-  let contentOnFocus = '';
+  let contentBeforeCaret = '';
+  let contentAfterCaret = '';
+  let contentOnCaret = '';
   let characterPosition = 0;
 
-  const specialCharacters = [...BASIC_OPERATOR, ...CONDITION_OPERATOR, ' ', ','];
+  const specialCharacters = [...BASIC_OPERATOR, ...CONDITION_OPERATOR, ' ', ',', ')'];
   let content = '';
   const formattedContents = [];
   for (const character of text) {
@@ -42,7 +39,7 @@ export function splitInputText(text: string, caretIndex: number):
       content = '';
     } else {
       content += character;
-      if (OPENING_BRACKETS.includes(character)) {
+      if ([...OPENING_BRACKETS].includes(character)) {
         formattedContents.push(content);
         content = '';
       }
@@ -53,19 +50,19 @@ export function splitInputText(text: string, caretIndex: number):
     const isBeforeFocus = characterPosition + formattedContent.length < caretIndex;
     const isOnFocusPosition = characterPosition <= caretIndex && caretIndex <= characterPosition + formattedContent.length;
     if (isBeforeFocus) {
-      contentBeforeFocus += formattedContent;
+      contentBeforeCaret += formattedContent;
       characterPosition += formattedContent.length;
     } else if (isOnFocusPosition) {
-      contentOnFocus = formattedContent;
+      contentOnCaret = formattedContent;
       characterPosition += 9999;
     } else {
-      contentAfterFocus += formattedContent;
+      contentAfterCaret += formattedContent;
     }
   });
   return {
-    beforeContent: contentBeforeFocus,
-    afterContent: contentAfterFocus,
-    focusContent: contentOnFocus
+    beforeContent: contentBeforeCaret,
+    afterContent: contentAfterCaret,
+    focusContent: contentOnCaret
   };
 }
 
@@ -75,26 +72,6 @@ export function suggestionNameWithSpaceBeforeIfExistent(name: string, firstChara
     formattedName = ' ' + formattedName;
   }
   return formattedName;
-}
-
-export function areAllBracketsClosed(text): boolean {
-  const holder = [];
-  const openBrackets = ['(', '{', '['];
-  const closedBrackets = [')', '}', ']'];
-  for (const letter of text) {
-    if (openBrackets.includes(letter)) {
-      holder.push(letter);
-    } else if (closedBrackets.includes(letter)) {
-      const openPair = openBrackets[closedBrackets.indexOf(letter)];
-      if (holder[holder.length - 1] === openPair) {
-        holder.splice(-1, 1);
-      } else {
-        holder.push(letter);
-        break;
-      }
-    }
-  }
-  return (holder.length === 0);
 }
 
 export function findAllPossibleOperations(text: string, existingOperators: string[]): { index: [number, number], operator: string }[] {

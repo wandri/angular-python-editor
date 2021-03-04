@@ -1,13 +1,12 @@
 import { TestBed, waitForAsync } from '@angular/core/testing';
 import {
-  areAllBracketsClosed,
   buildSyntax,
   findAllPossibleOperations,
   findFocusFormulaIndexOnInput,
   findFormulasOnCaretPosition,
+  getContentAroundCaret,
   INFINITE_ARGUMENTS,
   NO_CLOSING_BRACKET_INDEX,
-  splitInputText,
   syntaxErrorInFormula
 } from './input-utils';
 import { Store } from '../interfaces/store';
@@ -29,44 +28,37 @@ describe('inputUtils', () => {
       .compileComponents();
   }));
 
-  describe(`Split text between Caret - function "${splitInputText.name}"`, () => {
+  describe(`Split text between Caret - function "${getContentAroundCaret.name}"`, () => {
     it('should split text between caret position 1', () => {
-      const content = splitInputText('1 + SUM(MAT(RESEARCH(', 10);
+      const content = getContentAroundCaret('1 + SUM(MAT(RESEARCH(', 10);
 
       expect(content.beforeContent).toEqual('1 + SUM(');
-      expect(content.afterContent).toEqual('RESEARCH(');
       expect(content.focusContent).toEqual('MAT(');
+      expect(content.afterContent).toEqual('RESEARCH(');
     });
 
     it('should split text between caret position 2', () => {
-      const content = splitInputText('SU+1 -2', 2);
+      const content = getContentAroundCaret('SU+1 -2', 2);
 
       expect(content.beforeContent).toEqual('');
-      expect(content.afterContent).toEqual('+1 -2');
       expect(content.focusContent).toEqual('SU');
+      expect(content.afterContent).toEqual('+1 -2');
     });
 
     it('should split text between caret position 3', () => {
-      const content = splitInputText('1/PI(3)1**2', 3);
+      const content = getContentAroundCaret('1/PI(3)1**2', 3);
 
       expect(content.beforeContent).toEqual('1/');
-      expect(content.afterContent).toEqual('3)1**2');
       expect(content.focusContent).toEqual('PI(');
+      expect(content.afterContent).toEqual('3)1**2');
     });
-  });
 
-  describe(`Detection of not closing bracket - function "${areAllBracketsClosed.name}"`, () => {
-    it('should detect complex closing bracket 1', () => {
-      expect(areAllBracketsClosed('{[(3+1)+2]+}')).toBeTruthy();
-    });
-    it('should detect complex closing bracket 2', () => {
-      expect(areAllBracketsClosed('[([1+1]+(2*2)-{3/3})]')).toBeTruthy();
-    });
-    it('should detect simple NON closing bracket', () => {
-      expect(areAllBracketsClosed('(3+{1-1)}')).toBeFalsy();
-    });
-    it('should detect complex NON closing bracket', () => {
-      expect(areAllBracketsClosed('(({[(((1)-2)+3)-3]/3}-3)')).toBeFalsy();
+    it('should split text between caret position 4', () => {
+      const content = getContentAroundCaret('SUM(wak) + 1', 7);
+
+      expect(content.beforeContent).toEqual('SUM(');
+      expect(content.focusContent).toEqual('wak');
+      expect(content.afterContent).toEqual(') + 1');
     });
   });
 
