@@ -9,8 +9,14 @@ import { AcornNode } from './interfaces/acorn/acorn-node';
 export class AppComponent {
   title = 'excel-like';
   formula: string = null;
+  error: string = null;
 
-  parseFormula(flatFormula: AcornNode) {
-    this.formula = JSON.stringify(flatFormula, null, 4);
+  parseFormula(formula: { node: AcornNode, error: string }) {
+    if (formula && formula.node) {
+      this.formula = JSON.stringify(formula.node, null, 4);
+    } else {
+      this.formula = null;
+      this.error = formula && formula.error;
+    }
   }
 }

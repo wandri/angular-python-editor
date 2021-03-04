@@ -36,7 +36,7 @@ import { AcornNode } from '../interfaces/acorn/acorn-node';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormulaInputComponent implements OnInit {
-  @Output() formulaParsing = new EventEmitter<AcornNode>();
+  @Output() formulaParsing = new EventEmitter<{ node: AcornNode, error: string }>();
   suggestions: Suggestion[] = [];
   formulaText: string;
   formulas: Store<Formula> = new Store<Formula>();
@@ -262,12 +262,11 @@ export class FormulaInputComponent implements OnInit {
       if (!!formulaTree) {
         error = syntaxErrorInFormula(formulaTree, this.formulas, this.variables.ids);
         if (!error) {
-          this.formulaParsing.emit(formulaTree);
+          this.formulaParsing.emit({node: formulaTree, error});
         }
       }
       if (!!error) {
-        this.formulaParsing.emit();
-        console.log(error);
+        this.formulaParsing.emit({node: null, error});
       }
     }
   }

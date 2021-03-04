@@ -5,8 +5,12 @@
   padding-left: 100px;
   padding-top: 100px;
 
-  .example {
+  .example-formula {
     white-space: pre;
     font-family: monospace;
+  }
+
+  .example-error {
+    color: rgba(221, 44, 0, 0.87);
   }
 }

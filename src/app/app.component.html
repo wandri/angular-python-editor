@@ -1,6 +1,9 @@
 <div>
   <app-formula-input (formulaParsing)="parseFormula($event)"></app-formula-input>
-  <div class="example">
+  <div class="example-formula">
     {{ formula }}
+  </div>
+  <div class="example-error">
+    {{error}}
   </div>
 </div>
