@@ -14,6 +14,7 @@ export class AppComponent {
   parseFormula(formula: { node: AcornNode, error: string }) {
     if (formula && formula.node) {
       this.formula = JSON.stringify(formula.node, null, 4);
+      this.error = null;
     } else {
       this.formula = null;
       this.error = formula && formula.error;

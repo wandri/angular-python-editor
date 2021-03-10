@@ -1,9 +1,11 @@
-<div>
+<div class="column">
   <app-formula-input (formulaParsing)="parseFormula($event)"></app-formula-input>
-  <div class="example-formula">
+</div>
+<div class="column">
+  <div *ngIf="formula" class="example-formula">
     {{ formula }}
   </div>
-  <div class="example-error">
+  <div *ngIf="error" class="example-error">
     {{error}}
   </div>
 </div>
