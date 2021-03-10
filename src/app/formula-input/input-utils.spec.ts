@@ -383,7 +383,7 @@ describe('inputUtils', () => {
 
     beforeEach(() => {
       formulas = new Store<Formula>();
-      formulas.addAllAndSort([
+      formulas.addWithFormattingAndSorting([
         {
           name: existingFormulaNameWithInfiniteArguments,
           description: '',

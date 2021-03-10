@@ -30,7 +30,7 @@ describe('FormulaInputComponent', () => {
 
   describe('with formula only', () => {
     const formulas = new Store<Formula>();
-    formulas.addAllAndSort([
+    formulas.addWithFormattingAndSorting([
       {
         name: 'SUM',
         description: 'SUM details',
@@ -360,7 +360,7 @@ describe('FormulaInputComponent', () => {
 
   describe('with variable only', () => {
     const variables = new Store<Variable>();
-    variables.addAllAndSort([
+    variables.addWithFormattingAndSorting([
       {name: 'var 1', id: 'id var 1'},
       {name: 'SuperCarMatch', id: 'id SuperCarMatch'},
       {name: 'SUPER', id: 'id SUPER'},
@@ -376,13 +376,13 @@ describe('FormulaInputComponent', () => {
   describe('translation into object', () => {
     const variables = new Store<Variable>();
     const formulas = new Store<Formula>();
-    variables.addAllAndSort([
+    variables.addWithFormattingAndSorting([
       {name: 'var 1', id: 'id var 1'},
       {name: 'SuperCarMatch', id: 'id SuperCarMatch'},
       {name: 'SUPER', id: 'id SUPER'},
       {name: 'Variable 2', id: 'id Variable 2'},
     ]);
-    formulas.addAllAndSort([
+    formulas.addWithFormattingAndSorting([
       {
         name: 'SUM',
         description: 'SUM details',

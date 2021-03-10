@@ -7,11 +7,11 @@ export function getCaretIndex(element: Node): number {
     const range = window.getSelection().getRangeAt(0);
     // Clone the range
     const preCaretRange = range.cloneRange();
-    // Select all textual contents from the contenteditable element
+    // Select all textual contents from the content editable element
     preCaretRange.selectNodeContents(element);
     // And set the range end to the original clicked position
     preCaretRange.setEnd(range.endContainer, range.endOffset);
-    // Return the text length from contenteditable start to the range end
+    // Return the text length from content editable start to the range end
     position = preCaretRange.toString().length;
   }
   return position;

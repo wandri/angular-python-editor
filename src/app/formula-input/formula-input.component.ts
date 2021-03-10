@@ -68,8 +68,8 @@ export class FormulaInputComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.formulas.addAllAndSort(storedFormulas);
-    this.variables.addAllAndSort(storedVariables);
+    this.formulas.addWithFormattingAndSorting(storedFormulas);
+    this.variables.addWithFormattingAndSorting(storedVariables);
   }
 
   onInputChange(): void {
@@ -99,41 +99,6 @@ export class FormulaInputComponent implements OnInit {
 
   registerPreviousSelection(): void {
     this.savedCaretIndex = this.getInputCaretIndex();
-  }
-
-  enterSelectedSuggestion(index: number, caretIndex: number): void {
-    const suggestion = this.suggestions[index];
-    const isFormula = suggestion.type === InputType.OPERATION;
-    const focusSuggestion = isFormula ? suggestion.formula : suggestion.variable;
-    const inputElement = this.formulaElement.nativeElement;
-    const innerHTML = inputElement.innerHTML;
-    const {beforeContent, afterContent, focusContent} = getContentAroundCaret(innerHTML, caretIndex);
-    const formattedName = suggestionNameWithSpaceBeforeIfExistent(focusSuggestion.formattedName, focusContent[0]);
-    let contentToWrite = `${beforeContent}${formattedName}${afterContent}`;
-    if (isFormula) {
-      if (suggestion.formula.syntaxParameter.length === 0) {
-        contentToWrite = `${beforeContent}${formattedName}()${afterContent}`;
-      } else {
-        contentToWrite = `${beforeContent}${formattedName}(${afterContent}`;
-      }
-    }
-    this.saveUserInput(contentToWrite);
-    this.parseAndEmitFormula(contentToWrite);
-    this.resetSuggestion();
-    if (isFormula) {
-      this.formulaSyntax = (focusSuggestion as Formula).syntax;
-    }
-    setTimeout(() => {
-      let nextCaretPosition = beforeContent.length + formattedName.length;
-      if (isFormula) {
-        if (suggestion.formula.syntaxParameter.length === 0) {
-          nextCaretPosition += 2;
-        } else {
-          nextCaretPosition += 1;
-        }
-      }
-      setCaret(nextCaretPosition, inputElement);
-    }, 0);
   }
 
   selectSuggestion(index: number): void {
@@ -212,6 +177,41 @@ export class FormulaInputComponent implements OnInit {
     }
   }
 
+  private enterSelectedSuggestion(index: number, caretIndex: number): void {
+    const suggestion = this.suggestions[index];
+    const isFormula = suggestion.type === InputType.OPERATION;
+    const focusSuggestion = isFormula ? suggestion.formula : suggestion.variable;
+    const inputElement = this.formulaElement.nativeElement;
+    const innerHTML = inputElement.innerHTML;
+    const {beforeContent, afterContent, focusContent} = getContentAroundCaret(innerHTML, caretIndex);
+    const formattedName = suggestionNameWithSpaceBeforeIfExistent(focusSuggestion.formattedName, focusContent[0]);
+    let contentToWrite = `${beforeContent}${formattedName}${afterContent}`;
+    if (isFormula) {
+      if (suggestion.formula.syntaxParameter.length === 0) {
+        contentToWrite = `${beforeContent}${formattedName}()${afterContent}`;
+      } else {
+        contentToWrite = `${beforeContent}${formattedName}(${afterContent}`;
+      }
+    }
+    this.saveUserInput(contentToWrite);
+    this.parseAndEmitFormula(contentToWrite);
+    this.resetSuggestion();
+    if (isFormula) {
+      this.formulaSyntax = (focusSuggestion as Formula).syntax;
+    }
+    setTimeout(() => {
+      let nextCaretPosition = beforeContent.length + formattedName.length;
+      if (isFormula) {
+        if (suggestion.formula.syntaxParameter.length === 0) {
+          nextCaretPosition += 2;
+        } else {
+          nextCaretPosition += 1;
+        }
+      }
+      setCaret(nextCaretPosition, inputElement);
+    }, 0);
+  }
+
   private selectNextSuggestion(): void {
     this.suggestionFocusIndex++;
     if (this.suggestionFocusIndex >= this.suggestions.length) {
@@ -221,7 +221,7 @@ export class FormulaInputComponent implements OnInit {
 
   private saveUserInput(fullFormulas: string): void {
     this.formulaText = fullFormulas;
-    this.formulaElement.nativeElement.innerHTML = this.formulaText;
+    this.formulaElement.nativeElement.innerHTML = fullFormulas;
   }
 
   private resetFormulaSyntax(): void {
@@ -257,17 +257,13 @@ export class FormulaInputComponent implements OnInit {
     try {
       formulaTree = acorn.parse(innerHTML, {ecmaVersion: 2021}) as AcornNode;
     } catch (e) {
+      // TODO: Are we happy with this error ? No formatting needed ?
       error = `${e}`;
     } finally {
       if (!!formulaTree) {
         error = syntaxErrorInFormula(formulaTree, this.formulas, this.variables.ids);
-        if (!error) {
-          this.formulaParsing.emit({node: formulaTree, error});
-        }
       }
-      if (!!error) {
-        this.formulaParsing.emit({node: null, error});
-      }
+      this.formulaParsing.emit({node: formulaTree, error});
     }
   }
 }

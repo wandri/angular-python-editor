@@ -56,4 +56,3 @@ export function isBasicOperation(node: BinaryOperationNode): boolean {
 export function isConditionalOperation(node: BinaryOperationNode): boolean {
   return node && CONDITIONAL_OPERATIONS.includes(node.operator);
 }
-

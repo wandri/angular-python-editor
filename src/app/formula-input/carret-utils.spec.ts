@@ -19,8 +19,8 @@ describe('caretUtils', () => {
         rangeCount: 4,
       } as any);
 
-      const carretPosition = getCaretIndex(text);
-      expect(carretPosition).toEqual(4);
+      const caretPosition = getCaretIndex(text);
+      expect(caretPosition).toEqual(4);
     });
   });
 });

@@ -7,7 +7,7 @@ export class Store<T extends { name: string }> {
     this.item = {};
   }
 
-  addAllAndSort(items: T[]): void {
+  addWithFormattingAndSorting(items: T[]): void {
     items.forEach(formula => {
       this.addWithFormatting(formula);
     });
