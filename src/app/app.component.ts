@@ -12,7 +12,7 @@ export class AppComponent {
   error: string = null;
 
   parseFormula(formula: { node: AcornNode, error: string }) {
-    if (formula && formula.node) {
+    if (formula && formula.node && !formula.error) {
       this.formula = JSON.stringify(formula.node, null, 4);
       this.error = null;
     } else {

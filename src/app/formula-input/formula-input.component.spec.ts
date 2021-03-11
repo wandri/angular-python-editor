@@ -415,6 +415,7 @@ describe('FormulaInputComponent', () => {
       component.formulas = formulas;
     }));
 
+    // TODO Fix it
     // it('should transform simple formula when writing', () => {
     //   spyOn(component, 'getCaretIndex').and.returnValue(1);
     //   const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
