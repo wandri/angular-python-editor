@@ -77,21 +77,21 @@ export class FormulaInputComponent implements OnInit {
     this.resetFormulaSyntax();
     this.resetSuggestion();
 
-    const innerHTML = this.formulaElement.nativeElement.innerHTML;
-    const allPossibleOperations: { index: [number, number], operator: string }[] = findAllPossibleOperations(innerHTML, this.formulas.ids);
+    const innerText = this.formulaElement.nativeElement.innerText;
+    const allPossibleOperations: { index: [number, number], operator: string }[] = findAllPossibleOperations(innerText, this.formulas.ids);
     const initialCaretIndex = this.getInputCaretIndex();
-    this.suggestions = this.getSuggestionFromCaretPosition(innerHTML, initialCaretIndex);
+    this.suggestions = this.getSuggestionFromCaretPosition(innerText, initialCaretIndex);
     if (this.isEmptySuggestion) {
       const firstFormulaOnCaretPosition = findFirstFormulasOnCaretPosition(initialCaretIndex, allPossibleOperations);
       if (firstFormulaOnCaretPosition) {
-        const formulaSyntax = this.getFormulaSyntaxOnCaretPosition(firstFormulaOnCaretPosition, innerHTML, initialCaretIndex);
+        const formulaSyntax = this.getFormulaSyntaxOnCaretPosition(firstFormulaOnCaretPosition, innerText, initialCaretIndex);
         this.formulaSyntax = this.sanitizer.sanitize(SecurityContext.HTML, formulaSyntax);
       }
     } else {
       this.suggestionFocusIndex = 0;
     }
 
-    this.parseAndEmitFormula(innerHTML);
+    this.parseAndEmitFormula(innerText);
   }
 
   focusSuggestion(index: number): void {
@@ -119,10 +119,10 @@ export class FormulaInputComponent implements OnInit {
   }
 
   private getFormulaSyntaxOnCaretPosition(firstFormulaOnCaretPosition: { index: [number, number]; operator: string },
-                                          innerHTML: string, initialCaretIndex: number): string {
+                                          innerText: string, initialCaretIndex: number): string {
     const syntax = this.formulas.item[firstFormulaOnCaretPosition.operator].syntax;
     const syntaxParameter = this.formulas.item[firstFormulaOnCaretPosition.operator].syntaxParameter;
-    return buildSyntax(firstFormulaOnCaretPosition, innerHTML, initialCaretIndex, syntax, syntaxParameter);
+    return buildSyntax(firstFormulaOnCaretPosition, innerText, initialCaretIndex, syntax, syntaxParameter);
   }
 
   private getSuggestionFromCaretPosition(content: string, initialCaretIndex: number): Suggestion[] {
@@ -183,8 +183,8 @@ export class FormulaInputComponent implements OnInit {
     const isFormula = suggestion.type === InputType.OPERATION;
     const focusSuggestion = isFormula ? suggestion.formula : suggestion.variable;
     const inputElement = this.formulaElement.nativeElement;
-    const innerHTML = inputElement.innerHTML;
-    const {beforeContent, afterContent, focusContent} = getContentAroundCaret(innerHTML, caretIndex);
+    const innerText = inputElement.innerText;
+    const {beforeContent, afterContent, focusContent} = getContentAroundCaret(innerText, caretIndex);
     const formattedName = suggestionNameWithSpaceBeforeIfExistent(focusSuggestion.formattedName, focusContent[0]);
     let contentToWrite = `${beforeContent}${formattedName}${afterContent}`;
     if (isFormula) {
@@ -222,7 +222,7 @@ export class FormulaInputComponent implements OnInit {
 
   private saveUserInput(fullFormulas: string): void {
     this.formulaText = fullFormulas;
-    this.formulaElement.nativeElement.innerHTML = fullFormulas;
+    this.formulaElement.nativeElement.innerText = fullFormulas;
   }
 
   private resetFormulaSyntax(): void {
@@ -253,12 +253,11 @@ export class FormulaInputComponent implements OnInit {
   }
 
   // TODO <= not working
-  private parseAndEmitFormula(innerHTML: string): void {
+  private parseAndEmitFormula(innerText: string): void {
     let error = null;
     let formulaTree: AcornNode = null;
     try {
-      formulaTree = acorn.parse(innerHTML, {ecmaVersion: 2021}) as AcornNode;
-      console.log(formulaTree);
+      formulaTree = acorn.parse(innerText, {ecmaVersion: 2021}) as AcornNode;
     } catch (e: unknown) {
       error = `${e}`;
       error = formatAcornError(error);

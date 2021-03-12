@@ -82,7 +82,7 @@ describe('FormulaInputComponent', () => {
       it('should display 3 suggestions if the first letter match with formulas', () => {
         spyOn(component, 'getCaretIndex').and.returnValue(1);
         const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
-        input.innerHTML = 'S';
+        input.innerText = 'S';
         fixture.detectChanges();
         input.dispatchEvent(new InputEvent('input'));
         fixture.detectChanges();
@@ -96,7 +96,7 @@ describe('FormulaInputComponent', () => {
       it('should filter the formula suggestions', () => {
         spyOn(component, 'getCaretIndex').and.returnValue(2);
         const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
-        input.innerHTML = 'SO';
+        input.innerText = 'SO';
         input.dispatchEvent(new InputEvent('input'));
         fixture.detectChanges();
         const otherContent = fixture.debugElement.nativeElement.querySelector('.suggestions');
@@ -109,7 +109,7 @@ describe('FormulaInputComponent', () => {
       it('should suggest a formula after a formula', () => {
         spyOn(component, 'getCaretIndex').and.returnValue(6);
         const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
-        input.innerHTML = 'SUM(SO';
+        input.innerText = 'SUM(SO';
         input.dispatchEvent(new InputEvent('input'));
         fixture.detectChanges();
         const otherContent = fixture.debugElement.nativeElement.querySelector('.suggestions');
@@ -122,7 +122,7 @@ describe('FormulaInputComponent', () => {
       it('should suggest a formula after an operator', () => {
         spyOn(component, 'getCaretIndex').and.returnValue(5);
         const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
-        input.innerHTML = '3 + S';
+        input.innerText = '3 + S';
         input.dispatchEvent(new InputEvent('input'));
         fixture.detectChanges();
         const otherContent = fixture.debugElement.nativeElement.querySelector('.suggestions');
@@ -136,7 +136,7 @@ describe('FormulaInputComponent', () => {
         it('should display the syntax of a formula after a bracket', () => {
           spyOn(component, 'getCaretIndex').and.returnValue(4);
           const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
-          input.innerHTML = 'SUM(';
+          input.innerText = 'SUM(';
           input.dispatchEvent(new InputEvent('input'));
           fixture.detectChanges();
           const details = fixture.debugElement.nativeElement.querySelector('.formula-description');
@@ -147,7 +147,7 @@ describe('FormulaInputComponent', () => {
         it('should not display the suggestions', () => {
           spyOn(component, 'getCaretIndex').and.returnValue(4);
           const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
-          input.innerHTML = 'SUM(';
+          input.innerText = 'SUM(';
           input.dispatchEvent(new InputEvent('input'));
           fixture.detectChanges();
           const suggestions = fixture.debugElement.nativeElement.querySelector('.suggestions');
@@ -157,7 +157,7 @@ describe('FormulaInputComponent', () => {
         it('should display the syntax inside brackets', () => {
           spyOn(component, 'getCaretIndex').and.returnValue(8);
           const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
-          input.innerHTML = 'SUM(PI(), 4)';
+          input.innerText = 'SUM(PI(), 4)';
           input.dispatchEvent(new InputEvent('input'));
           fixture.detectChanges();
           const details = fixture.debugElement.nativeElement.querySelector('.formula-description');
@@ -168,7 +168,7 @@ describe('FormulaInputComponent', () => {
         it('should not display the syntax when outside operations with nested brackets', () => {
           spyOn(component, 'getCaretIndex').and.returnValue(12);
           const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
-          input.innerHTML = 'SUM([1,2]) + 1';
+          input.innerText = 'SUM([1,2]) + 1';
           input.dispatchEvent(new InputEvent('input'));
           fixture.detectChanges();
           const details = fixture.debugElement.nativeElement.querySelector('.formula-description');
@@ -178,7 +178,7 @@ describe('FormulaInputComponent', () => {
         it('should not display the syntax when outside operations with nested brackets', () => {
           spyOn(component, 'getCaretIndex').and.returnValue(1);
           const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
-          input.innerHTML = '(SUM(1,4)+1)';
+          input.innerText = '(SUM(1,4)+1)';
           input.dispatchEvent(new InputEvent('input'));
           fixture.detectChanges();
           const details = fixture.debugElement.nativeElement.querySelector('.formula-description');
@@ -188,7 +188,7 @@ describe('FormulaInputComponent', () => {
         it('should display the syntax with focus on last argument', () => {
           spyOn(component, 'getCaretIndex').and.returnValue(10);
           const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
-          input.innerHTML = 'SUM(PI(), 4';
+          input.innerText = 'SUM(PI(), 4';
           input.dispatchEvent(new InputEvent('input'));
           fixture.detectChanges();
           const details = fixture.debugElement.nativeElement.querySelector('.formula-description');
@@ -199,7 +199,7 @@ describe('FormulaInputComponent', () => {
 
       it('the formula matching is case sensitive', () => {
         const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
-        input.innerHTML = 's';
+        input.innerText = 's';
         input.dispatchEvent(new InputEvent('input'));
         fixture.detectChanges();
         const otherContent = fixture.debugElement.nativeElement.querySelector('.suggestions');
@@ -217,7 +217,7 @@ describe('FormulaInputComponent', () => {
       describe('Display of details', () => {
         it('should active the first suggestion and display its short description', () => {
           spyOn(component, 'getCaretIndex').and.returnValue(1);
-          input.innerHTML = 'S';
+          input.innerText = 'S';
           input.dispatchEvent(new InputEvent('input'));
           fixture.detectChanges();
           const details = fixture.debugElement.nativeElement.querySelector('.active  .suggestion-short-description');
@@ -226,45 +226,45 @@ describe('FormulaInputComponent', () => {
 
         it('should display the short description', () => {
           spyOn(component, 'getCaretIndex').and.returnValue(1);
-          input.innerHTML = 'S';
+          input.innerText = 'S';
           input.dispatchEvent(new InputEvent('input'));
           fixture.detectChanges();
           const details = fixture.debugElement.nativeElement.querySelector('.active  .suggestion-short-description');
-          expect(details.innerHTML.trim()).toEqual(formulas.item['SOM'].shortDescription);
+          expect(details.innerText.trim()).toEqual(formulas.item['SOM'].shortDescription);
         });
 
         it('should use the description if the short description is not provided', () => {
           spyOn(component, 'getCaretIndex').and.returnValue(4);
-          input.innerHTML = 'PROD';
+          input.innerText = 'PROD';
           input.dispatchEvent(new InputEvent('input'));
           fixture.detectChanges();
           const details = fixture.debugElement.nativeElement.querySelector('.active  .suggestion-short-description');
-          expect(details.innerHTML.trim()).toEqual(formulas.item['PROD'].description);
+          expect(details.innerText.trim()).toEqual(formulas.item['PROD'].description);
         });
       });
 
       describe('navigation between suggestions', () => {
         it('should focus the next suggestion with ArrowDown', () => {
           spyOn(component, 'getCaretIndex').and.returnValue(1);
-          input.innerHTML = 'S';
+          input.innerText = 'S';
           input.dispatchEvent(new InputEvent('input'));
           fixture.detectChanges();
           fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowDown'}));
           fixture.detectChanges();
           const details = fixture.debugElement.nativeElement.querySelector('.active .suggestion-short-description');
           const shortDescription = formulas.item['SUM'].shortDescription;
-          expect(details.innerHTML.trim()).toEqual(shortDescription);
+          expect(details.innerText.trim()).toEqual(shortDescription);
         });
 
         it('should focus the previous suggestion with ArrowUp', () => {
           spyOn(component, 'getCaretIndex').and.returnValue(1);
-          input.innerHTML = 'S';
+          input.innerText = 'S';
           input.dispatchEvent(new InputEvent('input'));
           fixture.detectChanges();
           fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowUp'}));
           fixture.detectChanges();
           const details = fixture.debugElement.nativeElement.querySelector('.active  .suggestion-short-description');
-          expect(details.innerHTML.trim()).toEqual(formulas.item['SUMO'].description);
+          expect(details.innerText.trim()).toEqual(formulas.item['SUMO'].description);
         });
       });
 
@@ -272,54 +272,54 @@ describe('FormulaInputComponent', () => {
 
         it('should enter the formula with a bracket', () => {
           spyOn(component, 'getCaretIndex').and.returnValue(1);
-          input.innerHTML = 'S';
+          input.innerText = 'S';
           input.dispatchEvent(new InputEvent('input'));
           fixture.detectChanges();
           fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter'}));
           fixture.detectChanges();
-          expect(input.innerHTML).toEqual('SOM(');
+          expect(input.innerText).toEqual('SOM(');
         });
 
         it('should enter the formula with closing bracket for formula without argument', () => {
           spyOn(component, 'getCaretIndex').and.returnValue(2);
-          input.innerHTML = 'PI';
+          input.innerText = 'PI';
           input.dispatchEvent(new InputEvent('input'));
           fixture.detectChanges();
           fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter'}));
           fixture.detectChanges();
-          expect(input.innerHTML).toEqual('PI()');
+          expect(input.innerText).toEqual('PI()');
         });
 
         it('should enter the formula after existing content', () => {
           spyOn(component, 'getCaretIndex').and.returnValue(5);
-          input.innerHTML = 'SUM(SO';
+          input.innerText = 'SUM(SO';
           input.dispatchEvent(new InputEvent('input'));
           fixture.detectChanges();
           fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter'}));
           fixture.detectChanges();
-          expect(input.innerHTML).toEqual('SUM(SOM(');
+          expect(input.innerText).toEqual('SUM(SOM(');
         });
 
         it('should enter the formula before existing content', () => {
           spyOn(component, 'getCaretIndex').and.returnValue(2);
-          input.innerHTML = 'SUM(SO';
+          input.innerText = 'SUM(SO';
           input.dispatchEvent(new InputEvent('input'));
           fixture.detectChanges();
           fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowDown'}));
           fixture.detectChanges();
           fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter'}));
           fixture.detectChanges();
-          expect(input.innerHTML).toEqual('SUMO(SO');
+          expect(input.innerText).toEqual('SUMO(SO');
         });
 
         it('should enter the formula before existing content', () => {
           spyOn(component, 'getCaretIndex').and.returnValue(2);
-          input.innerHTML = 'SU+1';
+          input.innerText = 'SU+1';
           input.dispatchEvent(new InputEvent('input'));
           fixture.detectChanges();
           fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter'}));
           fixture.detectChanges();
-          expect(input.innerHTML).toEqual('SUM(+1');
+          expect(input.innerText).toEqual('SUM(+1');
         });
 
         describe('should enter the formula after special character', () => {
@@ -328,22 +328,22 @@ describe('FormulaInputComponent', () => {
           specialCharacters.forEach(character => {
             it(character + ' Without spaces', () => {
               spyOn(component, 'getCaretIndex').and.returnValue(4);
-              input.innerHTML = `1${character}SU`;
+              input.innerText = `1${character}SU`;
               input.dispatchEvent(new InputEvent('input'));
               fixture.detectChanges();
               fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter'}));
               fixture.detectChanges();
-              expect(input.innerHTML).toEqual('1' + character + 'SUM(');
+              expect(input.innerText).toEqual('1' + character + 'SUM(');
             });
 
             it(character + ' With spaces', () => {
               spyOn(component, 'getCaretIndex').and.returnValue(6);
-              input.innerHTML = `1 ${character} SU`;
+              input.innerText = `1 ${character} SU`;
               input.dispatchEvent(new InputEvent('input'));
               fixture.detectChanges();
               fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter'}));
               fixture.detectChanges();
-              expect(input.innerHTML).toEqual('1 ' + character + ' SUM(');
+              expect(input.innerText).toEqual('1 ' + character + ' SUM(');
             });
           });
         });
@@ -355,7 +355,7 @@ describe('FormulaInputComponent', () => {
     it('should enter the suggestion on click', () => {
       spyOn(component, 'getCaretIndex').and.returnValue(2);
       const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
-      input.innerHTML = 'SU';
+      input.innerText = 'SU';
       fixture.detectChanges();
       input.dispatchEvent(new InputEvent('input'));
       fixture.detectChanges();
@@ -364,7 +364,7 @@ describe('FormulaInputComponent', () => {
       selection.triggerEventHandler('mouseup', {});
 
       fixture.detectChanges();
-      expect(input.innerHTML).toEqual('SUMO(');
+      expect(input.innerText).toEqual('SUMO(');
     });
   });
 

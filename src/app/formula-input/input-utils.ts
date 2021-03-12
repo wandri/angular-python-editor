@@ -271,8 +271,6 @@ export function syntaxErrorInFormula(node: ANode, formulas: Store<Formula>, form
 export function formatAcornError(error): string {
   error = error.replace('SyntaxError: ', '');
   const match: RegExpMatchArray = error.match(new RegExp(/\(1:(\d+)\)/));
-  const indexError = match;
-  error = error.replace(indexError[0], '');
-  error += `at index ${indexError[1]}`;
+  error = error.replace(match[0], '');
   return error;
 }
