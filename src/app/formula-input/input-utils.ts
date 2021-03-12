@@ -127,7 +127,8 @@ export function findFormulasOnCaretPosition(index: number, formulas: { index: [n
   const results: { index: [number, number], operator: string }[] = [];
   formulas.forEach(formula => {
     const firstPosition = formula.index[0];
-    if (firstPosition <= index && formula.index[1] >= index) {
+    const indexAfterFirstFormulaCharacter = firstPosition + 1 <= index;
+    if (indexAfterFirstFormulaCharacter && formula.index[1] >= index) {
       results.push(formula);
     }
   });
@@ -265,4 +266,13 @@ export function syntaxErrorInFormula(node: ANode, formulas: Store<Formula>, form
   } else if (isRegex(node)) {
   }
   return null;
+}
+
+export function formatAcornError(error): string {
+  error = error.replace('SyntaxError: ', '');
+  const match: RegExpMatchArray = error.match(new RegExp(/\(1:(\d+)\)/));
+  const indexError = match;
+  error = error.replace(indexError[0], '');
+  error += `at index ${indexError[1]}`;
+  return error;
 }

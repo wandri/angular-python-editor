@@ -4,6 +4,7 @@ import {
   findAllPossibleOperations,
   findFocusFormulaIndexOnInput,
   findFormulasOnCaretPosition,
+  formatAcornError,
   getContentAroundCaret,
   INFINITE_ARGUMENTS,
   NO_CLOSING_BRACKET_INDEX,
@@ -715,5 +716,12 @@ describe('inputUtils', () => {
         ]
       };
     }
+  });
+
+  describe('reformat AcornJs error', () => {
+    it('it should reformat acorn with Unexpected character', () => {
+      const error = formatAcornError(`SyntaxError: Unexpected character '§' (1:3)`);
+      expect(error).toEqual(`Unexpected character '§' at index 3`);
+    });
   });
 });

@@ -16,6 +16,7 @@ import {
   buildSyntax,
   findAllPossibleOperations,
   findFirstFormulasOnCaretPosition,
+  formatAcornError,
   getContentAroundCaret,
   suggestionNameWithSpaceBeforeIfExistent,
   syntaxErrorInFormula
@@ -257,9 +258,10 @@ export class FormulaInputComponent implements OnInit {
     let formulaTree: AcornNode = null;
     try {
       formulaTree = acorn.parse(innerHTML, {ecmaVersion: 2021}) as AcornNode;
-    } catch (e) {
-      // TODO: Are we happy with this error ? No formatting needed ?
+      console.log(formulaTree);
+    } catch (e: unknown) {
       error = `${e}`;
+      error = formatAcornError(error);
     } finally {
       if (!!formulaTree) {
         error = syntaxErrorInFormula(formulaTree, this.formulas, this.variables.ids);

@@ -175,12 +175,10 @@ describe('FormulaInputComponent', () => {
           expect(details).toBeFalsy();
         });
 
-
-        // TODO: fix test
-        fit('should not display the syntax when outside operations with nested brackets', () => {
+        it('should not display the syntax when outside operations with nested brackets', () => {
           spyOn(component, 'getCaretIndex').and.returnValue(1);
           const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
-          input.innerHTML = '(SUM(1,4))';
+          input.innerHTML = '(SUM(1,4)+1)';
           input.dispatchEvent(new InputEvent('input'));
           fixture.detectChanges();
           const details = fixture.debugElement.nativeElement.querySelector('.formula-description');
@@ -414,35 +412,5 @@ describe('FormulaInputComponent', () => {
       component.variables = variables;
       component.formulas = formulas;
     }));
-
-    // TODO Fix it
-    // it('should transform simple formula when writing', () => {
-    //   spyOn(component, 'getCaretIndex').and.returnValue(1);
-    //   const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
-    //   input.innerHTML = 'SUM(1,4)';
-    //   fixture.detectChanges();
-    //   input.dispatchEvent(new InputEvent('input'));
-    //   fixture.detectChanges();
-
-    //   expect(component.formattedFormulaIntoObject).toEqual({
-    //    operation: 'SUM',
-    //    inputs: [1, 4]
-    //   });
-    // });
-
-    //  it('should transform complex formula when writing', () => {
-    // spyOn(component, 'getCaretIndex').and.returnValue(1);
-    // const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
-    // input.innerHTML = 'SUM(1,4,SUM(2,PI()))';
-    // fixture.detectChanges();
-    // input.dispatchEvent(new InputEvent('input'));
-    // fixture.detectChanges();
-
-    // const expectedFormula: FlatFormula = {
-    //   operation: 'SUM',
-    //   inputs: [1, 4, { operation: 'SUM', inputs: [2, { operation: 'PI', inputs: [] }] }]
-    // };
-    // expect(component.formattedFormulaIntoObject).toEqual(expectedFormula);
-    //  });
   });
 });
