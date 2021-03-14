@@ -270,7 +270,36 @@ export function syntaxErrorInFormula(node: ANode, formulas: Store<Formula>, form
 
 export function formatAcornError(error): string {
   error = error.replace('SyntaxError: ', '');
-  const match: RegExpMatchArray = error.match(new RegExp(/\(1:(\d+)\)/));
+  const match: RegExpMatchArray = error.match(new RegExp(/\(1:(\d+)\)/)) || [];
   error = error.replace(match[0], '');
   return error;
+}
+
+export function isBracketMissing(innerText: string): boolean {
+  const quoteMemory: { type: 'single' | 'double' }[] = [];
+  let openBracket = 0;
+  for (const character of innerText) {
+    if (character === `"`) {
+      if (quoteMemory.length > 0 && quoteMemory[quoteMemory.length - 1].type === 'double') {
+        quoteMemory.pop();
+      } else {
+        quoteMemory.push({type: 'double'});
+      }
+    } else if (character === `'`) {
+      if (quoteMemory.length > 0 && quoteMemory[quoteMemory.length - 1].type === 'single') {
+        quoteMemory.pop();
+      } else {
+        quoteMemory.push({type: 'single'});
+      }
+    } else if (quoteMemory.length === 0 && character === '(') {
+      openBracket++;
+    } else if (quoteMemory.length === 0 && character === ')') {
+      if (openBracket <= 0) {
+        return true;
+      } else {
+        openBracket--;
+      }
+    }
+  }
+  return openBracket !== 0;
 }

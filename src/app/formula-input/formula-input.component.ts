@@ -18,6 +18,7 @@ import {
   findFirstFormulasOnCaretPosition,
   formatAcornError,
   getContentAroundCaret,
+  isBracketMissing,
   suggestionNameWithSpaceBeforeIfExistent,
   syntaxErrorInFormula
 } from './input-utils';
@@ -259,7 +260,11 @@ export class FormulaInputComponent implements OnInit {
       formulaTree = acorn.parse(innerText, {ecmaVersion: 2021}) as AcornNode;
     } catch (e: unknown) {
       error = `${e}`;
-      error = formatAcornError(error);
+      if (isBracketMissing(innerText)) {
+        error = 'A bracket is missing';
+      } else {
+        error = formatAcornError(error);
+      }
     } finally {
       if (!!formulaTree) {
         error = syntaxErrorInFormula(formulaTree, this.formulas, this.variables.ids);

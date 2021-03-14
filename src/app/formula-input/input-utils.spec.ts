@@ -7,6 +7,7 @@ import {
   formatAcornError,
   getContentAroundCaret,
   INFINITE_ARGUMENTS,
+  isBracketMissing,
   NO_CLOSING_BRACKET_INDEX,
   syntaxErrorInFormula
 } from './input-utils';
@@ -718,10 +719,42 @@ describe('inputUtils', () => {
     }
   });
 
-  describe('reformat AcornJs error', () => {
+  describe(`reformat AcornJs error - function "${formatAcornError.name}"`, () => {
     it('it should reformat acorn with Unexpected character', () => {
       const error = formatAcornError(`SyntaxError: Unexpected character '§' (1:3)`);
       expect(error).toEqual(`Unexpected character '§' `);
+    });
+  });
+
+  describe(`Check Closing bracket - function "${isBracketMissing.name}"`, () => {
+    it('it should find no missing bracket 1', () => {
+      const isMissing = isBracketMissing(`(this is (an example))`);
+      expect(isMissing).toEqual(false);
+    });
+
+    it('it should find no missing bracket 2', () => {
+      const isMissing = isBracketMissing(`"a" + "(test"`);
+      expect(isMissing).toEqual(false);
+    });
+
+    it('it should find no missing bracket 3', () => {
+      const isMissing = isBracketMissing(`"a" + '(test'`);
+      expect(isMissing).toEqual(false);
+    });
+
+    it('it should find missing bracket 1', () => {
+      const isMissing = isBracketMissing(`(this is (an example)`);
+      expect(isMissing).toEqual(true);
+    });
+
+    it('it should find missing bracket 2', () => {
+      const isMissing = isBracketMissing(`this is (an example))`);
+      expect(isMissing).toEqual(true);
+    });
+
+    it('it should find missing bracket 3', () => {
+      const isMissing = isBracketMissing(`))this is an example((`);
+      expect(isMissing).toEqual(true);
     });
   });
 });
