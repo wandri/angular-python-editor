@@ -252,7 +252,6 @@ export class FormulaInputComponent implements OnInit {
     }
   }
 
-  // TODO <= not working
   private parseAndEmitFormula(innerText: string): void {
     let error = null;
     let formulaTree: AcornNode = null;
