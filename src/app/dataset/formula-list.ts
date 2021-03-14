@@ -1,6 +1,6 @@
 import { Formula } from '../interfaces/formula';
 
-export const storedFormulas: Formula[] = [
+export const exampleFormulas: Formula[] = [
   {
     name: 'ARRAY_CONSTRAIN',
     syntaxParameter: [1, 1, 1],

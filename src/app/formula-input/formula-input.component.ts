@@ -4,14 +4,16 @@ import {
   ElementRef,
   EventEmitter,
   HostListener,
-  OnInit,
+  Input,
+  OnChanges,
   Output,
   SecurityContext,
+  SimpleChange,
+  SimpleChanges,
   ViewChild
 } from '@angular/core';
 import { getCaretIndex, setCaret } from './carret-utils';
 import { Formula } from '../interfaces/formula';
-import { storedFormulas } from '../dataset/formula-list';
 import {
   buildSyntax,
   findAllPossibleOperations,
@@ -24,7 +26,6 @@ import {
 } from './input-utils';
 import { Store } from '../interfaces/store';
 import { Variable } from '../interfaces/variable';
-import { storedVariables } from '../dataset/variable-list';
 import { InputType } from '../interfaces/type.enum';
 import { Suggestion } from '../interfaces/suggestion';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -37,19 +38,21 @@ import { AcornNode } from '../interfaces/acorn/acorn-node';
   styleUrls: ['./formula-input.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FormulaInputComponent implements OnInit {
+export class FormulaInputComponent implements OnChanges {
+
+  @Input() formulas: Formula[] = [];
+  @Input() variables: Variable[] = [];
   @Output() formulaParsing = new EventEmitter<{ node: AcornNode, error: string }>();
-  suggestions: Suggestion[] = [];
-  formulaText: string;
-  formulas: Store<Formula> = new Store<Formula>();
-  variables: Store<Variable> = new Store<Variable>();
-  types = InputType;
-  formulaSyntax: string;
-  suggestionFocusIndex = 0;
 
   @ViewChild('formulaInput', {static: true}) formulaElement: ElementRef;
 
-  getCaretIndex: (element: Node) => number = getCaretIndex;
+  readonly InputType = InputType;
+  storedFormulas: Store<Formula> = new Store<Formula>();
+  storedVariables: Store<Variable> = new Store<Variable>();
+  suggestions: Suggestion[] = [];
+  formulaSyntax: string;
+  suggestionFocusIndex = 0;
+
   savedCaretIndex = 0;
 
   constructor(private sanitizer: DomSanitizer) {
@@ -69,9 +72,15 @@ export class FormulaInputComponent implements OnInit {
     this.onKeyUp(event);
   }
 
-  ngOnInit(): void {
-    this.formulas.addWithFormattingAndSorting(storedFormulas);
-    this.variables.addWithFormattingAndSorting(storedVariables);
+  ngOnChanges(changes: SimpleChanges): void {
+    const formulasChanges: SimpleChange = changes['formulas'];
+    const variablesChanges: SimpleChange = changes['variables'];
+    if (formulasChanges && formulasChanges.currentValue) {
+      this.storedFormulas.addWithFormattingAndSorting(formulasChanges.currentValue);
+    }
+    if (variablesChanges && variablesChanges.currentValue) {
+      this.storedVariables.addWithFormattingAndSorting(variablesChanges.currentValue);
+    }
   }
 
   onInputChange(): void {
@@ -79,7 +88,8 @@ export class FormulaInputComponent implements OnInit {
     this.resetSuggestion();
 
     const innerText = this.formulaElement.nativeElement.innerText;
-    const allPossibleOperations: { index: [number, number], operator: string }[] = findAllPossibleOperations(innerText, this.formulas.ids);
+    const allPossibleOperations: { index: [number, number], operator: string }[] = findAllPossibleOperations(innerText,
+      this.storedFormulas.ids);
     const initialCaretIndex = this.getInputCaretIndex();
     this.suggestions = this.getSuggestionFromCaretPosition(innerText, initialCaretIndex);
     if (this.isEmptySuggestion) {
@@ -110,7 +120,7 @@ export class FormulaInputComponent implements OnInit {
   }
 
   getInputCaretIndex(): number {
-    return this.getCaretIndex(this.formulaElement.nativeElement);
+    return getCaretIndex(this.formulaElement.nativeElement);
   }
 
   preventEnterKey($event: KeyboardEvent): void {
@@ -121,8 +131,8 @@ export class FormulaInputComponent implements OnInit {
 
   private getFormulaSyntaxOnCaretPosition(firstFormulaOnCaretPosition: { index: [number, number]; operator: string },
                                           innerText: string, initialCaretIndex: number): string {
-    const syntax = this.formulas.item[firstFormulaOnCaretPosition.operator].syntax;
-    const syntaxParameter = this.formulas.item[firstFormulaOnCaretPosition.operator].syntaxParameter;
+    const syntax = this.storedFormulas.item[firstFormulaOnCaretPosition.operator].syntax;
+    const syntaxParameter = this.storedFormulas.item[firstFormulaOnCaretPosition.operator].syntaxParameter;
     return buildSyntax(firstFormulaOnCaretPosition, innerText, initialCaretIndex, syntax, syntaxParameter);
   }
 
@@ -133,12 +143,12 @@ export class FormulaInputComponent implements OnInit {
     if (!!charactersJustBeforeCaret) {
       let formulaSuggestionsNumber = 0;
       const suggestions = [];
-      for (const formattedName of this.formulas.ids) {
+      for (const formattedName of this.storedFormulas.ids) {
         if (formattedName.startsWith(charactersJustBeforeCaret)) {
           const operation: Suggestion = {
             type: InputType.OPERATION,
             name: formattedName,
-            formula: this.formulas.item[formattedName],
+            formula: this.storedFormulas.item[formattedName],
           };
           suggestions.push(operation);
           formulaSuggestionsNumber++;
@@ -148,12 +158,12 @@ export class FormulaInputComponent implements OnInit {
         }
       }
       let variableSuggestionsNumber = 0;
-      for (const formattedName of this.variables.ids) {
+      for (const formattedName of this.storedVariables.ids) {
         if (formattedName.toLowerCase().startsWith(charactersJustBeforeCaret.toLowerCase())) {
           const variable: Suggestion = {
             type: InputType.VARIABLE,
             name: formattedName,
-            variable: this.variables.item[formattedName],
+            variable: this.storedVariables.item[formattedName],
           };
           suggestions.push(variable);
           variableSuggestionsNumber++;
@@ -222,7 +232,6 @@ export class FormulaInputComponent implements OnInit {
   }
 
   private saveUserInput(fullFormulas: string): void {
-    this.formulaText = fullFormulas;
     this.formulaElement.nativeElement.innerText = fullFormulas;
   }
 
@@ -267,7 +276,7 @@ export class FormulaInputComponent implements OnInit {
       }
     } finally {
       if (!!formulaTree) {
-        error = syntaxErrorInFormula(formulaTree, this.formulas, this.variables.ids);
+        error = syntaxErrorInFormula(formulaTree, this.storedFormulas, this.storedVariables.ids);
       }
       this.formulaParsing.emit({node: formulaTree, error});
     }

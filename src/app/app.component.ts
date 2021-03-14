@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { AcornNode } from './interfaces/acorn/acorn-node';
+import { exampleFormulas } from './dataset/formula-list';
+import { exampleVariables } from './dataset/variable-list';
 
 @Component({
   selector: 'app-root',
@@ -10,6 +12,9 @@ export class AppComponent {
   title = 'excel-like';
   formula: string = null;
   error: string = null;
+
+  storedFormulas = exampleFormulas;
+  storedVariables = exampleVariables;
 
   parseFormula(formula: { node: AcornNode, error: string }) {
     if (formula && formula.node && !formula.error) {

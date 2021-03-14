@@ -15,7 +15,7 @@
            (mouseup)="selectSuggestion(index)"
            [class.active]="suggestionFocusIndex == index"
            class="suggestion">
-        <ng-container *ngIf="suggestion.type === types.OPERATION">
+        <ng-container *ngIf="suggestion.type === InputType.OPERATION">
           <div class="suggestion-name formula-suggestion">
             {{ suggestion.name }}
           </div>
@@ -23,7 +23,7 @@
             {{ suggestion.formula.shortDescription || suggestion.formula.description }}
           </div>
         </ng-container>
-        <ng-container *ngIf="suggestion.type === types.VARIABLE">
+        <ng-container *ngIf="suggestion.type === InputType.VARIABLE">
           <div class="suggestion-name">
             {{ suggestion.name }}
           </div>
