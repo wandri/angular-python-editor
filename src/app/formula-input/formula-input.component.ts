@@ -39,7 +39,7 @@ import { AcornNode } from '../interfaces/acorn/acorn-node';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormulaInputComponent implements OnChanges {
-
+  // TODO use QUILL for colour text
   @Input() formulas: Formula[] = [];
   @Input() variables: Variable[] = [];
   @Output() formulaParsing = new EventEmitter<{ node: AcornNode, error: string }>();
