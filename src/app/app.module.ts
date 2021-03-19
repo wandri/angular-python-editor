@@ -3,6 +3,8 @@ import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { FormulaInputComponent } from './formula-input/formula-input.component';
+import { QuillModule } from 'ngx-quill';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -10,7 +12,19 @@ import { FormulaInputComponent } from './formula-input/formula-input.component';
     FormulaInputComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    ReactiveFormsModule,
+    QuillModule.forRoot({
+      modules: {
+        syntax: true,
+        toolbar: {
+          container: '#edit-toolbar',
+        },
+      },
+      format: 'object',
+      scrollingContainer: null,
+      placeholder: '',
+    }),
   ],
   providers: [],
   bootstrap: [AppComponent]

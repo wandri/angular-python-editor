@@ -31,6 +31,8 @@ import { Suggestion } from '../interfaces/suggestion';
 import { DomSanitizer } from '@angular/platform-browser';
 import * as acorn from 'acorn';
 import { AcornNode } from '../interfaces/acorn/acorn-node';
+import { QuillEditorComponent } from 'ngx-quill';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-formula-input',
@@ -43,7 +45,7 @@ export class FormulaInputComponent implements OnChanges {
   @Input() formulas: Formula[] = [];
   @Input() variables: Variable[] = [];
   @Output() formulaParsing = new EventEmitter<{ node: AcornNode, error: string }>();
-
+  @ViewChild('quillEditor', {static: true}) quillEditorComponent: QuillEditorComponent;
   @ViewChild('formulaInput', {static: true}) formulaElement: ElementRef;
 
   readonly InputType = InputType;
@@ -52,8 +54,8 @@ export class FormulaInputComponent implements OnChanges {
   suggestions: Suggestion[] = [];
   formulaSyntax: string;
   suggestionFocusIndex = 0;
-
   savedCaretIndex = 0;
+  initialFormula = new FormControl([]);
 
   constructor(private sanitizer: DomSanitizer) {
   }
@@ -84,25 +86,8 @@ export class FormulaInputComponent implements OnChanges {
   }
 
   onInputChange(): void {
-    this.resetFormulaSyntax();
-    this.resetSuggestion();
-
     const innerText = this.formulaElement.nativeElement.innerText;
-    const allPossibleOperations: { index: [number, number], operator: string }[] = findAllPossibleOperations(innerText,
-      this.storedFormulas.ids);
-    const initialCaretIndex = this.getInputCaretIndex();
-    this.suggestions = this.getSuggestionFromCaretPosition(innerText, initialCaretIndex);
-    if (this.isEmptySuggestion) {
-      const firstFormulaOnCaretPosition = findFirstFormulasOnCaretPosition(initialCaretIndex, allPossibleOperations);
-      if (firstFormulaOnCaretPosition) {
-        const formulaSyntax = this.getFormulaSyntaxOnCaretPosition(firstFormulaOnCaretPosition, innerText, initialCaretIndex);
-        this.formulaSyntax = this.sanitizer.sanitize(SecurityContext.HTML, formulaSyntax);
-      }
-    } else {
-      this.suggestionFocusIndex = 0;
-    }
-
-    this.parseAndEmitFormula(innerText);
+    this.inputChange(innerText);
   }
 
   focusSuggestion(index: number): void {
@@ -224,6 +209,10 @@ export class FormulaInputComponent implements OnChanges {
     }, 0);
   }
 
+  editorChange($event: any) {
+    this.inputChange($event.text);
+  }
+
   private selectNextSuggestion(): void {
     this.suggestionFocusIndex++;
     if (this.suggestionFocusIndex >= this.suggestions.length) {
@@ -280,5 +269,26 @@ export class FormulaInputComponent implements OnChanges {
       }
       this.formulaParsing.emit({node: formulaTree, error});
     }
+  }
+
+  private inputChange(innerText): void {
+    this.resetFormulaSyntax();
+    this.resetSuggestion();
+
+    const allPossibleOperations: { index: [number, number], operator: string }[] = findAllPossibleOperations(innerText,
+      this.storedFormulas.ids);
+    const initialCaretIndex = this.getInputCaretIndex();
+    this.suggestions = this.getSuggestionFromCaretPosition(innerText, initialCaretIndex);
+    if (this.isEmptySuggestion) {
+      const firstFormulaOnCaretPosition = findFirstFormulasOnCaretPosition(initialCaretIndex, allPossibleOperations);
+      if (firstFormulaOnCaretPosition) {
+        const formulaSyntax = this.getFormulaSyntaxOnCaretPosition(firstFormulaOnCaretPosition, innerText, initialCaretIndex);
+        this.formulaSyntax = this.sanitizer.sanitize(SecurityContext.HTML, formulaSyntax);
+      }
+    } else {
+      this.suggestionFocusIndex = 0;
+    }
+
+    this.parseAndEmitFormula(innerText);
   }
 }

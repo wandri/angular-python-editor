@@ -6,6 +6,13 @@
          class="cell-input"
          contenteditable>
     </div>
+    <div (keypress)="preventEnterKey($event)" id="edit-toolbar"></div>
+    <div class="text-editor">
+      <quill-editor #quillEditor
+                    (onContentChanged)="editorChange($event)"
+                    [formControl]="initialFormula"
+                    trackChanges="user"></quill-editor>
+    </div>
   </div>
   <div *ngIf="suggestions.length>0 && !formulaSyntax" class="formula-details suggestions">
     <ng-container *ngFor="let suggestion of suggestions; let index = index">

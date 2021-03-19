@@ -1,7 +1,14 @@
 /* You can add global styles to this file, and also import other style files */
+@import 'src/styles/quill';
+
+@include quill-editor();
 
 html, body {
   height: 100vh;
   width: 100%;
   margin: 0;
+
+  p, div {
+    margin: 0;
+  }
 }

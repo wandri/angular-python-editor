@@ -1,0 +1,42 @@
+@mixin quill-editor() {
+  .text-editor {
+    .ql-container {
+      overflow: unset;
+
+      &.ql-snow {
+        border: none;
+      }
+
+      .ql-editor {
+        @include inherit-editor-style();
+        display: flex;
+        flex-direction: column;
+        justify-content: inherit;
+
+        p {
+          @include inherit-editor-style();
+        }
+      }
+
+      .ql-clipboard {
+        left: -100000px;
+        height: 1px;
+        overflow-y: hidden;
+        position: absolute;
+        top: 50%;
+      }
+
+      .ql-hidden {
+        display: none;
+      }
+    }
+  }
+}
+
+@mixin inherit-editor-style() {
+  overflow: unset;
+  text-align: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  font-family: inherit;
+}
