@@ -41,7 +41,8 @@ import { FormControl } from '@angular/forms';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormulaInputComponent implements OnChanges {
-  // TODO use QUILL for colour text
+  // TODO test https://github.com/Microsoft/monaco-editor
+  // TODO test https://github.com/atularen/ngx-monaco-editor
   @Input() formulas: Formula[] = [];
   @Input() variables: Variable[] = [];
   @Output() formulaParsing = new EventEmitter<{ node: AcornNode, error: string }>();
