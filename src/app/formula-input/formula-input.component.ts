@@ -56,6 +56,7 @@ export class FormulaInputComponent implements OnChanges {
   suggestionFocusIndex = 0;
   savedCaretIndex = 0;
   initialFormula = new FormControl([]);
+  formulaText = '';
 
   constructor(private sanitizer: DomSanitizer) {
   }
@@ -85,9 +86,12 @@ export class FormulaInputComponent implements OnChanges {
     }
   }
 
+  activateEdition($event: any) {
+    $event.formatLine(0, 0, {'code-block': 'javascript'});
+  }
+
   onInputChange(): void {
-    const innerText = this.formulaElement.nativeElement.innerText;
-    this.inputChange(innerText);
+    this.inputChange(this.formulaText);
   }
 
   focusSuggestion(index: number): void {
@@ -210,6 +214,8 @@ export class FormulaInputComponent implements OnChanges {
   }
 
   editorChange($event: any) {
+    console.log($event);
+    this.formulaText = $event.text;
     this.inputChange($event.text);
   }
 
@@ -251,14 +257,16 @@ export class FormulaInputComponent implements OnChanges {
     }
   }
 
-  private parseAndEmitFormula(innerText: string): void {
+  private parseAndEmitFormula(text: string): void {
     let error = null;
     let formulaTree: AcornNode = null;
     try {
-      formulaTree = acorn.parse(innerText, {ecmaVersion: 2021}) as AcornNode;
+      console.log(text);
+      formulaTree = acorn.parse(text, {ecmaVersion: 2021}) as AcornNode;
+      console.log(formulaTree);
     } catch (e: unknown) {
       error = `${e}`;
-      if (isBracketMissing(innerText)) {
+      if (isBracketMissing(text)) {
         error = 'A bracket is missing';
       } else {
         error = formatAcornError(error);

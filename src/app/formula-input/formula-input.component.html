@@ -9,6 +9,7 @@
     <div (keypress)="preventEnterKey($event)" id="edit-toolbar"></div>
     <div class="text-editor">
       <quill-editor #quillEditor
+                    (onEditorCreated)="activateEdition($event)"
                     (onContentChanged)="editorChange($event)"
                     [formControl]="initialFormula"
                     trackChanges="user"></quill-editor>

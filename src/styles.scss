@@ -1,7 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
 @import 'src/styles/quill';
 
-@include quill-editor();
+// @include quill-editor();
+@import '~quill/dist/quill.snow.css';
+@import 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/monokai-sublime.min.css';
 
 html, body {
   height: 100vh;
