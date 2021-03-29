@@ -1,5 +1,5 @@
 export interface Formula {
-  name: string;
+  label: string;
   formattedName?: string;
   description: string;
   syntax: string;
