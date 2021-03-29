@@ -13,6 +13,9 @@
                     [formControl]="initialFormula"
                     trackChanges="user"></quill-editor>
     </div>
+    <div class="editor">
+      <ngx-monaco-editor [(ngModel)]="code" [options]="editorOptions"></ngx-monaco-editor>
+    </div>
   </div>
   <div *ngIf="suggestions.length>0 && !formulaSyntax" class="formula-details suggestions">
     <ng-container *ngFor="let suggestion of suggestions; let index = index">

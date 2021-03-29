@@ -43,6 +43,11 @@ import { FormControl } from '@angular/forms';
 export class FormulaInputComponent implements OnChanges {
   // TODO test https://github.com/Microsoft/monaco-editor
   // TODO test https://github.com/atularen/ngx-monaco-editor
+  // https://microsoft.github.io/monaco-editor/playground.html#extending-language-services-custom-languages
+  editorOptions = {theme: 'vs-dark', language: 'javascript'};
+  code: string = 'function x() {\nconsole.log("Hello world!");\n}';
+
+
   @Input() formulas: Formula[] = [];
   @Input() variables: Variable[] = [];
   @Output() formulaParsing = new EventEmitter<{ node: AcornNode, error: string }>();
@@ -113,6 +118,10 @@ export class FormulaInputComponent implements OnChanges {
     if ($event.key === 'Enter') {
       $event.preventDefault();
     }
+  }
+
+  editorChange($event: any) {
+    this.inputChange($event.text);
   }
 
   private getFormulaSyntaxOnCaretPosition(firstFormulaOnCaretPosition: { index: [number, number]; operator: string },
@@ -208,10 +217,6 @@ export class FormulaInputComponent implements OnChanges {
       }
       setCaret(nextCaretPosition, inputElement);
     }, 0);
-  }
-
-  editorChange($event: any) {
-    this.inputChange($event.text);
   }
 
   private selectNextSuggestion(): void {
