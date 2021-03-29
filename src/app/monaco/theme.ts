@@ -1,5 +1,5 @@
 export const customTheme = {
-  base: 'vs-dark', // can also be vs or hc-black
+  base: 'vs', // can also be vs or hc-black
   inherit: true, // can also be false to completely replace the builtin rules
   rules: [
     {

@@ -1,8 +1,11 @@
 <div class="formula-bar-input-container">
   <div class="formula-bar-input">
     <div class="editor">
-      <ngx-monaco-editor (init)="initEditor($event)" (ngModelChange)="monacoEditorChange($event)"
-                         [(ngModel)]="code" [options]="editorOptions"></ngx-monaco-editor>
+      <ngx-monaco-editor
+        (ngModelChange)="monacoEditorChange($event)"
+        [(ngModel)]="code"
+        [options]="editorOptions"
+      ></ngx-monaco-editor>
     </div>
   </div>
 </div>

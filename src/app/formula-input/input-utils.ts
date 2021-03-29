@@ -212,6 +212,7 @@ export function buildSyntax(formulaPosition: { index: [number, number]; operator
 }
 
 export function syntaxErrorInFormula(node: ANode, formulas: Store<Formula>, formattedVariables: string[]): string {
+  // TODO - Fix error checks
   if (isProgram(node)) {
     return node.body.length > 0 && syntaxErrorInFormula(node.body[0], formulas, formattedVariables);
   } else if (isBinaryOperation(node)) {
