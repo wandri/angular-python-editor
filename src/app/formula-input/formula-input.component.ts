@@ -32,7 +32,10 @@ import { DomSanitizer } from '@angular/platform-browser';
 import * as acorn from 'acorn';
 import { AcornNode } from '../interfaces/acorn/acorn-node';
 import { QuillEditorComponent } from 'ngx-quill';
-import { FormControl } from '@angular/forms';
+import { MonacoEditorConstructionOptions, MonacoStandaloneCodeEditor } from '@materia-ui/ngx-monaco-editor/lib/interfaces';
+import { MonacoEditorLoaderService } from '@materia-ui/ngx-monaco-editor';
+import { filter, take } from 'rxjs/operators';
+import { loadCustomMonaco } from '../monaco/monaco';
 
 @Component({
   selector: 'app-formula-input',
@@ -41,12 +44,31 @@ import { FormControl } from '@angular/forms';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormulaInputComponent implements OnChanges {
-  // TODO test https://github.com/Microsoft/monaco-editor
-  // TODO test https://github.com/atularen/ngx-monaco-editor
-  // https://microsoft.github.io/monaco-editor/playground.html#extending-language-services-custom-languages
-  editorOptions = {theme: 'vs-dark', language: 'javascript'};
-  code: string = 'function x() {\nconsole.log("Hello world!");\n}';
+  completionTriggerKeywords = [
+    {
+      label: 'Test1',
+      kind: 1,
+      insertText: 'Test1',
+      description: '1.1, 1.2, 1.3',
+      insertTextRules: 4,
+    },
+  ];
 
+  editorOptions: MonacoEditorConstructionOptions = {
+    theme: 'customTheme',
+    language: 'javascript',
+    minimap: {
+      enabled: false,
+    },
+  };
+
+  code = `// Type source code in your language here...
+class MyClass {
+  @attribute
+  void main() {
+    Console.writeln( 'Hello Monarch world\\n');
+  }
+}`;
 
   @Input() formulas: Formula[] = [];
   @Input() variables: Variable[] = [];
@@ -54,16 +76,20 @@ export class FormulaInputComponent implements OnChanges {
   @ViewChild('quillEditor', {static: true}) quillEditorComponent: QuillEditorComponent;
   @ViewChild('formulaInput', {static: true}) formulaElement: ElementRef;
 
-  readonly InputType = InputType;
   storedFormulas: Store<Formula> = new Store<Formula>();
   storedVariables: Store<Variable> = new Store<Variable>();
   suggestions: Suggestion[] = [];
   formulaSyntax: string;
   suggestionFocusIndex = 0;
   savedCaretIndex = 0;
-  initialFormula = new FormControl([]);
 
-  constructor(private sanitizer: DomSanitizer) {
+  constructor(private sanitizer: DomSanitizer, private monacoLoaderService: MonacoEditorLoaderService) {
+    this.monacoLoaderService.isMonacoLoaded$.pipe(
+      filter(isLoaded => isLoaded),
+      take(1),
+    ).subscribe(() => {
+      loadCustomMonaco();
+    });
   }
 
   get isEmptySuggestion(): boolean {
@@ -96,32 +122,17 @@ export class FormulaInputComponent implements OnChanges {
     this.inputChange(innerText);
   }
 
-  focusSuggestion(index: number): void {
-    this.suggestionFocusIndex = index;
-  }
-
-  registerPreviousSelection(): void {
-    this.savedCaretIndex = this.getInputCaretIndex();
-  }
-
-  selectSuggestion(index: number): void {
-    if (!this.isEmptySuggestion) {
-      this.enterSelectedSuggestion(index, this.savedCaretIndex);
-    }
-  }
-
   getInputCaretIndex(): number {
     return getCaretIndex(this.formulaElement.nativeElement);
   }
 
-  preventEnterKey($event: KeyboardEvent): void {
-    if ($event.key === 'Enter') {
-      $event.preventDefault();
-    }
+  monacoEditorChange(text: any) {
+    this.parseAndEmitFormula(text);
   }
 
-  editorChange($event: any) {
-    this.inputChange($event.text);
+  initEditor(editor: MonacoStandaloneCodeEditor) {
+    const editorModel = editor.getModel();
+    // editorModel['completionItems'] = completionItems;
   }
 
   private getFormulaSyntaxOnCaretPosition(firstFormulaOnCaretPosition: { index: [number, number]; operator: string },

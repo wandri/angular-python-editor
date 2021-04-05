@@ -1,8 +1,4 @@
 :host {
-  .edit-toolbar {
-    display: none;
-  }
-
   .editor {
     height: 400px;
   }
@@ -12,7 +8,6 @@
     width: 100%;
     position: relative;
     padding: 4px;
-    border: 1px #7f9db9 solid;
 
     .formula-details {
       background: white;
