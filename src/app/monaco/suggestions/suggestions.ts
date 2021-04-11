@@ -4,7 +4,7 @@ import { suggestionCustom } from './suggestion-custom';
 import { CompletionItemKind } from '../completionItemKind';
 import { CompletionItemInsertTextRule } from '../completionItemInsertTextRule';
 
-export const completionTriggerKeywords = [
+export const completionTriggerKeywords: { label: string; kind: number, insertText: string, description: string, insertTextRules: number }[] = [
   {
     label: 'Test1',
     kind: CompletionItemKind.Constant,
@@ -17,12 +17,14 @@ export const completionTriggerKeywords = [
     kind: CompletionItemKind.Variable,
     insertText: 'Test2',
     description: '2.1',
+    insertTextRules: CompletionItemInsertTextRule.InsertAsSnippet,
   },
   {
     label: 'Test3',
     kind: CompletionItemKind.Field,
     insertText: 'Test3',
     description: '3.1, 3.2, 3.3',
+    insertTextRules: CompletionItemInsertTextRule.InsertAsSnippet,
   },
   {
     label: 'Test4',

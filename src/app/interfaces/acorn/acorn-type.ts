@@ -6,5 +6,10 @@ export enum AcornType {
   ExpressionStatement = 'ExpressionStatement',
   Identifier = 'Identifier',
   ConditionalExpression = 'ConditionalExpression',
+  ReturnStatement = 'ReturnStatement',
   UnaryExpression = 'UnaryExpression',
+  BlockStatement = 'BlockStatement',
+  FunctionDeclaration = 'FunctionDeclaration',
+  IfStatement = 'IfStatement',
+  LogicalExpression = 'LogicalExpression',
 }

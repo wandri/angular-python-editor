@@ -4,7 +4,6 @@ import { formatAcornError, isBracketMissing, syntaxErrorInFormula } from './inpu
 import { Store } from '../interfaces/store';
 import { Variable } from '../interfaces/variable';
 import { DomSanitizer } from '@angular/platform-browser';
-// import * as acorn from 'acorn';
 import * as filbert from 'filbert';
 import { AcornNode } from '../interfaces/acorn/acorn-node';
 import { MonacoEditorConstructionOptions } from '@materia-ui/ngx-monaco-editor/lib/interfaces';
@@ -27,7 +26,7 @@ export class FormulaInputComponent implements OnChanges {
     },
   };
 
-  code = `if vh_age > 5:
+  code = `if vh_age > 5 and MAX(drv_age1) > 5:
       return 6
 elif vh_age >= 10:
       return 10
@@ -70,8 +69,7 @@ else:
   private parseAndEmitFormula(innerText: string): void {
     let error = null;
     let formulaTree: AcornNode = null;
-    const indentString = (str) =>
-      str.replace(/^/gm, '  ');
+    const indentString = (str) => str.replace(/^/gm, '  ');
     const textInsideFunction = `def fakeFunction():\n${indentString(innerText)}`;
     try {
       formulaTree = filbert.parse(textInsideFunction, {ecmaVersion: 2021}) as AcornNode;

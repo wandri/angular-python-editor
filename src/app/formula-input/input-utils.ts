@@ -2,16 +2,20 @@ import { Store } from '../interfaces/store';
 import { Formula } from '../interfaces/formula';
 import { ANode, IdentifierNode } from '../interfaces/acorn/acorn-node';
 import {
-  isBinaryOperation,
+  isBlock,
   isConditionalExpression,
   isExpressionStatement,
   isFunction,
+  isIfStatement,
+  isLogicalOperation,
   isNumberOrString,
   isProgram,
   isRegex,
+  isReturnStatement,
   isUnary,
   isVariableOrFunctionIdentifier
 } from '../interfaces/acorn/acorn-utils';
+import { AcornType } from '../interfaces/acorn/acorn-type';
 
 export const NO_CLOSING_BRACKET_INDEX = 9999;
 export const INFINITE_ARGUMENTS = 1000;
@@ -212,10 +216,11 @@ export function buildSyntax(formulaPosition: { index: [number, number]; operator
 }
 
 export function syntaxErrorInFormula(node: ANode, formulas: Store<Formula>, formattedVariables: string[]): string {
-  // TODO - Fix error checks
-  if (isProgram(node)) {
-    return node.body.length > 0 && syntaxErrorInFormula(node.body[0], formulas, formattedVariables);
-  } else if (isBinaryOperation(node)) {
+  if (!Object.values(AcornType).includes(node.type)) {
+    return `The operation ${node.type} is not implemented`;
+  } else if (isProgram(node)) {
+    return node.body.length > 0 && syntaxErrorInFormula(node.body[0].body, formulas, formattedVariables);
+  } else if (isLogicalOperation(node)) {
     const leftSideSyntaxError = syntaxErrorInFormula(node.left, formulas, formattedVariables);
     if (leftSideSyntaxError) {
       return leftSideSyntaxError;
@@ -254,7 +259,6 @@ export function syntaxErrorInFormula(node: ANode, formulas: Store<Formula>, form
     return node.arguments
       .map(child => syntaxErrorInFormula(child, formulas, formattedVariables))
       .find(child => !!child);
-
   } else if (isVariableOrFunctionIdentifier(node)) {
     return formattedVariables.includes(node.name) ? null : `The variable "${node.name}" doesn't exit`;
   } else if (isUnary(node)) {
@@ -263,6 +267,27 @@ export function syntaxErrorInFormula(node: ANode, formulas: Store<Formula>, form
     return syntaxErrorInFormula(node.expression, formulas, formattedVariables);
   } else if (isConditionalExpression(node)) {
     return syntaxErrorInFormula(node.expression, formulas, formattedVariables);
+  } else if (isBlock(node)) {
+    return node.body
+      .map(child => syntaxErrorInFormula(child, formulas, formattedVariables))
+      .find(child => !!child);
+  } else if (isReturnStatement(node)) {
+    return syntaxErrorInFormula(node.argument, formulas, formattedVariables);
+  } else if (isIfStatement(node)) {
+    const testCheck = syntaxErrorInFormula(node.test, formulas, formattedVariables);
+    if (!!testCheck) {
+      return testCheck;
+    }
+    const consequentCheck = syntaxErrorInFormula(node.consequent, formulas, formattedVariables);
+    if (!!consequentCheck) {
+      return consequentCheck;
+    }
+    if (node.alternate) {
+      const alternateCheck = syntaxErrorInFormula(node.alternate, formulas, formattedVariables);
+      if (!!alternateCheck) {
+        return alternateCheck;
+      }
+    }
   } else if (isNumberOrString(node)) {
   } else if (isRegex(node)) {
   }

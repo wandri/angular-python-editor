@@ -3,7 +3,13 @@ import { AcornType } from './acorn-type';
 export const BASIC_OPERATIONS: string[] = ['+', '-', '/', '%', '^', '*', '**'];
 export const CONDITIONAL_OPERATIONS: string[] = ['==', '===', '<=', '>=', '>', '<', '!=', '!=='];
 
-export type PotentialNode = IdentifierNode | BinaryOperationNode | StringOrNumberNode | ConditionalExpressionNode | FunctionNode;
+export type PotentialNode =
+  IdentifierNode
+  | BinaryOperationNode
+  | StringOrNumberNode
+  | ConditionalExpressionNode
+  | FunctionNode
+  | IfStatementNode;
 
 export interface ANode {
   type: AcornType;
@@ -12,11 +18,34 @@ export interface ANode {
 }
 
 export interface AcornNode extends ANode {
-  body?: ExpressionStatementNode[];
+  body: FunctionDeclarationNode[];
+}
+
+export interface FunctionDeclarationNode extends ANode {
+  id: {
+    type: AcornType;
+    name: string;
+  };
+  params: string[];
+  body: PotentialNode;
 }
 
 export interface ExpressionStatementNode extends ANode {
   expression: PotentialNode;
+}
+
+export interface ReturnStatementNode extends ANode {
+  argument: PotentialNode;
+}
+
+export interface BlockNode extends ANode {
+  body: PotentialNode[];
+}
+
+export interface IfStatementNode extends ANode {
+  test: IfStatementNode;
+  consequent: IfStatementNode;
+  alternate?: PotentialNode;
 }
 
 export interface RegexNode extends IdentifierNode {

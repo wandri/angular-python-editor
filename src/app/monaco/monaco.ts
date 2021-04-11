@@ -11,9 +11,6 @@ export function loadCustomMonaco() {
   // Register a tokens provider for the language
   (window as any).monaco.languages.setMonarchTokensProvider(customLanguageName, customLanguageDef);
 
-  // [comment] [string] [keyword] [number] [regexp] [operator] [namespace]
-  //   [type] [struct] [class] [interface] [enum] [typeParameter] [function]
-  //   [member] [macro] [variable] [parameter] [property] [label]
   (window as any).monaco.editor.defineTheme(customThemeName, customTheme);
 
   (window as any).monaco.languages.registerCompletionItemProvider(customLanguageName, {

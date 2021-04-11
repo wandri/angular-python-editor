@@ -1,9 +1,9 @@
 export const customLanguageDef = {
   keywords: [
     'abstract', 'continue', 'for', 'new', 'switch', 'assert', 'goto', 'do',
-    'if', 'private', 'this', 'break', 'protected', 'throw', 'else', 'public',
+    'if', 'elif', 'private', 'this', 'break', 'protected', 'throw', 'else', 'public',
     'enum', 'return', 'catch', 'try', 'interface', 'static', 'class',
-    'finally', 'const', 'super', 'while', 'true', 'false'
+    'finally', 'const', 'super', 'while', 'true', 'false', 'and', 'or',
   ],
 
   typeKeywords: [
@@ -91,5 +91,9 @@ export const customLanguageDef = {
       [/\/\*/, 'comment', '@comment'],
       [/\/\/.*$/, 'comment'],
     ],
+
+    functions: [
+      [/([a-zA-Z_{1}][a-zA-Z0-9_]+)(?=\()/, 'function']
+    ]
   },
 };
