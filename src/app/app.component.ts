@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { AcornNode } from './interfaces/acorn/acorn-node';
-import { exampleFormulas } from './dataset/formula-list';
-import { exampleVariables } from './dataset/variable-list';
+import { editorFormulas } from './monaco/suggestions/suggestion-formulas';
+import { editorVariables } from './monaco/suggestions/suggestion-variables';
 
 @Component({
   selector: 'app-root',
@@ -13,8 +13,8 @@ export class AppComponent {
   formula: string = null;
   error: string = null;
 
-  storedFormulas = exampleFormulas;
-  storedVariables = exampleVariables;
+  storedFormulas = editorFormulas;
+  storedVariables = editorVariables;
 
   parseFormula(formula: { node: AcornNode, error: string }) {
     if (formula && formula.node && !formula.error) {

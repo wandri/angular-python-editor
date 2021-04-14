@@ -1,4 +1,6 @@
-export const editorFormulas = [
+import { Formula } from '../../interfaces/formula';
+
+export const editorFormulas: Formula[] = [
   {
     label: 'ARRAY_CONSTRAIN',
     syntaxParameter: [1, 1, 1],

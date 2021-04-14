@@ -1,7 +1,8 @@
 import { CompletionItemKind } from '../completionItemKind';
 import { CompletionItemInsertTextRule } from '../completionItemInsertTextRule';
+import { MonacoSuggestion } from './monacoSuggestion';
 
-export const suggestionCustom = [
+export const suggestionCustom: MonacoSuggestion[] = [
   {
     label: 'ifelse',
     kind: CompletionItemKind.Snippet,
@@ -14,5 +15,7 @@ export const suggestionCustom = [
     ].join('\n'),
     description: 'If-Else Statement',
     insertTextRules: CompletionItemInsertTextRule.InsertAsSnippet,
+    documentation: 'If-Else Statement',
+    detail: 'If-Else Statement',
   }
 ];

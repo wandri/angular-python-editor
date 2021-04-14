@@ -1,5 +1,5 @@
 export interface Variable {
-  name: string;
+  label: string;
   formattedName?: string;
   id: string;
 }

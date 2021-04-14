@@ -387,31 +387,31 @@ describe('inputUtils', () => {
       formulas = new Store<Formula>();
       formulas.addWithFormattingAndSorting([
         {
-          name: existingFormulaNameWithInfiniteArguments,
+          label: existingFormulaNameWithInfiniteArguments,
           description: '',
           syntax: '',
           syntaxParameter: [1, 1000],
         },
         {
-          name: existingFormulaNameWith2Arguments,
+          label: existingFormulaNameWith2Arguments,
           description: '',
           syntax: '',
           syntaxParameter: [1, 1],
         },
         {
-          name: existingFormulaNameWithOptionalArguments,
+          label: existingFormulaNameWithOptionalArguments,
           description: '',
           syntax: '',
           syntaxParameter: [1, 1, 0],
         },
         {
-          name: existingFormulaNameWithComplexArguments,
+          label: existingFormulaNameWithComplexArguments,
           description: '',
           syntax: '',
           syntaxParameter: [1, 0, 1],
         },
         {
-          name: existingFormulaNameWithNoArguments,
+          label: existingFormulaNameWithNoArguments,
           description: '',
           syntax: '',
           syntaxParameter: [],

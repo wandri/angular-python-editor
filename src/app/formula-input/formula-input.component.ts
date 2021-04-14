@@ -43,12 +43,6 @@ else:
   savedCaretIndex = 0;
 
   constructor(private sanitizer: DomSanitizer, private monacoLoaderService: MonacoEditorLoaderService) {
-    this.monacoLoaderService.isMonacoLoaded$.pipe(
-      filter(isLoaded => isLoaded),
-      take(1),
-    ).subscribe(() => {
-      loadCustomMonaco();
-    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -59,6 +53,14 @@ else:
     }
     if (variablesChanges && variablesChanges.currentValue) {
       this.storedVariables.addWithFormattingAndSorting(variablesChanges.currentValue);
+    }
+    if (variablesChanges && variablesChanges.currentValue || formulasChanges && formulasChanges.currentValue) {
+      this.monacoLoaderService.isMonacoLoaded$.pipe(
+        filter(isLoaded => isLoaded),
+        take(1),
+      ).subscribe(() => {
+        loadCustomMonaco(this.storedFormulas, this.storedVariables);
+      });
     }
   }
 
