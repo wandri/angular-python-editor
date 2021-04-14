@@ -7,13 +7,6 @@ describe('FormulaInputComponent', () => {
   let fixture: ComponentFixture<FormulaInputComponent>;
 
   beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [FormulaInputComponent]
-    })
-      .compileComponents();
-  }));
-
-  beforeEach(waitForAsync(() => {
     fixture = TestBed.createComponent(FormulaInputComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
