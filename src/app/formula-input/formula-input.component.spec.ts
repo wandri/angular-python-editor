@@ -20,7 +20,7 @@ describe('FormulaInputComponent', () => {
   }));
 
   it('should create', () => {
-    const input = fixture.debugElement.nativeElement.querySelector('.cell-input');
+    const input = fixture.debugElement.nativeElement.querySelector('ngx-monaco-editor');
     expect(input).toBeTruthy();
   });
 

@@ -10,6 +10,7 @@ import { MonacoEditorConstructionOptions } from '@materia-ui/ngx-monaco-editor/l
 import { MonacoEditorLoaderService } from '@materia-ui/ngx-monaco-editor';
 import { filter, take } from 'rxjs/operators';
 import { customLanguageName, customThemeName, loadCustomMonaco } from '../monaco/monaco';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-formula-input',
@@ -18,7 +19,13 @@ import { customLanguageName, customThemeName, loadCustomMonaco } from '../monaco
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormulaInputComponent implements OnChanges {
-  editorOptions: MonacoEditorConstructionOptions = {
+  @Input() code: string;
+  @Input() formulas: Formula[] = [];
+  @Input() variables: Variable[] = [];
+
+  @Output() formulaParsing = new EventEmitter<{ node: AcornNode, error: string, code: string }>();
+
+  readonly editorOptions: MonacoEditorConstructionOptions = {
     theme: customThemeName,
     language: customLanguageName,
     minimap: {
@@ -26,33 +33,28 @@ export class FormulaInputComponent implements OnChanges {
     },
   };
 
-  code = `if vh_age > 5 and MAX(drv_age1) > 5:
-      return 6
-elif vh_age >= 10:
-      return 10
-else:
-      return SUM(ABS(drv_age1),drv_age2)`;
-
-  @Input() formulas: Formula[] = [];
-  @Input() variables: Variable[] = [];
-  @Output() formulaParsing = new EventEmitter<{ node: AcornNode, error: string }>();
-
+  reactiveForm: FormControl;
   storedFormulas: Store<Formula> = new Store<Formula>();
   storedVariables: Store<Variable> = new Store<Variable>();
   suggestionFocusIndex = 0;
   savedCaretIndex = 0;
 
   constructor(private sanitizer: DomSanitizer, private monacoLoaderService: MonacoEditorLoaderService) {
+    this.reactiveForm = new FormControl('');
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     const formulasChanges: SimpleChange = changes['formulas'];
     const variablesChanges: SimpleChange = changes['variables'];
+    const codeChanges: SimpleChange = changes['code'];
     if (formulasChanges && formulasChanges.currentValue) {
       this.storedFormulas.addWithFormattingAndSorting(formulasChanges.currentValue);
     }
     if (variablesChanges && variablesChanges.currentValue) {
       this.storedVariables.addWithFormattingAndSorting(variablesChanges.currentValue);
+    }
+    if (codeChanges && codeChanges.currentValue) {
+      this.reactiveForm.setValue(codeChanges.currentValue);
     }
     if (variablesChanges && variablesChanges.currentValue || formulasChanges && formulasChanges.currentValue) {
       this.monacoLoaderService.isMonacoLoaded$.pipe(
@@ -86,7 +88,7 @@ else:
       if (!!formulaTree) {
         error = syntaxErrorInFormula(formulaTree, this.storedFormulas, this.storedVariables.ids);
       }
-      this.formulaParsing.emit({node: formulaTree, error});
+      this.formulaParsing.emit({node: formulaTree, error, code: this.reactiveForm.value});
     }
   }
 

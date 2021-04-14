@@ -1,5 +1,5 @@
 <ngx-monaco-editor
   (ngModelChange)="monacoEditorChange($event)"
-  [(ngModel)]="code"
+  [formControl]="reactiveForm"
   [options]="editorOptions"
 ></ngx-monaco-editor>

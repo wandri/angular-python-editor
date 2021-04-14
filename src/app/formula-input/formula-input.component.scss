@@ -1,9 +1,11 @@
 ::ng-deep {
-  .tokens-inspect-widget {
-    font-size: 12px
-  }
+  ngx-monaco-editor {
+    .tokens-inspect-widget {
+      font-size: 12px
+    }
 
-  ngx-monaco-editor .editor-container {
-    overflow: auto !important;
+    .editor-container {
+      overflow: auto !important;
+    }
   }
 }

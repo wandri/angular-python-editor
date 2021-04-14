@@ -16,7 +16,14 @@ export class AppComponent {
   storedFormulas = editorFormulas;
   storedVariables = editorVariables;
 
-  parseFormula(formula: { node: AcornNode, error: string }) {
+  code = `if vh_age > 5 and MAX(drv_age1) > 5:
+      return 6
+elif vh_age >= 10:
+      return 10
+else:
+      return SUM(ABS(drv_age1),drv_age2)`;
+
+  parseFormula(formula: { node: AcornNode, error: string, code: string }) {
     if (formula && formula.node && !formula.error) {
       this.formula = JSON.stringify(formula.node, null, 4);
       this.error = null;
