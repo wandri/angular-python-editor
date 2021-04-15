@@ -130,6 +130,46 @@
           }
         }
       }
+    },
+    "formula-python-editor": {
+      "projectType": "library",
+      "root": "projects/formula-python-editor",
+      "sourceRoot": "projects/formula-python-editor/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "tsConfig": "projects/formula-python-editor/tsconfig.lib.json",
+            "project": "projects/formula-python-editor/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/formula-python-editor/tsconfig.lib.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/formula-python-editor/src/test.ts",
+            "tsConfig": "projects/formula-python-editor/tsconfig.spec.json",
+            "karmaConfig": "projects/formula-python-editor/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/formula-python-editor/tsconfig.lib.json",
+              "projects/formula-python-editor/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "excel-like"

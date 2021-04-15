@@ -1,6 +1,6 @@
-import { Formula } from '../../interfaces/formula';
+import { EditorFormula } from 'formula-python-editor';
 
-export const editorFormulas: Formula[] = [
+export const editorFormulas: EditorFormula[] = [
   {
     label: 'ARRAY_CONSTRAIN',
     syntaxParameter: [1, 1, 1],

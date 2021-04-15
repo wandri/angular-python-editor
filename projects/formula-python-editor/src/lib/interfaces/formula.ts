@@ -1,6 +1,6 @@
 export interface Formula {
   label: string;
-  formattedName?: string;
+  formattedLabel?: string;
   description: string;
   syntax: string;
   syntaxParameter?: number[];

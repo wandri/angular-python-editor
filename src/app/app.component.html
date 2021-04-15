@@ -1,8 +1,8 @@
 <div class="column">
-  <app-formula-input (formulaParsing)="parseFormula($event)"
-                     [code]="code"
-                     [formulas]="storedFormulas"
-                     [variables]="storedVariables"></app-formula-input>
+  <editor-formula-python (formulaParsing)="parseFormula($event)"
+                         [code]="code"
+                         [formulas]="storedFormulas"
+                         [variables]="storedVariables"></editor-formula-python>
 </div>
 <div class="column">
   <div *ngIf="formula" class="example-formula">

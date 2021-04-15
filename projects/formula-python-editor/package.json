@@ -1,0 +1,14 @@
+{
+  "name": "formula-python-editor",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": "^11.2.9",
+    "@angular/core": "^11.2.9",
+    "@materia-ui/ngx-monaco-editor": "^5.0.0",
+    "filbert": "^0.1.20",
+    "monaco-editor": "^0.23.0"
+  },
+  "dependencies": {
+    "tslib": "^2.0.0"
+  }
+}

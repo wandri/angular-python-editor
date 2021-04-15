@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { AcornNode } from './interfaces/acorn/acorn-node';
-import { editorFormulas } from './monaco/suggestions/suggestion-formulas';
-import { editorVariables } from './monaco/suggestions/suggestion-variables';
+import { AcornNode } from '../../projects/formula-python-editor/src/lib/interfaces/acorn/acorn-node';
+import { editorFormulas } from './suggestion-formulas';
+import { editorVariables } from './suggestion-variables';
 
 @Component({
   selector: 'app-root',

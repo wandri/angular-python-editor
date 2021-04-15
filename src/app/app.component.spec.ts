@@ -1,13 +1,13 @@
 import { TestBed, waitForAsync } from '@angular/core/testing';
+import { FormulaPythonEditorComponent } from 'formula-python-editor';
 import { AppComponent } from './app.component';
-import { FormulaInputComponent } from './formula-input/formula-input.component';
 
 describe('AppComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [
         AppComponent,
-        FormulaInputComponent,
+        FormulaPythonEditorComponent,
       ],
     }).compileComponents();
   }));

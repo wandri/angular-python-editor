@@ -5,6 +5,12 @@
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,
+    "paths": {
+      "formula-python-editor": [
+        "dist/formula-python-editor/formula-python-editor",
+        "dist/formula-python-editor"
+      ]
+    },
     "downlevelIteration": true,
     "experimentalDecorators": true,
     "module": "es2020",

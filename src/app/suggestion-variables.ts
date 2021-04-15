@@ -1,6 +1,6 @@
-import { Variable } from '../../interfaces/variable';
+import { EditorVariable } from 'formula-python-editor';
 
-export const editorVariables: Variable[] = [
+export const editorVariables: EditorVariable[] = [
   {
     label: 'id policy',
     id: '2'

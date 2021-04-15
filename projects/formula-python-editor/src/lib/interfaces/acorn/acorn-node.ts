@@ -1,8 +1,5 @@
 import { AcornType } from './acorn-type';
 
-export const BASIC_OPERATIONS: string[] = ['+', '-', '/', '%', '^', '*', '**'];
-export const CONDITIONAL_OPERATIONS: string[] = ['==', '===', '<=', '>=', '>', '<', '!=', '!=='];
-
 export type PotentialNode =
   IdentifierNode
   | BinaryOperationNode

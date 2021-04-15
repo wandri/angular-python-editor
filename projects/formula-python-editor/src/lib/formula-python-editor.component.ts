@@ -1,24 +1,24 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Output, SimpleChange, SimpleChanges } from '@angular/core';
-import { Formula } from '../interfaces/formula';
-import { formatAcornError, isBracketMissing, syntaxErrorInFormula } from './input-utils';
-import { Store } from '../interfaces/store';
-import { Variable } from '../interfaces/variable';
-import { DomSanitizer } from '@angular/platform-browser';
-import * as filbert from 'filbert';
-import { AcornNode } from '../interfaces/acorn/acorn-node';
+import { Formula } from './interfaces/formula';
+import { Variable } from './interfaces/variable';
+import { AcornNode } from './interfaces/acorn/acorn-node';
 import { MonacoEditorConstructionOptions } from '@materia-ui/ngx-monaco-editor/lib/interfaces';
+import { customLanguageName, customThemeName, loadCustomMonaco } from './monaco/monaco';
+import { FormControl } from '@angular/forms';
+import { Store } from './interfaces/store';
+import { DomSanitizer } from '@angular/platform-browser';
 import { MonacoEditorLoaderService } from '@materia-ui/ngx-monaco-editor';
 import { filter, take } from 'rxjs/operators';
-import { customLanguageName, customThemeName, loadCustomMonaco } from '../monaco/monaco';
-import { FormControl } from '@angular/forms';
+import * as filbert from 'filbert';
+import { FormulaPythonEditorService } from './formula-python-editor.service';
 
 @Component({
-  selector: 'app-formula-input',
-  templateUrl: './formula-input.component.html',
-  styleUrls: ['./formula-input.component.scss'],
+  selector: 'editor-formula-python',
+  templateUrl: './formula-python-editor.component.html',
+  styleUrls: ['./formula-python-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FormulaInputComponent implements OnChanges {
+export class FormulaPythonEditorComponent implements OnChanges {
   @Input() code: string;
   @Input() formulas: Formula[] = [];
   @Input() variables: Variable[] = [];
@@ -39,7 +39,7 @@ export class FormulaInputComponent implements OnChanges {
   suggestionFocusIndex = 0;
   savedCaretIndex = 0;
 
-  constructor(private sanitizer: DomSanitizer, private monacoLoaderService: MonacoEditorLoaderService) {
+  constructor(private sanitizer: DomSanitizer, private monacoLoaderService: MonacoEditorLoaderService, private formulaService: FormulaPythonEditorService) {
     this.reactiveForm = new FormControl('');
   }
 
@@ -79,17 +79,16 @@ export class FormulaInputComponent implements OnChanges {
       formulaTree = filbert.parse(textInsideFunction, {ecmaVersion: 2021}) as AcornNode;
     } catch (e: unknown) {
       error = `${e}`;
-      if (isBracketMissing(innerText)) {
+      if (this.formulaService.isBracketMissing(innerText)) {
         error = 'A bracket is missing';
       } else {
-        error = formatAcornError(error);
+        error = this.formulaService.formatAcornError(error);
       }
     } finally {
       if (!!formulaTree) {
-        error = syntaxErrorInFormula(formulaTree, this.storedFormulas, this.storedVariables.ids);
+        error = this.formulaService.syntaxErrorInFormula(formulaTree, this.storedFormulas, this.storedVariables.ids);
       }
       this.formulaParsing.emit({node: formulaTree, error, code: this.reactiveForm.value});
     }
   }
-
 }

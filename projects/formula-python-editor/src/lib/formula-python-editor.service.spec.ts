@@ -1,7 +1,8 @@
-import { TestBed, waitForAsync } from '@angular/core/testing';
-import { formatAcornError, isBracketMissing, syntaxErrorInFormula } from './input-utils';
-import { Store } from '../interfaces/store';
-import { Formula } from '../interfaces/formula';
+import { TestBed } from '@angular/core/testing';
+
+import { FormulaPythonEditorService } from './formula-python-editor.service';
+import { Store } from './interfaces/store';
+import { Formula } from './interfaces/formula';
 import {
   AcornNode,
   BinaryOperationNode,
@@ -9,17 +10,22 @@ import {
   IdentifierNode,
   PotentialNode,
   StringOrNumberNode
-} from '../interfaces/acorn/acorn-node';
-import { AcornType } from '../interfaces/acorn/acorn-type';
+} from './interfaces/acorn/acorn-node';
+import { AcornType } from './interfaces/acorn/acorn-type';
 
-describe('inputUtils', () => {
+describe('FormulaPythonEditorService', () => {
+  let service: FormulaPythonEditorService;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({})
-      .compileComponents();
-  }));
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(FormulaPythonEditorService);
+  });
 
-  describe(`Check full formula syntax - function "${syntaxErrorInFormula.name}"`, () => {
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+
+  describe(`Check full formula syntax - function "syntaxErrorInFormula"`, () => {
     const existingFormulaNameWithInfiniteArguments = 'OPERATION_WITH_INFINITE';
     const existingFormulaNameWith2Arguments = 'OPERATION_WITH_FIX';
     const existingFormulaNameWithOptionalArguments = 'OPERATION_WITH_OPTIONAL';
@@ -86,7 +92,7 @@ describe('inputUtils', () => {
             type: AcornType.Identifier,
           }
         };
-        expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+        expect(service.syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
           .toEqual(`The formula "${notExistingFunctionName}" doesn't exit`);
       });
 
@@ -99,7 +105,7 @@ describe('inputUtils', () => {
             type: AcornType.Identifier,
           }
         };
-        expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+        expect(service.syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
           .toBeUndefined();
       });
 
@@ -113,7 +119,7 @@ describe('inputUtils', () => {
               type: AcornType.Identifier,
             }
           };
-          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+          expect(service.syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
             .toEqual(`The formula "${existingFormulaNameWith2Arguments}" has missing arguments`);
         });
         it('should send an error when arguments are missing 2', () => {
@@ -125,7 +131,7 @@ describe('inputUtils', () => {
               type: AcornType.Identifier,
             }
           };
-          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+          expect(service.syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
             .toEqual(`The formula "${existingFormulaNameWith2Arguments}" has missing arguments`);
         });
 
@@ -138,7 +144,7 @@ describe('inputUtils', () => {
               type: AcornType.Identifier,
             }
           };
-          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+          expect(service.syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
             .toEqual(`The formula "${existingFormulaNameWith2Arguments}" has too many arguments`);
         });
 
@@ -151,7 +157,7 @@ describe('inputUtils', () => {
               type: AcornType.Identifier,
             }
           };
-          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+          expect(service.syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
             .toBeUndefined();
         });
       });
@@ -166,7 +172,7 @@ describe('inputUtils', () => {
               type: AcornType.Identifier,
             }
           };
-          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+          expect(service.syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
             .toBeUndefined();
         });
         it('should send no error when the arguments are infinite with one infinite argument', () => {
@@ -178,7 +184,7 @@ describe('inputUtils', () => {
               type: AcornType.Identifier,
             }
           };
-          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+          expect(service.syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
             .toBeUndefined();
         });
         it('should send no error when the arguments are infinite with two infinite arguments', () => {
@@ -190,7 +196,7 @@ describe('inputUtils', () => {
               type: AcornType.Identifier,
             }
           };
-          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+          expect(service.syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
             .toBeUndefined();
         });
       });
@@ -205,7 +211,7 @@ describe('inputUtils', () => {
               type: AcornType.Identifier,
             }
           };
-          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+          expect(service.syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
             .toBeUndefined();
         });
         it('should send no error when the arguments are optional with one optional argument', () => {
@@ -217,7 +223,7 @@ describe('inputUtils', () => {
               type: AcornType.Identifier,
             }
           };
-          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+          expect(service.syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
             .toBeUndefined();
         });
       });
@@ -232,7 +238,7 @@ describe('inputUtils', () => {
               type: AcornType.Identifier,
             }
           };
-          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+          expect(service.syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
             .toBeUndefined();
         });
         it('should send no error when the arguments are complex 2', () => {
@@ -244,7 +250,7 @@ describe('inputUtils', () => {
               type: AcornType.Identifier,
             }
           };
-          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+          expect(service.syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
             .toBeUndefined();
         });
         it('should send an error when arguments are missing 1', () => {
@@ -256,7 +262,7 @@ describe('inputUtils', () => {
               type: AcornType.Identifier,
             }
           };
-          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+          expect(service.syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
             .toEqual(`The formula "${existingFormulaNameWithComplexArguments}" has missing arguments`);
         });
       });
@@ -271,7 +277,7 @@ describe('inputUtils', () => {
               type: AcornType.Identifier,
             }
           };
-          expect(syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
+          expect(service.syntaxErrorInFormula(initializeNode(functionNode), formulas, []))
             .toBeUndefined();
         });
       });
@@ -292,7 +298,7 @@ describe('inputUtils', () => {
             name: existingVariableName,
           }
         };
-        expect(syntaxErrorInFormula(initializeNode(variableNode), formulas, [existingVariableName]))
+        expect(service.syntaxErrorInFormula(initializeNode(variableNode), formulas, [existingVariableName]))
           .toBeNull();
       });
 
@@ -309,7 +315,7 @@ describe('inputUtils', () => {
             name: notExistingVariableName,
           }
         };
-        expect(syntaxErrorInFormula(initializeNode(variableNode), formulas, [existingVariableName]))
+        expect(service.syntaxErrorInFormula(initializeNode(variableNode), formulas, [existingVariableName]))
           .toEqual(`The variable "${notExistingVariableName}" doesn't exit`);
       });
 
@@ -326,7 +332,7 @@ describe('inputUtils', () => {
             name: existingVariableName,
           }
         };
-        expect(syntaxErrorInFormula(initializeNode(variableNode), formulas, [existingVariableName]))
+        expect(service.syntaxErrorInFormula(initializeNode(variableNode), formulas, [existingVariableName]))
           .toEqual(`The variable "${notExistingVariableName}" doesn't exit`);
       });
     });
@@ -338,7 +344,7 @@ describe('inputUtils', () => {
           type: AcornType.Identifier,
           name: notExistingVariableName,
         };
-        expect(syntaxErrorInFormula(initializeNode(variableNode), formulas, [existingVariableName]))
+        expect(service.syntaxErrorInFormula(initializeNode(variableNode), formulas, [existingVariableName]))
           .toEqual(`The variable "${notExistingVariableName}" doesn't exit`);
       });
 
@@ -347,7 +353,7 @@ describe('inputUtils', () => {
           type: AcornType.Identifier,
           name: existingVariableName,
         };
-        expect(syntaxErrorInFormula(initializeNode(variableNode), formulas, [existingVariableName]))
+        expect(service.syntaxErrorInFormula(initializeNode(variableNode), formulas, [existingVariableName]))
           .toBeNull();
       });
     });
@@ -368,41 +374,41 @@ describe('inputUtils', () => {
     }
   });
 
-  describe(`reformat AcornJs error - function "${formatAcornError.name}"`, () => {
+  describe(`reformat AcornJs error - function "formatAcornError"`, () => {
     it('it should reformat acorn with Unexpected character', () => {
-      const error = formatAcornError(`SyntaxError: Unexpected character '§' (1:3)`);
+      const error = service.formatAcornError(`SyntaxError: Unexpected character '§' (1:3)`);
       expect(error).toEqual(`Unexpected character '§' `);
     });
   });
 
-  describe(`Check Closing bracket - function "${isBracketMissing.name}"`, () => {
+  describe(`Check Closing bracket - function "isBracketMissing"`, () => {
     it('it should find no missing bracket 1', () => {
-      const isMissing = isBracketMissing(`(this is (an example))`);
+      const isMissing = service.isBracketMissing(`(this is (an example))`);
       expect(isMissing).toEqual(false);
     });
 
     it('it should find no missing bracket 2', () => {
-      const isMissing = isBracketMissing(`"a" + "(test"`);
+      const isMissing = service.isBracketMissing(`"a" + "(test"`);
       expect(isMissing).toEqual(false);
     });
 
     it('it should find no missing bracket 3', () => {
-      const isMissing = isBracketMissing(`"a" + '(test'`);
+      const isMissing = service.isBracketMissing(`"a" + '(test'`);
       expect(isMissing).toEqual(false);
     });
 
     it('it should find missing bracket 1', () => {
-      const isMissing = isBracketMissing(`(this is (an example)`);
+      const isMissing = service.isBracketMissing(`(this is (an example)`);
       expect(isMissing).toEqual(true);
     });
 
     it('it should find missing bracket 2', () => {
-      const isMissing = isBracketMissing(`this is (an example))`);
+      const isMissing = service.isBracketMissing(`this is (an example))`);
       expect(isMissing).toEqual(true);
     });
 
     it('it should find missing bracket 3', () => {
-      const isMissing = isBracketMissing(`))this is an example((`);
+      const isMissing = service.isBracketMissing(`))this is an example((`);
       expect(isMissing).toEqual(true);
     });
   });
